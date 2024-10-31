@@ -1,0 +1,28 @@
+import { Component } from '@angular/core';
+import * as i0 from "@angular/core";
+import * as i1 from "./ffsj-alert.service";
+export class FfsjAlertComponent {
+    constructor(ffsjAlertService) {
+        this.ffsjAlertService = ffsjAlertService;
+    }
+    ngOnInit() {
+        this.subscription = this.ffsjAlertService.alert$.subscribe(alert => {
+            this.message = alert.message;
+            this.type = alert.type;
+            setTimeout(() => this.closeAlert(), alert.duration);
+        });
+    }
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
+    }
+    closeAlert() {
+        this.message = null;
+    }
+    static { this.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "17.3.11", ngImport: i0, type: FfsjAlertComponent, deps: [{ token: i1.FfsjAlertService }], target: i0.ɵɵFactoryTarget.Component }); }
+    static { this.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "17.0.0", version: "17.3.11", type: FfsjAlertComponent, isStandalone: true, selector: "lib-ffsj-alert", ngImport: i0, template: "@if (message) {\r\n    <div class=\"alert alert-{{type}}\" role=\"alert\">\r\n        {{message}}\r\n        <button type=\"button\" class=\"close\" (click)=\"closeAlert()\">\r\n          <span aria-hidden=\"true\">&times;</span>\r\n        </button>\r\n    </div>\r\n}", styles: [".alert{display:flex;align-items:center;justify-content:space-between;position:absolute;top:0;right:0;padding:10px}.close{font-size:1.5rem;font-weight:700;background:transparent;border:0}.close:hover{color:#000;text-decoration:none}.close:not(:disabled):not(.disabled):hover,.close:not(:disabled):not(.disabled):focus{opacity:.75}\n"] }); }
+}
+i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.11", ngImport: i0, type: FfsjAlertComponent, decorators: [{
+            type: Component,
+            args: [{ selector: 'lib-ffsj-alert', standalone: true, imports: [], template: "@if (message) {\r\n    <div class=\"alert alert-{{type}}\" role=\"alert\">\r\n        {{message}}\r\n        <button type=\"button\" class=\"close\" (click)=\"closeAlert()\">\r\n          <span aria-hidden=\"true\">&times;</span>\r\n        </button>\r\n    </div>\r\n}", styles: [".alert{display:flex;align-items:center;justify-content:space-between;position:absolute;top:0;right:0;padding:10px}.close{font-size:1.5rem;font-weight:700;background:transparent;border:0}.close:hover{color:#000;text-decoration:none}.close:not(:disabled):not(.disabled):hover,.close:not(:disabled):not(.disabled):focus{opacity:.75}\n"] }]
+        }], ctorParameters: () => [{ type: i1.FfsjAlertService }] });
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZmZzai1hbGVydC5jb21wb25lbnQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi8uLi8uLi9wcm9qZWN0cy9mZnNqLXdlYi1jb21wb25lbnRzL3NyYy9saWIvZmZzai1hbGVydC9mZnNqLWFsZXJ0LmNvbXBvbmVudC50cyIsIi4uLy4uLy4uLy4uLy4uL3Byb2plY3RzL2Zmc2otd2ViLWNvbXBvbmVudHMvc3JjL2xpYi9mZnNqLWFsZXJ0L2Zmc2otYWxlcnQuY29tcG9uZW50Lmh0bWwiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsT0FBTyxFQUFFLFNBQVMsRUFBRSxNQUFNLGVBQWUsQ0FBQzs7O0FBWTFDLE1BQU0sT0FBTyxrQkFBa0I7SUFLN0IsWUFBb0IsZ0JBQWtDO1FBQWxDLHFCQUFnQixHQUFoQixnQkFBZ0IsQ0FBa0I7SUFBSSxDQUFDO0lBRTNELFFBQVE7UUFDTixJQUFJLENBQUMsWUFBWSxHQUFHLElBQUksQ0FBQyxnQkFBZ0IsQ0FBQyxNQUFNLENBQUMsU0FBUyxDQUFDLEtBQUssQ0FBQyxFQUFFO1lBQ2pFLElBQUksQ0FBQyxPQUFPLEdBQUcsS0FBSyxDQUFDLE9BQU8sQ0FBQztZQUM3QixJQUFJLENBQUMsSUFBSSxHQUFHLEtBQUssQ0FBQyxJQUFJLENBQUM7WUFDdkIsVUFBVSxDQUFDLEdBQUcsRUFBRSxDQUFDLElBQUksQ0FBQyxVQUFVLEVBQUUsRUFBRSxLQUFLLENBQUMsUUFBUSxDQUFDLENBQUM7UUFDdEQsQ0FBQyxDQUFDLENBQUM7SUFDTCxDQUFDO0lBRUQsV0FBVztRQUNULElBQUksQ0FBQyxZQUFZLENBQUMsV0FBVyxFQUFFLENBQUM7SUFDbEMsQ0FBQztJQUVELFVBQVU7UUFDUixJQUFJLENBQUMsT0FBTyxHQUFHLElBQUksQ0FBQztJQUN0QixDQUFDOytHQXJCVSxrQkFBa0I7bUdBQWxCLGtCQUFrQiwwRUNaL0IsK1FBT0M7OzRGREtZLGtCQUFrQjtrQkFQOUIsU0FBUzsrQkFDRSxnQkFBZ0IsY0FDZCxJQUFJLFdBQ1AsRUFBRSIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IENvbXBvbmVudCB9IGZyb20gJ0Bhbmd1bGFyL2NvcmUnO1xyXG5pbXBvcnQgeyBTdWJzY3JpcHRpb24gfSBmcm9tICdyeGpzJztcclxuaW1wb3J0IHsgQWxlcnRUeXBlIH0gZnJvbSAnLi9hbGVydFR5cGUuZW51bSc7XHJcbmltcG9ydCB7IEZmc2pBbGVydFNlcnZpY2UgfSBmcm9tICcuL2Zmc2otYWxlcnQuc2VydmljZSc7XHJcblxyXG5AQ29tcG9uZW50KHtcclxuICBzZWxlY3RvcjogJ2xpYi1mZnNqLWFsZXJ0JyxcclxuICBzdGFuZGFsb25lOiB0cnVlLFxyXG4gIGltcG9ydHM6IFtdLFxyXG4gIHRlbXBsYXRlVXJsOiAnLi9mZnNqLWFsZXJ0LmNvbXBvbmVudC5odG1sJyxcclxuICBzdHlsZVVybDogJy4vZmZzai1hbGVydC5jb21wb25lbnQuc2NzcydcclxufSlcclxuZXhwb3J0IGNsYXNzIEZmc2pBbGVydENvbXBvbmVudCB7XHJcbiAgcHVibGljIG1lc3NhZ2UhOiBzdHJpbmcgfCBudWxsO1xyXG4gIHB1YmxpYyB0eXBlITogQWxlcnRUeXBlO1xyXG4gIHB1YmxpYyBzdWJzY3JpcHRpb24hOiBTdWJzY3JpcHRpb247XHJcblxyXG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgZmZzakFsZXJ0U2VydmljZTogRmZzakFsZXJ0U2VydmljZSkgeyB9XHJcblxyXG4gIG5nT25Jbml0KCkge1xyXG4gICAgdGhpcy5zdWJzY3JpcHRpb24gPSB0aGlzLmZmc2pBbGVydFNlcnZpY2UuYWxlcnQkLnN1YnNjcmliZShhbGVydCA9PiB7XHJcbiAgICAgIHRoaXMubWVzc2FnZSA9IGFsZXJ0Lm1lc3NhZ2U7XHJcbiAgICAgIHRoaXMudHlwZSA9IGFsZXJ0LnR5cGU7XHJcbiAgICAgIHNldFRpbWVvdXQoKCkgPT4gdGhpcy5jbG9zZUFsZXJ0KCksIGFsZXJ0LmR1cmF0aW9uKTtcclxuICAgIH0pO1xyXG4gIH1cclxuXHJcbiAgbmdPbkRlc3Ryb3koKSB7XHJcbiAgICB0aGlzLnN1YnNjcmlwdGlvbi51bnN1YnNjcmliZSgpO1xyXG4gIH1cclxuXHJcbiAgY2xvc2VBbGVydCgpIHtcclxuICAgIHRoaXMubWVzc2FnZSA9IG51bGw7XHJcbiAgfVxyXG59XHJcbiIsIkBpZiAobWVzc2FnZSkge1xyXG4gICAgPGRpdiBjbGFzcz1cImFsZXJ0IGFsZXJ0LXt7dHlwZX19XCIgcm9sZT1cImFsZXJ0XCI+XHJcbiAgICAgICAge3ttZXNzYWdlfX1cclxuICAgICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzcz1cImNsb3NlXCIgKGNsaWNrKT1cImNsb3NlQWxlcnQoKVwiPlxyXG4gICAgICAgICAgPHNwYW4gYXJpYS1oaWRkZW49XCJ0cnVlXCI+JnRpbWVzOzwvc3Bhbj5cclxuICAgICAgICA8L2J1dHRvbj5cclxuICAgIDwvZGl2PlxyXG59Il19
