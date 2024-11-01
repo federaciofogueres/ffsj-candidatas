@@ -2,3 +2,23 @@
     overflow: auto;
     height: calc(100vh - 105px);
 }
+
+.steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.steps div {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.steps .active {
+    background-color: #007bff;
+    color: white;
+}

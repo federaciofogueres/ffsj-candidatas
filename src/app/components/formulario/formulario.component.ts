@@ -42,6 +42,7 @@ export class FormularioComponent implements OnInit {
   candidataForm!: FormGroup;
 
   dniTouched = false;
+  currentStep = 1;
 
   constructor(
     private censoService: CensoService,
@@ -140,6 +141,18 @@ export class FormularioComponent implements OnInit {
     };
     console.log(candidata, this.candidataForm.value);
 
+  }
+
+  nextStep() {
+    if (this.currentStep < 3) {
+      this.currentStep++;
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
   }
 
 }
