@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CandidataData } from '../../model/candidata-data.model';
 
 @Component({
   selector: 'app-formulario',
@@ -23,7 +24,6 @@ export class FormularioComponent {
   ]
 
   candidataForm: FormGroup = this.fb.group({
-    id: ['', [Validators.required]],
     dni: ['', [Validators.required, this.dniValidator]],
     nombre: ['', [Validators.required]],
     fechaNacimiento: ['', [Validators.required]],
@@ -31,7 +31,6 @@ export class FormularioComponent {
     situacionLaboral: ['', [Validators.required]],
     curriculum: ['', [Validators.required]],
     anyosFiesta: ['', [Validators.required]],
-    edad: ['', [Validators.required]],
     ciudad: ['', [Validators.required]],
     email: ['', [Validators.required]],
     telefono: ['', [Validators.required]],
@@ -58,8 +57,40 @@ export class FormularioComponent {
     return expectedLetter === letter.toUpperCase() ? null : { 'invalidDni': true };
   }
 
+  calcularEdad(fechaNacimiento: string): number {
+    const today = new Date();
+    const birthDate = new Date(fechaNacimiento);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
   procesar() {
-    console.log(this.candidataForm.value);
+    const candidata: CandidataData = {
+      id: this.candidataForm.get('id')?.value || '',
+      dni: this.candidataForm.get('dni')?.value || '',
+      nombre: this.candidataForm.get('nombre')?.value || '',
+      fechaNacimiento: this.candidataForm.get('fechaNacimiento')?.value || '',
+      formacion: this.candidataForm.get('formacion')?.value || '',
+      situacionLaboral: this.candidataForm.get('situacionLaboral')?.value || '',
+      curriculum: this.candidataForm.get('curriculum')?.value || '',
+      anyosFiesta: this.candidataForm.get('anyosFiesta')?.value || '',
+      edad: this.calcularEdad(this.candidataForm.get('fechaNacimiento')?.value).toString() || '',
+      ciudad: this.candidataForm.get('ciudad')?.value || '',
+      email: this.candidataForm.get('email')?.value || '',
+      telefono: this.candidataForm.get('telefono')?.value || '',
+      observaciones: this.candidataForm.get('observaciones')?.value || '',
+      asociacion: this.candidataForm.get('asociacion')?.value || '',
+      fotoCalle: this.candidataForm.get('fotoCalle')?.value || '',
+      fotoFiesta: this.candidataForm.get('fotoFiesta')?.value || '',
+      cesionDerechos: this.candidataForm.get('cesionDerechos')?.value || '',
+      compromisoDisponibilidad: this.candidataForm.get('compromisoDisponibilidad')?.value || ''
+    };
+    console.log(candidata);
+
   }
 
 }
