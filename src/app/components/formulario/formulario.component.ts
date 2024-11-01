@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CandidataData } from '../../model/candidata-data.model';
+import { CandidataService } from '../../services/candidatas.service';
+import { CensoService } from '../../services/censo.service';
+import { Asociado } from '../../services/external-api/asociado';
 
 @Component({
   selector: 'app-formulario',
@@ -10,39 +14,84 @@ import { CandidataData } from '../../model/candidata-data.model';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    FfsjSpinnerComponent
   ],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.scss'
 })
-export class FormularioComponent {
+export class FormularioComponent implements OnInit {
+
+  loading: boolean = false;
+
+  asociadoLogged: Asociado = {
+    id: 0,
+    nif: '',
+    nombre: '',
+    apellidos: '',
+    telefono: '',
+    email: ''
+  }
 
   asociaciones: any[] = [
-    {id: 1, label: 'Prueba 1'},
-    {id: 2, label: 'Prueba 2'},
-    {id: 3, label: 'Prueba 3'},
-    {id: 4, label: 'Prueba 4'},
+    { id: 1, label: 'Prueba 1' },
+    { id: 2, label: 'Prueba 2' },
+    { id: 3, label: 'Prueba 3' },
+    { id: 4, label: 'Prueba 4' },
   ]
 
-  candidataForm: FormGroup = this.fb.group({
-    dni: ['', [Validators.required, this.dniValidator]],
-    nombre: ['', [Validators.required]],
-    fechaNacimiento: ['', [Validators.required]],
-    formacion: ['', [Validators.required]],
-    situacionLaboral: ['', [Validators.required]],
-    curriculum: ['', [Validators.required]],
-    anyosFiesta: ['', [Validators.required]],
-    ciudad: ['', [Validators.required]],
-    email: ['', [Validators.required]],
-    telefono: ['', [Validators.required]],
-    observaciones: ['', [Validators.required]],
-    asociacion: ['', [Validators.required]],
-  });
+  candidataForm!: FormGroup;
 
   dniTouched = false;
 
   constructor(
+    private censoService: CensoService,
     private fb: FormBuilder,
-  ) {}
+    private candidataService: CandidataService
+  ) { }
+
+  async ngOnInit() {
+    this.loading = true;
+    try {
+      await this.loadAsociadoData();
+      this.loadAsociadoDataOnForm(this.asociadoLogged);
+    } catch (error) {
+      console.error('Error loading asociado data:', error);
+    }
+    this.loading = false;
+  }
+
+  loadAsociadoData(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.censoService.asociadosGetById(this.candidataService.getIdUsuario()).subscribe({
+        next: (response: any) => {
+          if (response.status.status === 200) {
+            this.asociadoLogged = response.asociados[0];
+            resolve();
+          } else {
+            reject('Error: Status not 200');
+          }
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  loadAsociadoDataOnForm(asociadoData?: Asociado) {
+    this.candidataForm = this.fb.group({
+      dni: [asociadoData?.nif || '', [Validators.required, this.dniValidator]],
+      nombre: [`${asociadoData?.nombre || ''} ${asociadoData?.apellidos || ''}`, [Validators.required]],
+      fechaNacimiento: [asociadoData?.['fecha_nacimiento'] || '', [Validators.required]],
+      formacion: ['', [Validators.required]],
+      situacionLaboral: ['', [Validators.required]],
+      curriculum: ['', [Validators.required]],
+      anyosFiesta: ['', [Validators.required]],
+      ciudad: [asociadoData?.direccion?.split(',')[0] || '', [Validators.required]],
+      email: [asociadoData?.email || '', [Validators.required]],
+      telefono: [asociadoData?.telefono || '', [Validators.required]],
+      observaciones: ['', [Validators.required]],
+      asociacion: ['', [Validators.required]],
+    });
+  }
 
   dniValidator(control: AbstractControl): { [key: string]: any } | null {
     const dni = control.value;
@@ -70,7 +119,7 @@ export class FormularioComponent {
 
   procesar() {
     const candidata: CandidataData = {
-      id: this.candidataForm.get('id')?.value || '',
+      id: this.asociadoLogged.id.toString() || '',
       dni: this.candidataForm.get('dni')?.value || '',
       nombre: this.candidataForm.get('nombre')?.value || '',
       fechaNacimiento: this.candidataForm.get('fechaNacimiento')?.value || '',
@@ -84,12 +133,12 @@ export class FormularioComponent {
       telefono: this.candidataForm.get('telefono')?.value || '',
       observaciones: this.candidataForm.get('observaciones')?.value || '',
       asociacion: this.candidataForm.get('asociacion')?.value || '',
-      fotoCalle: this.candidataForm.get('fotoCalle')?.value || '',
-      fotoFiesta: this.candidataForm.get('fotoFiesta')?.value || '',
-      cesionDerechos: this.candidataForm.get('cesionDerechos')?.value || '',
-      compromisoDisponibilidad: this.candidataForm.get('compromisoDisponibilidad')?.value || ''
+      fotoCalle: '',
+      fotoFiesta: '',
+      cesionDerechos: '',
+      compromisoDisponibilidad: ''
     };
-    console.log(candidata);
+    console.log(candidata, this.candidataForm.value);
 
   }
 
