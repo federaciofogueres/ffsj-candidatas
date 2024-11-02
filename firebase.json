@@ -4,7 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": "public",
+    "public": "dist/ffsj-candidatas/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
