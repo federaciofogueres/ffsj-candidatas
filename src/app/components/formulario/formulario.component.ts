@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatStepperModule } from '@angular/material/stepper';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CandidataData } from '../../model/candidata-data.model';
 import { CandidataService } from '../../services/candidatas.service';
@@ -14,12 +18,17 @@ import { Asociado } from '../../services/external-api/asociado';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FfsjSpinnerComponent
+    FfsjSpinnerComponent,
+    MatStepperModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.scss'
 })
 export class FormularioComponent implements OnInit {
+  FormGroup = FormGroup;
 
   loading: boolean = false;
 
@@ -44,11 +53,34 @@ export class FormularioComponent implements OnInit {
   dniTouched = false;
   currentStep = 1;
 
+  personalInfo = this.fb.group({
+    dni: ['', [Validators.required, this.dniValidator]],
+    nombre: ['', Validators.required],
+    fechaNacimiento: ['', Validators.required],
+    ciudad: ['', Validators.required],
+    telefono: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]]
+  });
+
+  fogueresInfo = this.fb.group({
+    asociacion: ['', Validators.required],
+    anyosFiesta: ['', Validators.required],
+    curriculum: ['', Validators.required]
+  });
+
+  academicInfo = this.fb.group({
+    formacion: ['', Validators.required],
+    situacionLaboral: ['', Validators.required],
+    observaciones: ['', Validators.required]
+  });
+
   constructor(
     private censoService: CensoService,
     private fb: FormBuilder,
     private candidataService: CandidataService
-  ) { }
+  ) {
+
+  }
 
   async ngOnInit() {
     this.loading = true;
@@ -78,20 +110,28 @@ export class FormularioComponent implements OnInit {
   }
 
   loadAsociadoDataOnForm(asociadoData?: Asociado) {
-    this.candidataForm = this.fb.group({
-      dni: [asociadoData?.nif || '', [Validators.required, this.dniValidator]],
-      nombre: [`${asociadoData?.nombre || ''} ${asociadoData?.apellidos || ''}`, [Validators.required]],
-      fechaNacimiento: [asociadoData?.['fecha_nacimiento'] || '', [Validators.required]],
-      formacion: ['', [Validators.required]],
-      situacionLaboral: ['', [Validators.required]],
-      curriculum: ['', [Validators.required]],
-      anyosFiesta: ['', [Validators.required]],
-      ciudad: [asociadoData?.direccion?.split(',')[0] || '', [Validators.required]],
-      email: [asociadoData?.email || '', [Validators.required]],
-      telefono: [asociadoData?.telefono || '', [Validators.required]],
-      observaciones: ['', [Validators.required]],
-      asociacion: ['', [Validators.required]],
+
+    this.personalInfo.patchValue({
+      dni: asociadoData?.nif || '',
+      nombre: asociadoData?.nombre || '',
+      fechaNacimiento: asociadoData?.['fecha_nacimiento'] || '',
+      ciudad: asociadoData?.direccion?.split(',')[0] || '',
+      telefono: asociadoData?.telefono || '',
+      email: asociadoData?.email || ''
     });
+
+    this.fogueresInfo.patchValue({
+      asociacion: '',
+      anyosFiesta: '',
+      curriculum: ''
+    });
+
+    this.academicInfo.patchValue({
+      formacion: '',
+      situacionLaboral: '',
+      observaciones: ''
+    });
+
   }
 
   dniValidator(control: AbstractControl): { [key: string]: any } | null {
@@ -121,19 +161,22 @@ export class FormularioComponent implements OnInit {
   procesar() {
     const candidata: CandidataData = {
       id: this.asociadoLogged.id.toString() || '',
-      dni: this.candidataForm.get('dni')?.value || '',
-      nombre: this.candidataForm.get('nombre')?.value || '',
-      fechaNacimiento: this.candidataForm.get('fechaNacimiento')?.value || '',
-      formacion: this.candidataForm.get('formacion')?.value || '',
-      situacionLaboral: this.candidataForm.get('situacionLaboral')?.value || '',
-      curriculum: this.candidataForm.get('curriculum')?.value || '',
-      anyosFiesta: this.candidataForm.get('anyosFiesta')?.value || '',
-      edad: this.calcularEdad(this.candidataForm.get('fechaNacimiento')?.value).toString() || '',
-      ciudad: this.candidataForm.get('ciudad')?.value || '',
-      email: this.candidataForm.get('email')?.value || '',
-      telefono: this.candidataForm.get('telefono')?.value || '',
-      observaciones: this.candidataForm.get('observaciones')?.value || '',
-      asociacion: this.candidataForm.get('asociacion')?.value || '',
+      dni: this.personalInfo.get('dni')?.value || '',
+      nombre: this.personalInfo.get('nombre')?.value || '',
+      fechaNacimiento: this.personalInfo.get('fechaNacimiento')?.value || '',
+      ciudad: this.personalInfo.get('ciudad')?.value || '',
+      email: this.personalInfo.get('email')?.value || '',
+      telefono: this.personalInfo.get('telefono')?.value || '',
+
+      curriculum: this.fogueresInfo.get('curriculum')?.value || '',
+      anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
+      asociacion: this.fogueresInfo.get('asociacion')?.value || '',
+
+      formacion: this.academicInfo.get('formacion')?.value || '',
+      situacionLaboral: this.academicInfo.get('situacionLaboral')?.value || '',
+      observaciones: this.academicInfo.get('observaciones')?.value || '',
+
+      edad: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '',
       fotoCalle: '',
       fotoFiesta: '',
       cesionDerechos: '',

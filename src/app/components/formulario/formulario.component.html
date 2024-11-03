@@ -1,66 +1,43 @@
 @if (loading) {
 <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
 } @else {
-<div class="container">
-    <div class="formulario">
-        <!-- Control de pasos -->
-        <div class="steps">
-            <div [ngClass]="{'active': currentStep === 1}">Paso 1: Datos personales</div>
-            <div [ngClass]="{'active': currentStep === 2}">Paso 2: Datos de la fiesta</div>
-            <div [ngClass]="{'active': currentStep === 3}">Paso 3: Formación e información adicional</div>
-        </div>
-
-        <form [formGroup]="candidataForm">
-            @if (currentStep === 1) {
+<mat-stepper orientation="vertical" [linear]="false" #stepper>
+    <mat-step [stepControl]="personalInfo">
+        <form [formGroup]="personalInfo">
+            <ng-template matStepLabel>Datos personales</ng-template>
             <div class="form-group mb-3">
-                <label for="lema" class="text-naranja">DNI/NIF</label>
-                <input type="text" id="lema" class="form-control" formControlName="dni" (blur)="dniTouched = true"
-                    required [ngClass]="{'is-invalid': candidataForm.controls['dni'].errors && dniTouched}">
-                @if (candidataForm.controls['dni'].errors && dniTouched) {
-                @if (candidataForm.controls['dni'].errors['required']) {
-                <div>
-                    <span class="invalid-field">
-                        DNI/NIF es requerido.
-                    </span>
-                </div>
-                }
-                @if (candidataForm.controls['dni'].errors['invalidDni']) {
-                <div>
-                    <span class="invalid-field">
-                        El formato del DNI/NIF es incorrecto.
-                    </span>
-                </div>
-                }
-                }
+                <label for="dni" class="text-naranja">DNI/NIF</label>
+                <input type="text" id="dni" class="form-control" formControlName="dni" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="nombre" class="text-naranja">Nombre completo</label>
                 <input type="text" id="nombre" class="form-control" formControlName="nombre" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
                 <input type="date" id="fechaNacimiento" class="form-control" formControlName="fechaNacimiento" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="ciudad" class="text-naranja">Ciudad</label>
                 <input type="text" id="ciudad" class="form-control" formControlName="ciudad" required>
             </div>
-
-            <div class="form-group mb-3">
-                <label for="email" class="text-naranja">Email</label>
-                <input type="email" id="email" class="form-control" formControlName="email" required>
-            </div>
-
             <div class="form-group mb-3">
                 <label for="telefono" class="text-naranja">Teléfono</label>
                 <input type="text" id="telefono" class="form-control" formControlName="telefono" required>
             </div>
-            }
+            <div class="form-group mb-3">
+                <label for="email" class="text-naranja">Email</label>
+                <input type="email" id="email" class="form-control" formControlName="email" required>
+            </div>
+            <!-- <div>
+                <button mat-button matStepperNext>Siguiente</button>
+            </div> -->
+        </form>
+    </mat-step>
 
-            @if (currentStep === 2) {
+    <mat-step [stepControl]="fogueresInfo">
+        <form [formGroup]="fogueresInfo">
+            <ng-template matStepLabel>Datos de la fiesta</ng-template>
             <div class="form-group mb-3">
                 <label for="asociacion" class="text-naranja">Asociación</label>
                 <select id="asociacion" class="form-control" formControlName="asociacion" required>
@@ -68,48 +45,43 @@
                     </option>
                 </select>
             </div>
-
             <div class="form-group mb-3">
                 <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
                 <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="curriculum" class="text-naranja">Curriculum festero</label>
                 <input type="text" id="curriculum" class="form-control" formControlName="curriculum" required>
             </div>
-            }
+            <!-- <div>
+                <button mat-button matStepperPrevious>Anterior</button>
+                <button mat-button matStepperNext>Siguiente</button>
+            </div> -->
+        </form>
+    </mat-step>
 
-            @if (currentStep === 3) {
+    <mat-step [stepControl]="academicInfo">
+        <form [formGroup]="academicInfo">
+            <ng-template matStepLabel>Formación e información adicional</ng-template>
             <div class="form-group mb-3">
                 <label for="formacion" class="text-naranja">Formación</label>
                 <input type="text" id="formacion" class="form-control" formControlName="formacion" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
                 <input type="text" id="situacionLaboral" class="form-control" formControlName="situacionLaboral"
                     required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="observaciones" class="text-naranja">Observaciones</label>
                 <textarea id="observaciones" class="form-control" formControlName="observaciones" required></textarea>
             </div>
-            }
-
+            <div>
+                <!-- <button mat-button matStepperPrevious>Anterior</button> -->
+                <button mat-button type="submit"
+                    [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
+            </div>
         </form>
-        <div class="d-flex justify-content-between my-3 w-100">
-            <button type="button" class="btn btn-secondary" (click)="prevStep()"
-                [disabled]="currentStep === 1">Anterior</button>
-            <button type="submit" class="btn btn-primary" (click)="procesar()"
-                [disabled]="currentStep !== 3 || candidataForm.invalid">Enviar</button>
-            <button type="button" class="btn btn-secondary" (click)="nextStep()"
-                [disabled]="currentStep === 3">Siguiente</button>
-            <!-- <button type="submit" class="btn btn-primary btn-foc-naranja px-4 my-2 my-lg-0"
-                [disabled]="!candidataForm.valid" (click)="procesar()">Confirma tus datos</button> -->
-            <!-- <button (click)="procesar()"></button> -->
-        </div>
-    </div>
-</div>
+    </mat-step>
+</mat-stepper>
 }
