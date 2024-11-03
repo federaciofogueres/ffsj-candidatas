@@ -160,7 +160,7 @@ export class FormularioComponent implements OnInit {
       ciudad: asociadoData?.direccion?.split(',')[0] || '',
       telefono: asociadoData?.telefono || '',
       email: asociadoData?.email || '',
-      tipoCandidata: this.calcularEdad(asociadoData?.['fecha_nacimiento']) >= 18 ? 'adulta' : 'infantil'
+      tipoCandidata: this.calcularEdad(asociadoData?.['fecha_nacimiento']) >= 18 ? 'adultas' : 'infantiles'
     });
 
     this.fogueresInfo.patchValue({
@@ -225,6 +225,7 @@ export class FormularioComponent implements OnInit {
       ciudad: this.personalInfo.get('ciudad')?.value || '',
       email: this.personalInfo.get('email')?.value || '',
       telefono: this.personalInfo.get('telefono')?.value || '',
+      tipoCandidata: this.personalInfo.get('tipoCandidata')?.value || '',
 
       curriculum: JSON.stringify(this.fogueresInfo.get('curriculum')?.value) || '',
       anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
@@ -246,10 +247,11 @@ export class FormularioComponent implements OnInit {
     console.log(this.fogueresInfo);
     console.log(this.academicInfo);
     console.log(this.documentacionForm);
+    this.firebaseStorageService.addCandidata(candidata);
   }
 
   private uploadFile(fieldName: string, file: File): Promise<string> {
-    const filePath = `candidatas/${this.personalInfo.get('tipoCandidata') ? 'infantiles' : 'adultas'}/${fieldName}/${file.name}`;
+    const filePath = `candidatas/2024/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
     return this.firebaseStorageService.uploadFile(filePath, file);
   }
 

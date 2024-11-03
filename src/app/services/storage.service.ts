@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
+import { collection, doc, Firestore, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
+import { CandidataData } from '../model/candidata-data.model';
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +10,7 @@ export class FirebaseStorageService {
 
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
+    private _collection = collection(this._firestore, 'candidatas');
     private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
 
     constructor() { }
@@ -41,4 +43,9 @@ export class FirebaseStorageService {
             );
         });
     }
+
+    async addCandidata(candidata: CandidataData) {
+        await setDoc(doc(this._firestore, `candidatas/2024/${candidata.tipoCandidata}`, candidata.asociacion), candidata);
+    }
+
 }
