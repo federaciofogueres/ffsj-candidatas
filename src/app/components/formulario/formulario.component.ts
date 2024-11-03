@@ -11,6 +11,7 @@ import { CandidataData } from '../../model/candidata-data.model';
 import { CandidataService } from '../../services/candidatas.service';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
+import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
@@ -44,17 +45,13 @@ export class FormularioComponent implements OnInit {
     email: ''
   }
 
-  asociaciones: any[] = [
-    { id: 1, label: 'Prueba 1' },
-    { id: 2, label: 'Prueba 2' },
-    { id: 3, label: 'Prueba 3' },
-    { id: 4, label: 'Prueba 4' },
-  ]
+  asociaciones: Asociacion[] = []
 
   candidataForm!: FormGroup;
 
   dniTouched = false;
   currentStep = 1;
+  defaultAsociacionId = -1;
 
   personalInfo = this.fb.group({
     dni: ['', [Validators.required, this.dniValidator]],
@@ -67,7 +64,7 @@ export class FormularioComponent implements OnInit {
   });
 
   fogueresInfo = this.fb.group({
-    asociacion: ['', Validators.required],
+    asociacion: [this.defaultAsociacionId, Validators.required],
     anyosFiesta: ['', Validators.required],
     curriculum: ['', Validators.required]
   });
@@ -97,12 +94,40 @@ export class FormularioComponent implements OnInit {
   async ngOnInit() {
     this.loading = true;
     try {
+      this.loadAsociaciones();
       await this.loadAsociadoData();
+      this.getAsociacion();
       this.loadAsociadoDataOnForm(this.asociadoLogged);
     } catch (error) {
       console.error('Error loading asociado data:', error);
     }
     this.loading = false;
+  }
+
+  loadAsociaciones() {
+    this.censoService.asociacionesGet().subscribe({
+      next: (response: ResponseAsociaciones) => {
+        if (response.status?.status === 200 && response.asociaciones) {
+          this.asociaciones = response.asociaciones.filter(asociacion => asociacion['tipo_asociacion'] === 2);
+        }
+      }
+    })
+  }
+
+  getAsociacion() {
+    this.censoService.getHistoricoByAsociado(this.asociadoLogged.id).subscribe({
+      next: (response: any) => {
+        const registrosFiltrados = response.historico.filter((registro: any) => registro.ejercicio >= 2024);
+        const idAsociacionesUnicas = [...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))];
+
+        const asociacionesFiltradas = this.asociaciones.filter(asociacion => idAsociacionesUnicas.includes(asociacion.id));
+        this.defaultAsociacionId = asociacionesFiltradas[0].id
+        this.fogueresInfo.patchValue({ asociacion: asociacionesFiltradas[0].id });
+      },
+      error: (err) => {
+        console.error('Error fetching historico:', err);
+      }
+    });
   }
 
   loadAsociadoData(): Promise<void> {
@@ -134,7 +159,7 @@ export class FormularioComponent implements OnInit {
     });
 
     this.fogueresInfo.patchValue({
-      asociacion: '',
+      asociacion: this.defaultAsociacionId,
       anyosFiesta: '',
       curriculum: ''
     });
@@ -194,7 +219,7 @@ export class FormularioComponent implements OnInit {
 
       curriculum: this.fogueresInfo.get('curriculum')?.value || '',
       anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
-      asociacion: this.fogueresInfo.get('asociacion')?.value || '',
+      asociacion: this.fogueresInfo.get('asociacion')?.value?.toString() || '',
 
       formacion: this.academicInfo.get('formacion')?.value || '',
       situacionLaboral: this.academicInfo.get('situacionLaboral')?.value || '',

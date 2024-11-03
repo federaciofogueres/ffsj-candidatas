@@ -45,7 +45,7 @@
             <div class="form-group mb-3">
                 <label for="asociacion" class="text-naranja">Asociación</label>
                 <select id="asociacion" class="form-control" formControlName="asociacion" required>
-                    <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.label }}
+                    <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.nombre }}
                     </option>
                 </select>
             </div>
