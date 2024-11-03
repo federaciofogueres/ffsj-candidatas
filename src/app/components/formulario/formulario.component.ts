@@ -4,12 +4,14 @@ import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModu
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CandidataData } from '../../model/candidata-data.model';
 import { CandidataService } from '../../services/candidatas.service';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
+import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-formulario',
@@ -22,7 +24,8 @@ import { Asociado } from '../../services/external-api/asociado';
     MatStepperModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatRadioModule
   ],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.scss'
@@ -59,7 +62,8 @@ export class FormularioComponent implements OnInit {
     fechaNacimiento: ['', Validators.required],
     ciudad: ['', Validators.required],
     telefono: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]]
+    email: ['', [Validators.required, Validators.email]],
+    tipoCandidata: ['', Validators.required]
   });
 
   fogueresInfo = this.fb.group({
@@ -74,10 +78,18 @@ export class FormularioComponent implements OnInit {
     observaciones: ['', Validators.required]
   });
 
+  documentacionForm = this.fb.group({
+    fotoCalle: [null, []],
+    fotoBelleza: [null, []],
+    compromisoDisponibilidad: [null, []],
+    derechosImagen: [null, []]
+  });
+
   constructor(
     private censoService: CensoService,
     private fb: FormBuilder,
-    private candidataService: CandidataService
+    private candidataService: CandidataService,
+    private firebaseStorageService: FirebaseStorageService,
   ) {
 
   }
@@ -117,7 +129,8 @@ export class FormularioComponent implements OnInit {
       fechaNacimiento: asociadoData?.['fecha_nacimiento'] || '',
       ciudad: asociadoData?.direccion?.split(',')[0] || '',
       telefono: asociadoData?.telefono || '',
-      email: asociadoData?.email || ''
+      email: asociadoData?.email || '',
+      tipoCandidata: this.calcularEdad(asociadoData?.['fecha_nacimiento']) >= 18 ? 'adulta' : 'infantil'
     });
 
     this.fogueresInfo.patchValue({
@@ -158,7 +171,18 @@ export class FormularioComponent implements OnInit {
     return age;
   }
 
-  procesar() {
+  async procesar() {
+
+    this.loading = true;
+
+    const files = this.documentacionForm.value;
+    const fileUrls = await Promise.all([
+      files.fotoCalle ? this.uploadFile('fotoCalle', files.fotoCalle) : Promise.resolve(''),
+      files.fotoBelleza ? this.uploadFile('fotoBelleza', files.fotoBelleza) : Promise.resolve(''),
+      files.compromisoDisponibilidad ? this.uploadFile('compromisoDisponibilidad', files.compromisoDisponibilidad) : Promise.resolve(''),
+      files.derechosImagen ? this.uploadFile('derechosImagen', files.derechosImagen) : Promise.resolve('')
+    ]);
+
     const candidata: CandidataData = {
       id: this.asociadoLogged.id.toString() || '',
       dni: this.personalInfo.get('dni')?.value || '',
@@ -177,24 +201,33 @@ export class FormularioComponent implements OnInit {
       observaciones: this.academicInfo.get('observaciones')?.value || '',
 
       edad: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '',
-      fotoCalle: '',
-      fotoFiesta: '',
-      cesionDerechos: '',
-      compromisoDisponibilidad: ''
+      fotoCalle: fileUrls[0],
+      fotoFiesta: fileUrls[1],
+      cesionDerechos: fileUrls[3],
+      compromisoDisponibilidad: fileUrls[2]
     };
-    console.log(candidata, this.candidataForm.value);
+    this.loading = false;
+    console.log(candidata);
+    console.log(this.personalInfo);
+    console.log(this.fogueresInfo);
+    console.log(this.academicInfo);
+    console.log(this.documentacionForm);
+
 
   }
 
-  nextStep() {
-    if (this.currentStep < 3) {
-      this.currentStep++;
-    }
+  private uploadFile(fieldName: string, file: File): Promise<string> {
+    const filePath = `candidatas/${this.personalInfo.get('tipoCandidata') ? 'infantiles' : 'adultas'}/${fieldName}/${file.name}`;
+    // return Promise.resolve('');
+    return this.firebaseStorageService.uploadFile(filePath, file);
   }
 
-  prevStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
+  onFileChange(event: any, field: string) {
+    const file = event.target.files[0];
+    if (file) {
+      this.documentacionForm.patchValue({
+        [field]: file
+      });
     }
   }
 

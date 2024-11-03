@@ -6,6 +6,13 @@
         <form [formGroup]="personalInfo">
             <ng-template matStepLabel>Datos personales</ng-template>
             <div class="form-group mb-3">
+                <label for="tipoCandidata" class="text-naranja">Tipo de Candidata</label>
+                <mat-radio-group formControlName="tipoCandidata">
+                    <mat-radio-button value="adulta">Adulta</mat-radio-button>
+                    <mat-radio-button value="infantil">Infantil</mat-radio-button>
+                </mat-radio-group>
+            </div>
+            <div class="form-group mb-3">
                 <label for="dni" class="text-naranja">DNI/NIF</label>
                 <input type="text" id="dni" class="form-control" formControlName="dni" required>
             </div>
@@ -29,9 +36,6 @@
                 <label for="email" class="text-naranja">Email</label>
                 <input type="email" id="email" class="form-control" formControlName="email" required>
             </div>
-            <!-- <div>
-                <button mat-button matStepperNext>Siguiente</button>
-            </div> -->
         </form>
     </mat-step>
 
@@ -53,10 +57,6 @@
                 <label for="curriculum" class="text-naranja">Curriculum festero</label>
                 <input type="text" id="curriculum" class="form-control" formControlName="curriculum" required>
             </div>
-            <!-- <div>
-                <button mat-button matStepperPrevious>Anterior</button>
-                <button mat-button matStepperNext>Siguiente</button>
-            </div> -->
         </form>
     </mat-step>
 
@@ -73,13 +73,38 @@
                     required>
             </div>
             <div class="form-group mb-3">
-                <label for="observaciones" class="text-naranja">Observaciones</label>
+                <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
                 <textarea id="observaciones" class="form-control" formControlName="observaciones" required></textarea>
             </div>
+        </form>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>Documentación</ng-template>
+        <form [formGroup]="documentacionForm">
+            <div class="form-group mb-3">
+                <label for="fotoCalle" class="text-naranja">Foto calle</label>
+                <input type="file" id="fotoCalle" class="form-control" (change)="onFileChange($event, 'fotoCalle')"
+                    required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="fotoBelleza" class="text-naranja">Foto belleza</label>
+                <input type="file" id="fotoBelleza" class="form-control" (change)="onFileChange($event, 'fotoBelleza')"
+                    required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="compromisoDisponibilidad" class="text-naranja">Compromiso disponibilidad</label>
+                <input type="file" id="compromisoDisponibilidad" class="form-control"
+                    (change)="onFileChange($event, 'compromisoDisponibilidad')" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="derechosImagen" class="text-naranja">Derechos de imagen</label>
+                <input type="file" id="derechosImagen" class="form-control"
+                    (change)="onFileChange($event, 'derechosImagen')" required>
+            </div>
             <div>
-                <!-- <button mat-button matStepperPrevious>Anterior</button> -->
-                <button mat-button type="submit"
+                <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
                     [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
+                <!-- <button (click)="procesar()">show</button> -->
             </div>
         </form>
     </mat-step>
