@@ -53,9 +53,37 @@
                 <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
                 <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
             </div>
-            <div class="form-group mb-3">
-                <label for="curriculum" class="text-naranja">Curriculum festero</label>
-                <input type="text" id="curriculum" class="form-control" formControlName="curriculum" required>
+            <div formGroupName="curriculum">
+                <span class="h3 text-naranja">Curriculum festero</span>
+                <div class="form-group my-3">
+                    <label for="cargo" class="text-naranja">Cargo</label>
+                    <input type="text" id="cargo" class="form-control" formControlName="cargo" required>
+                </div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="form-group">
+                        <label for="comienzo" class="text-naranja">Comienzo</label>
+                        <input type="number" id="comienzo" class="form-control" formControlName="comienzo" min="1928"
+                            max="2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="final" class="text-naranja">Final</label>
+                        <input type="number" id="final" class="form-control" formControlName="final" min="1928"
+                            max="2025" required>
+                    </div>
+                    <button type="button" style="height: 38px;" class="btn btn-primary"
+                        (click)="addCurriculum()">Añadir</button>
+                </div>
+                <ul class="mt-3">
+                    @for (cargo of cargos; track $index) {
+                    <li>
+                        <span>
+                            {{ cargo.cargo | titlecase }} - @if(cargo.comienzo === cargo.final){ Año {{cargo.comienzo}}
+                            } @else {
+                            Años {{cargo.comienzo }} - {{ cargo.final}}}
+                        </span>
+                    </li>
+                    }
+                </ul>
             </div>
         </form>
     </mat-step>

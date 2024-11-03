@@ -52,6 +52,7 @@ export class FormularioComponent implements OnInit {
   dniTouched = false;
   currentStep = 1;
   defaultAsociacionId = -1;
+  cargos: any[] = [];
 
   personalInfo = this.fb.group({
     dni: ['', [Validators.required, this.dniValidator]],
@@ -66,7 +67,11 @@ export class FormularioComponent implements OnInit {
   fogueresInfo = this.fb.group({
     asociacion: [this.defaultAsociacionId, Validators.required],
     anyosFiesta: ['', Validators.required],
-    curriculum: ['', Validators.required]
+    curriculum: this.fb.group({
+      cargo: ['', Validators.required],
+      comienzo: ['', Validators.required],
+      final: ['', Validators.required]
+    })
   });
 
   academicInfo = this.fb.group({
@@ -161,7 +166,11 @@ export class FormularioComponent implements OnInit {
     this.fogueresInfo.patchValue({
       asociacion: this.defaultAsociacionId,
       anyosFiesta: '',
-      curriculum: ''
+      curriculum: {
+        cargo: '',
+        comienzo: '',
+        final: ''
+      }
     });
 
     this.academicInfo.patchValue({
@@ -217,7 +226,7 @@ export class FormularioComponent implements OnInit {
       email: this.personalInfo.get('email')?.value || '',
       telefono: this.personalInfo.get('telefono')?.value || '',
 
-      curriculum: this.fogueresInfo.get('curriculum')?.value || '',
+      curriculum: JSON.stringify(this.fogueresInfo.get('curriculum')?.value) || '',
       anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
       asociacion: this.fogueresInfo.get('asociacion')?.value?.toString() || '',
 
@@ -237,13 +246,10 @@ export class FormularioComponent implements OnInit {
     console.log(this.fogueresInfo);
     console.log(this.academicInfo);
     console.log(this.documentacionForm);
-
-
   }
 
   private uploadFile(fieldName: string, file: File): Promise<string> {
     const filePath = `candidatas/${this.personalInfo.get('tipoCandidata') ? 'infantiles' : 'adultas'}/${fieldName}/${file.name}`;
-    // return Promise.resolve('');
     return this.firebaseStorageService.uploadFile(filePath, file);
   }
 
@@ -254,6 +260,11 @@ export class FormularioComponent implements OnInit {
         [field]: file
       });
     }
+  }
+
+  addCurriculum() {
+    const curriculum = this.fogueresInfo.get('curriculum')?.value;
+    this.cargos.push(curriculum);
   }
 
 }
