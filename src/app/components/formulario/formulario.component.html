@@ -39,6 +39,39 @@
         </form>
     </mat-step>
 
+    @if(personalInfo.get('tipoCandidata')?.value === 'infantiles') {
+        <mat-step [stepControl]="responsableInfo">
+            <form [formGroup]="responsableInfo">
+                <ng-template matStepLabel>Información del Responsable</ng-template>
+                <div class="form-group mb-3">
+                    <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
+                    <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="nombreTutor1" class="text-naranja">Nombre del Tutor 1</label>
+                    <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="telefonoTutor1" class="text-naranja">Teléfono del Tutor 1</label>
+                    <input type="text" id="telefonoTutor1" class="form-control" formControlName="telefonoTutor1" required>
+                </div>
+                @if(responsableInfo.get('patriaPotestad')?.value === 'no') {
+                    <div class="form-group mb-3">
+                        <label for="nombreTutor2" class="text-naranja">Nombre del Tutor 2</label>
+                        <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="telefonoTutor2" class="text-naranja">Teléfono del Tutor 2</label>
+                        <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2" required>
+                    </div>
+                }
+            </form>
+        </mat-step>
+    }
+
     <mat-step [stepControl]="fogueresInfo">
         <form [formGroup]="fogueresInfo">
             <ng-template matStepLabel>Datos de la fiesta</ng-template>
@@ -61,13 +94,13 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-end">
                     <div class="form-group">
-                        <label for="comienzo" class="text-naranja">Comienzo</label>
-                        <input type="number" id="comienzo" class="form-control" formControlName="comienzo" min="1928"
+                        <label for="comienzo" class="text-naranja">Desde</label>
+                        <input type="number" id="comienzo" placeholder="aaaa" class="form-control" formControlName="comienzo" min="1928"
                             max="2025" required>
                     </div>
                     <div class="form-group">
-                        <label for="final" class="text-naranja">Final</label>
-                        <input type="number" id="final" class="form-control" formControlName="final" min="1928"
+                        <label for="final" class="text-naranja">Hasta</label>
+                        <input type="number" id="final" placeholder="aaaa" class="form-control" formControlName="final" min="1928"
                             max="2025" required>
                     </div>
                     <button type="button" style="height: 38px;" class="btn btn-primary"
@@ -95,11 +128,19 @@
                 <label for="formacion" class="text-naranja">Formación</label>
                 <input type="text" id="formacion" class="form-control" formControlName="formacion" required>
             </div>
-            <div class="form-group mb-3">
-                <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
-                <input type="text" id="situacionLaboral" class="form-control" formControlName="situacionLaboral"
-                    required>
-            </div>
+            @if(personalInfo.get('tipoCandidata')?.value === 'adultas') {
+                <div class="form-group mb-3">
+                    <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
+                    <input type="text" id="situacionLaboral" class="form-control" formControlName="situacionLaboral"
+                        required>
+                </div>
+            } @else {
+                <div class="form-group mb-3">
+                    <label for="aficiones" class="text-naranja">Aficiones</label>
+                    <input type="text" id="aficiones" class="form-control" formControlName="aficiones"
+                        required>
+                </div>
+            }
             <div class="form-group mb-3">
                 <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
                 <textarea id="observaciones" class="form-control" formControlName="observaciones" required></textarea>
@@ -132,7 +173,7 @@
             <div>
                 <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
                     [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
-                <!-- <button (click)="procesar()">show</button> -->
+                <button (click)="procesar()">show</button>
             </div>
         </form>
     </mat-step>

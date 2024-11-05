@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -64,6 +64,14 @@ export class FormularioComponent implements OnInit {
     tipoCandidata: ['', Validators.required]
   });
 
+  responsableInfo = this.fb.group({
+    nombreTutor1: ['', Validators.required],
+    nombreTutor2: [''],
+    telefonoTutor1: ['', Validators.required],
+    telefonoTutor2: [''],
+    patriaPotestad: ['', Validators.required],
+  }, { validators: this.patriaPotestadValidator() });
+
   fogueresInfo = this.fb.group({
     asociacion: [this.defaultAsociacionId, Validators.required],
     anyosFiesta: ['', Validators.required],
@@ -77,8 +85,9 @@ export class FormularioComponent implements OnInit {
   academicInfo = this.fb.group({
     formacion: ['', Validators.required],
     situacionLaboral: ['', Validators.required],
-    observaciones: ['', Validators.required]
-  });
+    observaciones: ['', Validators.required],
+    aficiones: ['', Validators.required]
+  }, { validators: this.tipoCandidataValidator(this.personalInfo) });
 
   documentacionForm = this.fb.group({
     fotoCalle: [null, []],
@@ -267,6 +276,56 @@ export class FormularioComponent implements OnInit {
   addCurriculum() {
     const curriculum = this.fogueresInfo.get('curriculum')?.value;
     this.cargos.push(curriculum);
+  }
+
+  patriaPotestadValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const patriaPotestad = control.get('patriaPotestad')?.value;
+      const nombreTutor2 = control.get('nombreTutor2');
+      const telefonoTutor2 = control.get('telefonoTutor2');
+  
+      if (patriaPotestad === 'no') {
+        if (!nombreTutor2?.value) {
+          nombreTutor2?.setErrors({ required: true });
+        }
+        if (!telefonoTutor2?.value) {
+          telefonoTutor2?.setErrors({ required: true });
+        }
+      } else {
+        nombreTutor2?.setErrors(null);
+        telefonoTutor2?.setErrors(null);
+      }
+  
+      return null;
+    };
+  }
+
+  tipoCandidataValidator(personalInfo: AbstractControl): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const tipoCandidata = personalInfo.get('tipoCandidata')?.value;
+      const situacionLaboral = control.get('situacionLaboral');
+      const aficiones = control.get('aficiones');
+  
+      if (tipoCandidata === 'adultas') {
+        if (!situacionLaboral?.value) {
+          situacionLaboral?.setErrors({ required: true });
+          aficiones?.setErrors(null);
+        } else {
+          situacionLaboral?.setErrors(null);
+        }
+      }
+  
+      if (tipoCandidata === 'infantiles') {
+        if (!aficiones?.value) {
+          aficiones?.setErrors({ required: true });
+          situacionLaboral?.setErrors(null);
+        } else {
+          aficiones?.setErrors(null);
+        }
+      }
+  
+      return null;
+    };
   }
 
 }
