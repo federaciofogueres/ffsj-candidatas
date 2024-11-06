@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -13,6 +15,7 @@ import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
 import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
 
 @Component({
   selector: 'app-formulario',
@@ -26,7 +29,9 @@ import { FirebaseStorageService } from '../../services/storage.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatRadioModule
+    MatRadioModule,
+    MatCheckboxModule,
+    MatDialogModule
   ],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.scss'
@@ -85,15 +90,18 @@ export class FormularioComponent implements OnInit {
   academicInfo = this.fb.group({
     formacion: ['', Validators.required],
     situacionLaboral: ['', Validators.required],
+    aceptoTratamiento: [false, []],
     observaciones: ['', Validators.required],
     aficiones: ['', Validators.required]
   }, { validators: this.tipoCandidataValidator(this.personalInfo) });
 
   documentacionForm = this.fb.group({
-    fotoCalle: [null, []],
-    fotoBelleza: [null, []],
+    autorizacionFoguera: [null, []],
     compromisoDisponibilidad: [null, []],
-    derechosImagen: [null, []]
+    derechosAutor: [null, []],
+    dniEscaneado: [null, []],
+    fotoBelleza: [null, []],
+    fotoCalle: [null, []],
   });
 
   constructor(
@@ -101,6 +109,7 @@ export class FormularioComponent implements OnInit {
     private fb: FormBuilder,
     private candidataService: CandidataService,
     private firebaseStorageService: FirebaseStorageService,
+    private dialog: MatDialog
   ) {
 
   }
@@ -112,6 +121,7 @@ export class FormularioComponent implements OnInit {
       await this.loadAsociadoData();
       this.getAsociacion();
       this.loadAsociadoDataOnForm(this.asociadoLogged);
+      this.academicInfo.get('observaciones')?.disable();
     } catch (error) {
       console.error('Error loading asociado data:', error);
     }
@@ -223,7 +233,7 @@ export class FormularioComponent implements OnInit {
       files.fotoCalle ? this.uploadFile('fotoCalle', files.fotoCalle) : Promise.resolve(''),
       files.fotoBelleza ? this.uploadFile('fotoBelleza', files.fotoBelleza) : Promise.resolve(''),
       files.compromisoDisponibilidad ? this.uploadFile('compromisoDisponibilidad', files.compromisoDisponibilidad) : Promise.resolve(''),
-      files.derechosImagen ? this.uploadFile('derechosImagen', files.derechosImagen) : Promise.resolve('')
+      files.derechosAutor ? this.uploadFile('derechosAutor', files.derechosAutor) : Promise.resolve('')
     ]);
 
     const candidata: CandidataData = {
@@ -283,7 +293,7 @@ export class FormularioComponent implements OnInit {
       const patriaPotestad = control.get('patriaPotestad')?.value;
       const nombreTutor2 = control.get('nombreTutor2');
       const telefonoTutor2 = control.get('telefonoTutor2');
-  
+
       if (patriaPotestad === 'no') {
         if (!nombreTutor2?.value) {
           nombreTutor2?.setErrors({ required: true });
@@ -295,7 +305,7 @@ export class FormularioComponent implements OnInit {
         nombreTutor2?.setErrors(null);
         telefonoTutor2?.setErrors(null);
       }
-  
+
       return null;
     };
   }
@@ -305,7 +315,7 @@ export class FormularioComponent implements OnInit {
       const tipoCandidata = personalInfo.get('tipoCandidata')?.value;
       const situacionLaboral = control.get('situacionLaboral');
       const aficiones = control.get('aficiones');
-  
+
       if (tipoCandidata === 'adultas') {
         if (!situacionLaboral?.value) {
           situacionLaboral?.setErrors({ required: true });
@@ -314,7 +324,7 @@ export class FormularioComponent implements OnInit {
           situacionLaboral?.setErrors(null);
         }
       }
-  
+
       if (tipoCandidata === 'infantiles') {
         if (!aficiones?.value) {
           aficiones?.setErrors({ required: true });
@@ -323,9 +333,25 @@ export class FormularioComponent implements OnInit {
           aficiones?.setErrors(null);
         }
       }
-  
+
       return null;
     };
+  }
+
+  toggleObservaciones(event: any) {
+    const observacionesControl = this.academicInfo.get('observaciones');
+    if (observacionesControl) {
+      if (event.checked) {
+        observacionesControl.enable();
+      } else {
+        observacionesControl.disable();
+      }
+    }
+
+    // Abre el diálogo de política de privacidad
+    if (event.checked) {
+      this.dialog.open(PrivacyDialogComponent);
+    }
   }
 
 }

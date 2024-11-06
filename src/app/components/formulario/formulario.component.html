@@ -1,181 +1,207 @@
 @if (loading) {
 <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
 } @else {
-<mat-stepper orientation="vertical" [linear]="false" #stepper>
-    <mat-step [stepControl]="personalInfo">
-        <form [formGroup]="personalInfo">
-            <ng-template matStepLabel>Datos personales</ng-template>
-            <div class="form-group mb-3">
-                <label for="tipoCandidata" class="text-naranja">Tipo de Candidata</label>
-                <mat-radio-group formControlName="tipoCandidata">
-                    <mat-radio-button value="adultas">Adulta</mat-radio-button>
-                    <mat-radio-button value="infantiles">Infantil</mat-radio-button>
-                </mat-radio-group>
-            </div>
-            <div class="form-group mb-3">
-                <label for="dni" class="text-naranja">DNI/NIF</label>
-                <input type="text" id="dni" class="form-control" formControlName="dni" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="nombre" class="text-naranja">Nombre completo</label>
-                <input type="text" id="nombre" class="form-control" formControlName="nombre" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
-                <input type="date" id="fechaNacimiento" class="form-control" formControlName="fechaNacimiento" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="ciudad" class="text-naranja">Ciudad</label>
-                <input type="text" id="ciudad" class="form-control" formControlName="ciudad" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="telefono" class="text-naranja">Teléfono</label>
-                <input type="text" id="telefono" class="form-control" formControlName="telefono" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="email" class="text-naranja">Email</label>
-                <input type="email" id="email" class="form-control" formControlName="email" required>
-            </div>
-        </form>
-    </mat-step>
+<div class="formulario-container">
+    <mat-stepper orientation="vertical" [linear]="false" #stepper>
+        <mat-step [stepControl]="personalInfo">
+            <form [formGroup]="personalInfo">
+                <ng-template matStepLabel>Datos personales</ng-template>
+                <div class="form-group mb-3">
+                    <label for="tipoCandidata" class="text-naranja">Tipo de Candidata</label>
+                    <mat-radio-group formControlName="tipoCandidata">
+                        <mat-radio-button value="adultas">Adulta</mat-radio-button>
+                        <mat-radio-button value="infantiles">Infantil</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="dni" class="text-naranja">DNI/NIF</label>
+                    <input type="text" id="dni" class="form-control" formControlName="dni" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="nombre" class="text-naranja">Nombre completo</label>
+                    <input type="text" id="nombre" class="form-control" formControlName="nombre" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
+                    <input type="date" id="fechaNacimiento" class="form-control" formControlName="fechaNacimiento"
+                        required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ciudad" class="text-naranja">Ciudad</label>
+                    <input type="text" id="ciudad" class="form-control" formControlName="ciudad" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="telefono" class="text-naranja">Teléfono</label>
+                    <input type="text" id="telefono" class="form-control" formControlName="telefono" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="email" class="text-naranja">Email</label>
+                    <input type="email" id="email" class="form-control" formControlName="email" required>
+                </div>
+            </form>
+        </mat-step>
 
-    @if(personalInfo.get('tipoCandidata')?.value === 'infantiles') {
+        @if(personalInfo.get('tipoCandidata')?.value === 'infantiles') {
         <mat-step [stepControl]="responsableInfo">
             <form [formGroup]="responsableInfo">
                 <ng-template matStepLabel>Información del Responsable</ng-template>
+                <span class="text-rojo mb-2">
+                    En caso de que exista limitación de la patria potestad por parte de algún tutor o tutora legal de la
+                    menor, indicad sólo el nombre y teléfono de la persona que la ostente.
+                </span>
+                <!-- <div class="form-group mb-3">
+                            <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
+                            <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
+                                <option value="si">Sí</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div> -->
                 <div class="form-group mb-3">
-                    <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
-                    <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
-                        <option value="si">Sí</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="nombreTutor1" class="text-naranja">Nombre del Tutor 1</label>
+                    <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
                     <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
                 </div>
                 <div class="form-group mb-3">
-                    <label for="telefonoTutor1" class="text-naranja">Teléfono del Tutor 1</label>
-                    <input type="text" id="telefonoTutor1" class="form-control" formControlName="telefonoTutor1" required>
+                    <label for="telefonoTutor1" class="text-naranja">Teléfono del/la Tutor/a 1</label>
+                    <input type="text" id="telefonoTutor1" class="form-control" formControlName="telefonoTutor1"
+                        required>
                 </div>
-                @if(responsableInfo.get('patriaPotestad')?.value === 'no') {
-                    <div class="form-group mb-3">
-                        <label for="nombreTutor2" class="text-naranja">Nombre del Tutor 2</label>
-                        <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2" required>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="telefonoTutor2" class="text-naranja">Teléfono del Tutor 2</label>
-                        <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2" required>
-                    </div>
-                }
+                <!-- @if(responsableInfo.get('patriaPotestad')?.value === 'no') { -->
+                <div class="form-group mb-3">
+                    <label for="nombreTutor2" class="text-naranja">Nombre del/la Tutor/a 2</label>
+                    <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="telefonoTutor2" class="text-naranja">Teléfono del/la Tutor/a 2</label>
+                    <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2"
+                        required>
+                </div>
+                <!-- } -->
             </form>
         </mat-step>
-    }
+        }
 
-    <mat-step [stepControl]="fogueresInfo">
-        <form [formGroup]="fogueresInfo">
-            <ng-template matStepLabel>Datos de la fiesta</ng-template>
-            <div class="form-group mb-3">
-                <label for="asociacion" class="text-naranja">Asociación</label>
-                <select id="asociacion" class="form-control" formControlName="asociacion" required>
-                    <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.nombre }}
-                    </option>
-                </select>
-            </div>
-            <div class="form-group mb-3">
-                <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
-                <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
-            </div>
-            <div formGroupName="curriculum">
-                <span class="h3 text-naranja">Curriculum festero</span>
-                <div class="form-group my-3">
-                    <label for="cargo" class="text-naranja">Cargo</label>
-                    <input type="text" id="cargo" class="form-control" formControlName="cargo" required>
+        <mat-step [stepControl]="fogueresInfo">
+            <form [formGroup]="fogueresInfo">
+                <ng-template matStepLabel>Datos de la fiesta</ng-template>
+                <div class="form-group mb-3">
+                    <label for="asociacion" class="text-naranja">Asociación</label>
+                    <select id="asociacion" class="form-control" formControlName="asociacion" required>
+                        <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.nombre }}
+                        </option>
+                    </select>
                 </div>
-                <div class="d-flex justify-content-between align-items-end">
-                    <div class="form-group">
-                        <label for="comienzo" class="text-naranja">Desde</label>
-                        <input type="number" id="comienzo" placeholder="aaaa" class="form-control" formControlName="comienzo" min="1928"
-                            max="2025" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="final" class="text-naranja">Hasta</label>
-                        <input type="number" id="final" placeholder="aaaa" class="form-control" formControlName="final" min="1928"
-                            max="2025" required>
-                    </div>
-                    <button type="button" style="height: 38px;" class="btn btn-primary"
-                        (click)="addCurriculum()">Añadir</button>
+                <div class="form-group mb-3">
+                    <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
+                    <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
                 </div>
-                <ul class="mt-3">
-                    @for (cargo of cargos; track $index) {
-                    <li>
-                        <span>
-                            {{ cargo.cargo | titlecase }} - @if(cargo.comienzo === cargo.final){ Año {{cargo.comienzo}}
-                            } @else {
-                            Años {{cargo.comienzo }} - {{ cargo.final}}}
-                        </span>
-                    </li>
-                    }
-                </ul>
-            </div>
-        </form>
-    </mat-step>
+                <div formGroupName="curriculum">
+                    <span class="h3 text-naranja">Curriculum festero</span>
+                    <div class="form-group my-3">
+                        <label for="cargo" class="text-naranja">Cargo</label>
+                        <input type="text" id="cargo" class="form-control" formControlName="cargo" required>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div class="form-group">
+                            <label for="comienzo" class="text-naranja">Desde</label>
+                            <input type="number" id="comienzo" placeholder="aaaa" class="form-control"
+                                formControlName="comienzo" min="1928" max="2025" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="final" class="text-naranja">Hasta</label>
+                            <input type="number" id="final" placeholder="aaaa" class="form-control"
+                                formControlName="final" min="1928" max="2025" required>
+                        </div>
+                        <button type="button" style="height: 38px;" class="btn btn-primary"
+                            (click)="addCurriculum()">Añadir</button>
+                    </div>
+                    <ul class="mt-3">
+                        @for (cargo of cargos; track $index) {
+                        <li>
+                            <span>
+                                {{ cargo.cargo | titlecase }} - @if(cargo.comienzo === cargo.final){ Año
+                                {{cargo.comienzo}}
+                                } @else {
+                                Años {{cargo.comienzo }} - {{ cargo.final}}}
+                            </span>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </form>
+        </mat-step>
 
-    <mat-step [stepControl]="academicInfo">
-        <form [formGroup]="academicInfo">
-            <ng-template matStepLabel>Formación e información adicional</ng-template>
-            <div class="form-group mb-3">
-                <label for="formacion" class="text-naranja">Formación</label>
-                <input type="text" id="formacion" class="form-control" formControlName="formacion" required>
-            </div>
-            @if(personalInfo.get('tipoCandidata')?.value === 'adultas') {
+        <mat-step [stepControl]="academicInfo">
+            <form [formGroup]="academicInfo">
+                <ng-template matStepLabel>Formación e información adicional</ng-template>
+                <div class="form-group mb-3">
+                    <label for="formacion" class="text-naranja">Formación</label>
+                    <input type="text" id="formacion" class="form-control" formControlName="formacion" required>
+                </div>
+                @if(personalInfo.get('tipoCandidata')?.value === 'adultas') {
                 <div class="form-group mb-3">
                     <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
                     <input type="text" id="situacionLaboral" class="form-control" formControlName="situacionLaboral"
                         required>
                 </div>
-            } @else {
+                }
                 <div class="form-group mb-3">
                     <label for="aficiones" class="text-naranja">Aficiones</label>
-                    <input type="text" id="aficiones" class="form-control" formControlName="aficiones"
-                        required>
+                    <input type="text" id="aficiones" class="form-control" formControlName="aficiones" required>
                 </div>
-            }
-            <div class="form-group mb-3">
-                <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
-                <textarea id="observaciones" class="form-control" formControlName="observaciones" required></textarea>
-            </div>
-        </form>
-    </mat-step>
-    <mat-step>
-        <ng-template matStepLabel>Documentación</ng-template>
-        <form [formGroup]="documentacionForm">
-            <div class="form-group mb-3">
-                <label for="fotoCalle" class="text-naranja">Foto calle</label>
-                <input type="file" id="fotoCalle" class="form-control" (change)="onFileChange($event, 'fotoCalle')"
-                    required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="fotoBelleza" class="text-naranja">Foto belleza</label>
-                <input type="file" id="fotoBelleza" class="form-control" (change)="onFileChange($event, 'fotoBelleza')"
-                    required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="compromisoDisponibilidad" class="text-naranja">Compromiso disponibilidad</label>
-                <input type="file" id="compromisoDisponibilidad" class="form-control"
-                    (change)="onFileChange($event, 'compromisoDisponibilidad')" required>
-            </div>
-            <div class="form-group mb-3">
-                <label for="derechosImagen" class="text-naranja">Derechos de imagen</label>
-                <input type="file" id="derechosImagen" class="form-control"
-                    (change)="onFileChange($event, 'derechosImagen')" required>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
-                    [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
-                <button (click)="procesar()">show</button>
-            </div>
-        </form>
-    </mat-step>
-</mat-stepper>
+                <div class="form-group mb-3">
+                    <mat-checkbox formControlName="aceptoTratamiento" (change)="toggleObservaciones($event)"
+                        class="text-rojo">
+                        Acepto el tratamiento de mis "observaciones"
+                    </mat-checkbox>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
+                    <textarea id="observaciones" class="form-control" formControlName="observaciones"
+                        required></textarea>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>Documentación</ng-template>
+            <form [formGroup]="documentacionForm">
+                <div class="form-group mb-3">
+                    <label for="autorizacionFoguera" class="text-naranja">Autorización Foguera</label>
+                    <input type="file" id="autorizacionFoguera" class="form-control"
+                        (change)="onFileChange($event, 'autorizacionFoguera')">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="compromisoDisponibilidad" class="text-naranja">Compromiso Disponibilidad</label>
+                    <input type="file" id="compromisoDisponibilidad" class="form-control"
+                        (change)="onFileChange($event, 'compromisoDisponibilidad')">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="derechosAutor" class="text-naranja">Derechos de autor</label>
+                    <input type="file" id="derechosAutor" class="form-control"
+                        (change)="onFileChange($event, 'derechosAutor')">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="dniEscaneado" class="text-naranja">DNI Escaneado
+                        {{personalInfo.get('tipoCandidata')?.value
+                        === 'infantiles' ? ' o libro de familia si no dispone de DNI' : ''}}</label>
+                    <input type="file" id="dniEscaneado" class="form-control"
+                        (change)="onFileChange($event, 'dniEscaneado')">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="fotoBelleza" class="text-naranja">Foto Belleza</label>
+                    <input type="file" id="fotoBelleza" class="form-control"
+                        (change)="onFileChange($event, 'fotoBelleza')">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="fotoCalle" class="text-naranja">Foto Calle</label>
+                    <input type="file" id="fotoCalle" class="form-control" (change)="onFileChange($event, 'fotoCalle')">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
+                        [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
+                    <button (click)="procesar()">show</button>
+                </div>
+            </form>
+        </mat-step>
+    </mat-stepper>
+</div>
 }
