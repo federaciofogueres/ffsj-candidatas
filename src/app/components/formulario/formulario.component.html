@@ -16,27 +16,52 @@
                 <div class="form-group mb-3">
                     <label for="dni" class="text-naranja">DNI/NIF</label>
                     <input type="text" id="dni" class="form-control" formControlName="dni" required>
+                    @if(personalInfo.get('dni')?.errors?.['required'] && personalInfo.get('dni')?.invalid &&
+                    (personalInfo.get('dni')?.touched || personalInfo.get('dni')?.dirty)) {
+                    <small class="text-danger">El DNI es obligatorio.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="nombre" class="text-naranja">Nombre completo</label>
                     <input type="text" id="nombre" class="form-control" formControlName="nombre" required>
+                    @if(personalInfo.get('nombre')?.errors?.['required'] && personalInfo.get('nombre')?.invalid &&
+                    (personalInfo.get('nombre')?.touched || personalInfo.get('nombre')?.dirty)) {
+                    <small class="text-danger">El nombre es obligatorio.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
                     <input type="date" id="fechaNacimiento" class="form-control" formControlName="fechaNacimiento"
                         required>
+                    @if(personalInfo.get('fechaNacimiento')?.errors?.['required'] &&
+                    personalInfo.get('fechaNacimiento')?.invalid &&
+                    (personalInfo.get('fechaNacimiento')?.touched || personalInfo.get('fechaNacimiento')?.dirty)) {
+                    <small class="text-danger">La fecha de nacimiento es obligatoria.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="ciudad" class="text-naranja">Ciudad</label>
                     <input type="text" id="ciudad" class="form-control" formControlName="ciudad" required>
+                    @if(personalInfo.get('ciudad')?.errors?.['required'] && personalInfo.get('ciudad')?.invalid &&
+                    (personalInfo.get('ciudad')?.touched || personalInfo.get('ciudad')?.dirty)) {
+                    <small class="text-danger">Hay errores con la ciudad.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="telefono" class="text-naranja">Teléfono</label>
                     <input type="text" id="telefono" class="form-control" formControlName="telefono" required>
+                    @if(personalInfo.get('telefono')?.errors?.['required'] && personalInfo.get('telefono')?.invalid &&
+                    (personalInfo.get('telefono')?.touched || personalInfo.get('telefono')?.dirty)) {
+                    <small class="text-danger">Hay errores con el teléfono.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="text-naranja">Email</label>
                     <input type="email" id="email" class="form-control" formControlName="email" required>
+                    @if(personalInfo.get('email')?.errors?.['required'] && personalInfo.get('email')?.invalid &&
+                    (personalInfo.get('email')?.touched || personalInfo.get('email')?.dirty)) {
+                    <small class="text-danger">Hay errores con el email.</small>
+                    }
                 </div>
             </form>
         </mat-step>
@@ -60,20 +85,29 @@
                     <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
                     <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
                 </div>
+                @if(responsableInfo.get('nombreTutor1')?.errors?.['required'] &&
+                responsableInfo.get('nombreTutor1')?.invalid &&
+                (responsableInfo.get('nombreTutor1')?.touched || responsableInfo.get('nombreTutor1')?.dirty)) {
+                <small class="text-danger">Hay errores con el nombre.</small>
+                }
                 <div class="form-group mb-3">
                     <label for="telefonoTutor1" class="text-naranja">Teléfono del/la Tutor/a 1</label>
                     <input type="text" id="telefonoTutor1" class="form-control" formControlName="telefonoTutor1"
                         required>
                 </div>
+                @if(responsableInfo.get('telefonoTutor1')?.errors?.['required'] &&
+                responsableInfo.get('telefonoTutor1')?.invalid &&
+                (responsableInfo.get('telefonoTutor1')?.touched || responsableInfo.get('telefonoTutor1')?.dirty)) {
+                <small class="text-danger">Hay errores con el teléfono.</small>
+                }
                 <!-- @if(responsableInfo.get('patriaPotestad')?.value === 'no') { -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor2" class="text-naranja">Nombre del/la Tutor/a 2</label>
-                    <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2" required>
+                    <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2">
                 </div>
                 <div class="form-group mb-3">
                     <label for="telefonoTutor2" class="text-naranja">Teléfono del/la Tutor/a 2</label>
-                    <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2"
-                        required>
+                    <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2">
                 </div>
                 <!-- } -->
             </form>
@@ -89,27 +123,39 @@
                         <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.nombre }}
                         </option>
                     </select>
+                    @if(fogueresInfo.get('asociacion')?.errors?.['required'] &&
+                    fogueresInfo.get('asociacion')?.invalid &&
+                    (fogueresInfo.get('asociacion')?.touched || fogueresInfo.get('asociacion')?.dirty)) {
+                    <small class="text-danger">Hay errores con la asociación, por favor, selecciona una de la
+                        lista.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
                     <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
                 </div>
+                @if(fogueresInfo.get('anyosFiesta')?.errors?.['required'] &&
+                fogueresInfo.get('anyosFiesta')?.invalid &&
+                (fogueresInfo.get('anyosFiesta')?.touched || fogueresInfo.get('anyosFiesta')?.dirty)) {
+                <small class="text-danger">Hay errores con la cantidad introducida, por favor, introduce un valor
+                    numérico mayor que 1.</small>
+                }
                 <div formGroupName="curriculum">
                     <span class="h3 text-naranja">Curriculum festero</span>
                     <div class="form-group my-3">
                         <label for="cargo" class="text-naranja">Cargo</label>
-                        <input type="text" id="cargo" class="form-control" formControlName="cargo" required>
+                        <input type="text" id="cargo" class="form-control" formControlName="cargo">
                     </div>
                     <div class="d-flex justify-content-between align-items-end">
                         <div class="form-group">
                             <label for="comienzo" class="text-naranja">Desde</label>
                             <input type="number" id="comienzo" placeholder="aaaa" class="form-control"
-                                formControlName="comienzo" min="1928" max="2025" required>
+                                formControlName="comienzo">
                         </div>
                         <div class="form-group">
                             <label for="final" class="text-naranja">Hasta</label>
                             <input type="number" id="final" placeholder="aaaa" class="form-control"
-                                formControlName="final" min="1928" max="2025" required>
+                                formControlName="final">
                         </div>
                         <button type="button" style="height: 38px;" class="btn btn-primary"
                             (click)="addCurriculum()">Añadir</button>
@@ -159,6 +205,11 @@
                     <textarea id="observaciones" class="form-control" formControlName="observaciones"
                         required></textarea>
                 </div>
+                @if(academicInfo.errors &&
+                academicInfo.invalid &&
+                (academicInfo.touched || academicInfo.dirty)) {
+                <small class="text-danger">Hay algún error, por favor, revisa todos los campos.</small>
+                }
             </form>
         </mat-step>
         <mat-step>
@@ -198,7 +249,7 @@
                 <div>
                     <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
                         [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
-                    <button (click)="procesar()">show</button>
+                    <!-- <button (click)="procesar()">show</button> -->
                 </div>
             </form>
         </mat-step>

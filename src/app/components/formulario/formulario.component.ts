@@ -81,9 +81,9 @@ export class FormularioComponent implements OnInit {
     asociacion: [this.defaultAsociacionId, Validators.required],
     anyosFiesta: ['', Validators.required],
     curriculum: this.fb.group({
-      cargo: ['', Validators.required],
-      comienzo: ['', Validators.required],
-      final: ['', Validators.required]
+      cargo: ['', []],
+      comienzo: ['', []],
+      final: ['', []]
     })
   });
 
@@ -145,7 +145,7 @@ export class FormularioComponent implements OnInit {
         const idAsociacionesUnicas = [...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))];
 
         const asociacionesFiltradas = this.asociaciones.filter(asociacion => idAsociacionesUnicas.includes(asociacion.id));
-        this.defaultAsociacionId = asociacionesFiltradas[0].id
+        this.defaultAsociacionId = asociacionesFiltradas[0]?.id
         this.fogueresInfo.patchValue({ asociacion: asociacionesFiltradas[0].id });
       },
       error: (err) => {
@@ -246,7 +246,7 @@ export class FormularioComponent implements OnInit {
       telefono: this.personalInfo.get('telefono')?.value || '',
       tipoCandidata: this.personalInfo.get('tipoCandidata')?.value || '',
 
-      curriculum: JSON.stringify(this.fogueresInfo.get('curriculum')?.value) || '',
+      curriculum: JSON.stringify(this.cargos) || '',
       anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
       asociacion: this.fogueresInfo.get('asociacion')?.value?.toString() || '',
 
@@ -286,6 +286,7 @@ export class FormularioComponent implements OnInit {
   addCurriculum() {
     const curriculum = this.fogueresInfo.get('curriculum')?.value;
     this.cargos.push(curriculum);
+    this.fogueresInfo.get('curriculum')?.reset();
   }
 
   patriaPotestadValidator(): ValidatorFn {
