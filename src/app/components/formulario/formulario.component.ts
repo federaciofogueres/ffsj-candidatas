@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -32,7 +33,8 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
     MatInputModule,
     MatRadioModule,
     MatCheckboxModule,
-    MatDialogModule
+    MatDialogModule,
+    MatIconModule
   ],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.scss'
@@ -372,6 +374,10 @@ export class FormularioComponent implements OnInit {
     if (event.checked) {
       this.dialog.open(PrivacyDialogComponent);
     }
+  }
+
+  removeCurriculum(index: number) {
+    this.cargos.splice(index, 1);
   }
 
 }
