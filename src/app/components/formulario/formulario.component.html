@@ -150,12 +150,12 @@
                         <div class="form-group">
                             <label for="comienzo" class="text-naranja">Desde</label>
                             <input type="number" id="comienzo" placeholder="aaaa" class="form-control"
-                                formControlName="comienzo">
+                                formControlName="comienzo" min="0" max="2025" required>
                         </div>
                         <div class="form-group">
                             <label for="final" class="text-naranja">Hasta</label>
                             <input type="number" id="final" placeholder="aaaa" class="form-control"
-                                formControlName="final">
+                                formControlName="final" min="0" max="2025" required>
                         </div>
                         <button type="button" style="height: 38px;" class="btn btn-primary"
                             (click)="addCurriculum()">Añadir</button>
