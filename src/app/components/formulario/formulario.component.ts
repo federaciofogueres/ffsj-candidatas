@@ -60,7 +60,7 @@ export class FormularioComponent implements OnInit {
   cargos: any[] = [];
 
   personalInfo = this.fb.group({
-    dni: ['', [Validators.required, this.dniValidator]],
+    dni: ['', [Validators.required]],
     nombre: ['', Validators.required],
     fechaNacimiento: ['', Validators.required],
     ciudad: ['', Validators.required],
