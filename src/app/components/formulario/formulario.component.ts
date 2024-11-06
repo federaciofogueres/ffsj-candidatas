@@ -16,6 +16,7 @@ import { Asociado } from '../../services/external-api/asociado';
 import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
+import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
 @Component({
   selector: 'app-formulario',
@@ -139,14 +140,14 @@ export class FormularioComponent implements OnInit {
   }
 
   getAsociacion() {
-    this.censoService.getHistoricoByAsociado(this.asociadoLogged.id).subscribe({
+    this.censoService.getHistoricoByAsociado(this.asociadoLogged?.id).subscribe({
       next: (response: any) => {
         const registrosFiltrados = response.historico.filter((registro: any) => registro.ejercicio >= 2024);
         const idAsociacionesUnicas = [...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))];
 
         const asociacionesFiltradas = this.asociaciones.filter(asociacion => idAsociacionesUnicas.includes(asociacion.id));
         this.defaultAsociacionId = asociacionesFiltradas[0]?.id
-        this.fogueresInfo.patchValue({ asociacion: asociacionesFiltradas[0].id });
+        this.fogueresInfo.patchValue({ asociacion: this.defaultAsociacionId });
       },
       error: (err) => {
         console.error('Error fetching historico:', err);
@@ -266,7 +267,23 @@ export class FormularioComponent implements OnInit {
     console.log(this.fogueresInfo);
     console.log(this.academicInfo);
     console.log(this.documentacionForm);
-    this.firebaseStorageService.addCandidata(candidata);
+    // Publicar el objeto candidata en Firestore
+    try {
+      await this.firebaseStorageService.addCandidata(candidata);
+      console.log('Candidata publicada en Firestore');
+      this.dialog.open(ResultDialogComponent, {
+        data: {
+          message: 'El formulario se ha enviado correctamente.'
+        }
+      });
+    } catch (error) {
+      console.error('Error publicando candidata en Firestore:', error);
+      this.dialog.open(ResultDialogComponent, {
+        data: {
+          message: 'Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.'
+        }
+      });
+    }
   }
 
   private uploadFile(fieldName: string, file: File): Promise<string> {
