@@ -173,10 +173,12 @@ export class FormularioComponent implements OnInit {
 
   loadAsociadoDataOnForm(asociadoData?: Asociado) {
 
+    const fechaNacimiento = new Date((asociadoData?.['fecha_nacimiento'] as string).split(' ')[0]);
+
     this.personalInfo.patchValue({
       dni: asociadoData?.nif || '',
       nombre: asociadoData?.nombre || '',
-      fechaNacimiento: asociadoData?.['fecha_nacimiento'] || '',
+      fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString().split('T')[0] : '',
       ciudad: asociadoData?.direccion?.split(',')[0] || '',
       telefono: asociadoData?.telefono || '',
       email: asociadoData?.email || '',
