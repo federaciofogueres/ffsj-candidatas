@@ -1,0 +1,23 @@
+@if(visor === 'menu') {
+<div class="container">
+    <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column justify-content-evenly h-50">
+            <span class="h3 text-rojo">
+                Bienvenida/o {{asociado.nombre | titlecase}} {{asociado.apellidos | titlecase}}
+            </span>
+            <div class="d-flex flex-column gap-4">
+                <button class="btn btn-primary btn-foc-naranja" (click)="visor = 'formulario'">Acceso al
+                    formulario</button>
+                <button class="btn btn-primary btn-foc-naranja" (click)="visor = 'documentacion'">Adjuntar
+                    documentación</button>
+            </div>
+        </div>
+        <div class="d-flex flex-column">
+            <button class="btn btn-primary btn-foc-rojo" (click)="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+</div>
+
+} @else {
+<app-formulario [visor]="visor" [asociado]="asociado" (cambioVisor)="onCambioVisor($event)"></app-formulario>
+}

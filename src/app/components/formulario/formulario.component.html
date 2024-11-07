@@ -3,6 +3,8 @@
 } @else {
 <div class="formulario-container">
     <mat-stepper orientation="vertical" [linear]="false" #stepper>
+
+        @if(visor === 'formulario') {
         <mat-step [stepControl]="personalInfo">
             <form [formGroup]="personalInfo">
                 <ng-template matStepLabel>Datos personales</ng-template>
@@ -75,12 +77,12 @@
                     menor, indicad sólo el nombre y teléfono de la persona que la ostente.
                 </span>
                 <!-- <div class="form-group mb-3">
-                            <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
-                            <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
-                                <option value="si">Sí</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div> -->
+                                <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
+                                <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
+                                    <option value="si">Sí</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div> -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
                     <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
@@ -215,7 +217,9 @@
                 }
             </form>
         </mat-step>
-        <mat-step>
+        }
+
+        <mat-step [stepControl]="documentacionForm">
             <ng-template matStepLabel>Documentación</ng-template>
             <form [formGroup]="documentacionForm">
                 <div class="form-group mb-3">
@@ -268,12 +272,13 @@
                     }
                 </div>
                 <div>
-                    <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
+                    <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar()"
                         [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">Enviar</button>
                     <!-- <button (click)="procesar()">show</button> -->
                 </div>
             </form>
         </mat-step>
+
     </mat-stepper>
 </div>
 }

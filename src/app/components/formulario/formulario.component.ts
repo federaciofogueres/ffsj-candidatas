@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -11,11 +11,11 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CandidataData } from '../../model/candidata-data.model';
-import { CandidataService } from '../../services/candidatas.service';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
 import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { VisorType } from '../home/home.component';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 
@@ -41,17 +41,14 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
 })
 export class FormularioComponent implements OnInit {
   FormGroup = FormGroup;
+  @Input()
+  visor!: VisorType;
+  @Input()
+  asociado!: Asociado;
+  @Output()
+  cambioVisor: EventEmitter<VisorType> = new EventEmitter<VisorType>();
 
   loading: boolean = false;
-
-  asociadoLogged: Asociado = {
-    id: 0,
-    nif: '',
-    nombre: '',
-    apellidos: '',
-    telefono: '',
-    email: ''
-  }
 
   asociaciones: Asociacion[] = []
 
@@ -110,7 +107,6 @@ export class FormularioComponent implements OnInit {
   constructor(
     private censoService: CensoService,
     private fb: FormBuilder,
-    private candidataService: CandidataService,
     private firebaseStorageService: FirebaseStorageService,
     private dialog: MatDialog
   ) {
@@ -121,9 +117,8 @@ export class FormularioComponent implements OnInit {
     this.loading = true;
     try {
       this.loadAsociaciones();
-      await this.loadAsociadoData();
       this.getAsociacion();
-      this.loadAsociadoDataOnForm(this.asociadoLogged);
+      this.loadAsociadoDataOnForm(this.asociado);
       this.academicInfo.get('observaciones')?.disable();
     } catch (error) {
       console.error('Error loading asociado data:', error);
@@ -142,7 +137,7 @@ export class FormularioComponent implements OnInit {
   }
 
   getAsociacion() {
-    this.censoService.getHistoricoByAsociado(this.asociadoLogged?.id).subscribe({
+    this.censoService.getHistoricoByAsociado(this.asociado?.id).subscribe({
       next: (response: any) => {
         const registrosFiltrados = response.historico.filter((registro: any) => registro.ejercicio >= 2024);
         const idAsociacionesUnicas = [...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))];
@@ -154,22 +149,6 @@ export class FormularioComponent implements OnInit {
       error: (err) => {
         console.error('Error fetching historico:', err);
       }
-    });
-  }
-
-  loadAsociadoData(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.censoService.asociadosGetById(this.candidataService.getIdUsuario()).subscribe({
-        next: (response: any) => {
-          if (response.status.status === 200) {
-            this.asociadoLogged = response.asociados[0];
-            resolve();
-          } else {
-            reject('Error: Status not 200');
-          }
-        },
-        error: (err) => reject(err)
-      });
     });
   }
 
@@ -243,7 +222,7 @@ export class FormularioComponent implements OnInit {
     ]);
 
     const candidata: CandidataData = {
-      id: this.asociadoLogged.id.toString() || '',
+      id: this.asociado.id.toString() || '',
       dni: this.personalInfo.get('dni')?.value || '',
       nombre: this.personalInfo.get('nombre')?.value || '',
       fechaNacimiento: this.personalInfo.get('fechaNacimiento')?.value || '',
@@ -292,6 +271,11 @@ export class FormularioComponent implements OnInit {
         }
       });
     }
+    this.dialog.afterAllClosed.subscribe({
+      next: () => {
+        this.cambioVisor.emit('menu');
+      }
+    })
   }
 
   private uploadFile(fieldName: string, file: File): Promise<string> {
