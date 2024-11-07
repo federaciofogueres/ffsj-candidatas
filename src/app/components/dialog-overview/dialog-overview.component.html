@@ -1,0 +1,12 @@
+<!-- dialog-overview.component.html -->
+<div class="container">
+    <h1 mat-dialog-title class="text-naranja">Detalles</h1>
+    <div mat-dialog-content>
+        @for (item of Object.keys(data); track $index) {
+        <div class="d-flex align-items-center">
+            <h4 class="m-0 text-rojo">{{item}} </h4>
+            <span class="text-naranja"> - {{data[item].value}}</span>
+        </div>
+        }
+    </div>
+</div>

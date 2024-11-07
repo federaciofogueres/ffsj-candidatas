@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -7,6 +8,7 @@ import { CandidataData, TiposCampos } from '../../model/candidata-data.model';
 import { CensoService } from '../../services/censo.service';
 import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
 export interface InfoShowTable {
   id: string;
@@ -25,7 +27,8 @@ export interface InfoShowTable {
     CommonModule,
     MatIconModule,
     MatTableModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDialogModule
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
@@ -41,7 +44,6 @@ export class AdminComponent implements OnInit {
   adultas: CandidataData[] = [];
   infantiles: CandidataData[] = [];
 
-
   adultasData: InfoShowTable[] = [];
   infantilesData: InfoShowTable[] = [];
 
@@ -52,7 +54,8 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private firebaseStorageService: FirebaseStorageService,
-    private censoService: CensoService
+    private censoService: CensoService,
+    public dialog: MatDialog
   ) {
 
   }
@@ -166,6 +169,12 @@ export class AdminComponent implements OnInit {
         return campo.value !== null && campo.value !== undefined && String(campo.value).trim() !== '';
       }
       return true;
+    });
+  }
+
+  openDialog(element: any, col: string, j: number): void {
+    this.dialog.open(DialogOverviewComponent, {
+      data: element[j][col]
     });
   }
 
