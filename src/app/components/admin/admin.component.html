@@ -58,16 +58,20 @@
                     @for(columna of columnasInfantiles.slice(2); track $index) {
                     <ng-container matColumnDef="{{columna}}">
                         <th mat-header-cell *matHeaderCellDef>{{columnasInfantilesText[$index + 2]}}</th>
-                        <td mat-cell *matCellDef="let element">
-                            @if(element[columna] === 'Completo') {
-                            <span class="d-flex text-verde aling-items-center">
-                                <mat-icon class="mr-2">check</mat-icon>
-                            </span>
-                            } @else {
-                            <span class="d-flex text-rojo aling-items-center">
-                                <mat-icon class="mr-2">close</mat-icon>
-                            </span>
-                            }
+                        <td mat-cell *matCellDef="let element; let j = index">
+                            <div class="d-flex">
+                                @if(element[columna] === 'Completo') {
+                                <span class="d-flex text-verde aling-items-center">
+                                    <mat-icon class="mr-2">check</mat-icon>
+                                </span>
+                                } @else {
+                                <span class="d-flex text-rojo aling-items-center">
+                                    <mat-icon class="mr-2">close</mat-icon>
+                                </span>
+                                }
+                                <mat-icon class="ml-2"
+                                    (click)="openDialog(infantiles, columna, j)">visibility</mat-icon>
+                            </div>
                         </td>
                     </ng-container>
                     }
