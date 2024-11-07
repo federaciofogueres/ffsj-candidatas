@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'ffsj-web-components';
 import { CandidataService } from '../../services/candidatas.service';
 import { CensoService } from '../../services/censo.service';
@@ -23,16 +24,26 @@ export class HomeComponent implements OnInit {
   public visor: VisorType = 'menu';
   public asociado!: Asociado;
 
+  protected esAdmin: boolean = false;
+
   constructor(
     private censoService: CensoService,
     private candidataService: CandidataService,
-    private authService: AuthService
+    private authService: AuthService,
+    protected router: Router
   ) { }
 
   ngOnInit() {
+    this.checkAdmin();
     this.loadAsociadoData();
   }
 
+  checkAdmin() {
+    const cargos = this.authService.getCargos();
+    console.log({ cargos });
+    this.esAdmin = Boolean(this.authService.getCargos().filter(cargo => { return cargo.idCargo === 16 }));
+
+  }
   logout() {
     this.authService.logout();
   }
