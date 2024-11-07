@@ -15,29 +15,22 @@
                         <td mat-cell *matCellDef="let element"> {{element.foguera}} </td>
                     </ng-container>
 
-                    <!-- Información Personal Column -->
-                    <ng-container matColumnDef="informacionPersonal">
-                        <th mat-header-cell *matHeaderCellDef> Información Personal </th>
-                        <td mat-cell *matCellDef="let element"> {{element.informacionPersonal}} </td>
+                    @for(columna of columnasAdultas.slice(2); track $index) {
+                    <ng-container matColumnDef="{{columna}}">
+                        <th mat-header-cell *matHeaderCellDef>{{columnasAdultasText[$index + 2]}}</th>
+                        <td mat-cell *matCellDef="let element">
+                            @if(element[columna] === 'Completo') {
+                            <span class="d-flex text-verde aling-items-center">
+                                <mat-icon class="mr-2">check</mat-icon>
+                            </span>
+                            } @else {
+                            <span class="d-flex text-rojo aling-items-center">
+                                <mat-icon class="mr-2">close</mat-icon>
+                            </span>
+                            }
+                        </td>
                     </ng-container>
-
-                    <!-- Vida en Fogueres Column -->
-                    <ng-container matColumnDef="vidaEnFogueres">
-                        <th mat-header-cell *matHeaderCellDef> Vida en Fogueres </th>
-                        <td mat-cell *matCellDef="let element"> {{element.vidaEnFogueres}} </td>
-                    </ng-container>
-
-                    <!-- Académico Column -->
-                    <ng-container matColumnDef="academico">
-                        <th mat-header-cell *matHeaderCellDef> Académico </th>
-                        <td mat-cell *matCellDef="let element"> {{element.academico}} </td>
-                    </ng-container>
-
-                    <!-- Documentación Column -->
-                    <ng-container matColumnDef="documentacion">
-                        <th mat-header-cell *matHeaderCellDef> Documentación </th>
-                        <td mat-cell *matCellDef="let element"> {{element.documentacion}} </td>
-                    </ng-container>
+                    }
 
                     <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
                     <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
@@ -59,35 +52,22 @@
                         <td mat-cell *matCellDef="let element"> {{element.foguera}} </td>
                     </ng-container>
 
-                    <!-- Información Personal Column -->
-                    <ng-container matColumnDef="informacionPersonal">
-                        <th mat-header-cell *matHeaderCellDef> Información Personal </th>
-                        <td mat-cell *matCellDef="let element"> {{element.informacionPersonal}} </td>
+                    @for(columna of columnasInfantiles.slice(2); track $index) {
+                    <ng-container matColumnDef="{{columna}}">
+                        <th mat-header-cell *matHeaderCellDef>{{columnasInfantilesText[$index + 2]}}</th>
+                        <td mat-cell *matCellDef="let element">
+                            @if(element[columna] === 'Completo') {
+                            <span class="d-flex text-verde aling-items-center">
+                                <mat-icon class="mr-2">check</mat-icon>
+                            </span>
+                            } @else {
+                            <span class="d-flex text-rojo aling-items-center">
+                                <mat-icon class="mr-2">close</mat-icon>
+                            </span>
+                            }
+                        </td>
                     </ng-container>
-
-                    <!-- Vida en Fogueres Column -->
-                    <ng-container matColumnDef="vidaEnFogueres">
-                        <th mat-header-cell *matHeaderCellDef> Vida en Fogueres </th>
-                        <td mat-cell *matCellDef="let element"> {{element.vidaEnFogueres}} </td>
-                    </ng-container>
-
-                    <!-- Académico Column -->
-                    <ng-container matColumnDef="academico">
-                        <th mat-header-cell *matHeaderCellDef> Académico </th>
-                        <td mat-cell *matCellDef="let element"> {{element.academico}} </td>
-                    </ng-container>
-
-                    <!-- Documentación Column -->
-                    <ng-container matColumnDef="documentacion">
-                        <th mat-header-cell *matHeaderCellDef> Documentación </th>
-                        <td mat-cell *matCellDef="let element"> {{element.documentacion}} </td>
-                    </ng-container>
-
-                    <!-- Documentación Column -->
-                    <ng-container matColumnDef="responsables">
-                        <th mat-header-cell *matHeaderCellDef> Responsables</th>
-                        <td mat-cell *matCellDef="let element"> {{element.responsables}} </td>
-                    </ng-container>
+                    }
                     <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
                     <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
                 </table>

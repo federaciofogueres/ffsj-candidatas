@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CandidataData } from '../../model/candidata-data.model';
+import { CensoService } from '../../services/censo.service';
+import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 export interface InfoShowTable {
@@ -20,6 +23,7 @@ export interface InfoShowTable {
   standalone: true,
   imports: [
     CommonModule,
+    MatIconModule,
     MatTableModule,
     MatTabsModule
   ],
@@ -30,6 +34,10 @@ export class AdminComponent implements OnInit {
 
   Object = Object;
 
+  loading: boolean = true;
+
+  asociaciones: Asociacion[] = [];
+
   adultas: CandidataData[] = [];
   infantiles: CandidataData[] = [];
 
@@ -39,15 +47,29 @@ export class AdminComponent implements OnInit {
 
   columnasAdultas: string[] = [];
   columnasInfantiles: string[] = [];
+  columnasAdultasText: string[] = [];
+  columnasInfantilesText: string[] = [];
 
   constructor(
     private firebaseStorageService: FirebaseStorageService,
+    private censoService: CensoService
   ) {
 
   }
 
   ngOnInit() {
+    this.loading = true;
     this.loadData();
+  }
+
+  loadAsociaciones() {
+    this.censoService.asociacionesGet().subscribe({
+      next: (response: ResponseAsociaciones) => {
+        if (response.status?.status === 200) {
+          this.asociaciones = response.asociaciones || [];
+        }
+      }
+    })
   }
 
   async loadFromBD(collection: string): Promise<CandidataData[]> {
@@ -92,26 +114,31 @@ export class AdminComponent implements OnInit {
   }
 
   async loadData() {
+    this.loadAsociaciones();
     this.adultas = await this.loadFromBD('candidatas/2024/adultas');
     this.infantiles = await this.loadFromBD('candidatas/2024/infantiles');
 
-    ({ nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
-    ({ nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
+    ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
+    ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
 
     console.log(this.adultasData, this.infantilesData);
+    this.loading = false;
 
   }
 
   agrupaColumnas(tipoCandidata: string, array: CandidataData[]) {
     let nuevasColumnas = ['id', 'foguera', 'informacionPersonal', 'vidaEnFogueres', 'academico', 'documentacion'];
+    let nuevasColumnasText = ['Id', 'Foguera', 'Información Personal', 'Vida en Fogueres', 'Académico', 'Documentación'];
     if (tipoCandidata === 'infantiles') {
       nuevasColumnas.push('responsables');
+      nuevasColumnasText.push('Responsables');
     }
     let infoTabla: any[] = [];
+    array.sort((a, b) => a.asociacion.localeCompare(b.asociacion))
     array.forEach(c => {
       let info: InfoShowTable = {
         id: c.id,
-        foguera: c.asociacion,
+        foguera: this.asociaciones.find(asociacion => { return c.asociacion === String(asociacion.id) })?.nombre || 'Sin datos',
         informacionPersonal: this.checkCampos([c.dni, c.nombre, c.fechaNacimiento, c.ciudad, c.telefono, c.email, c.tipoCandidata]) ? 'Completo' : 'Faltan datos',
         vidaEnFogueres: this.checkCampos([c.asociacion, c.anyosFiesta, c.curriculum]) ? 'Completo' : 'Faltan datos',
         academico: this.checkCampos([c.formacion, c.situacionLaboral, c.observaciones, c.aficiones]) ? 'Completo' : 'Faltan datos',
@@ -120,7 +147,7 @@ export class AdminComponent implements OnInit {
       }
       infoTabla.push(info);
     })
-    return { nuevasColumnas, infoTabla };
+    return { nuevasColumnasText, nuevasColumnas, infoTabla };
   }
 
   checkCampos(campos: string[]): boolean {
