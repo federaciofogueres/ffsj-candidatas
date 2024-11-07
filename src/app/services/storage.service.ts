@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, doc, Firestore, setDoc } from '@angular/fire/firestore';
+import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { CandidataData } from '../model/candidata-data.model';
 
@@ -46,6 +46,13 @@ export class FirebaseStorageService {
 
     async addCandidata(candidata: CandidataData) {
         await setDoc(doc(this._firestore, `candidatas/2024/${candidata.tipoCandidata}`, candidata.asociacion), candidata);
+    }
+
+    async getCollection(collectionName: string) {
+        const colRef = collection(this._firestore, collectionName);
+        const snapshot = await getDocs(colRef);
+        const docs = snapshot.docs.map(doc => doc.data());
+        return docs;
     }
 
 }
