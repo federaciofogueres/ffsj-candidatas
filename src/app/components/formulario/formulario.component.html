@@ -222,16 +222,25 @@
                     <label for="autorizacionFoguera" class="text-naranja">Autorización Foguera</label>
                     <input type="file" id="autorizacionFoguera" class="form-control"
                         (change)="onFileChange($event, 'autorizacionFoguera')">
+                    @if(documentacionForm.get('autorizacionFoguera')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="compromisoDisponibilidad" class="text-naranja">Compromiso Disponibilidad</label>
                     <input type="file" id="compromisoDisponibilidad" class="form-control"
                         (change)="onFileChange($event, 'compromisoDisponibilidad')">
+                    @if(documentacionForm.get('compromisoDisponibilidad')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="derechosAutor" class="text-naranja">Derechos de autor</label>
                     <input type="file" id="derechosAutor" class="form-control"
                         (change)="onFileChange($event, 'derechosAutor')">
+                    @if(documentacionForm.get('derechosAutor')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="dniEscaneado" class="text-naranja">DNI Escaneado
@@ -239,19 +248,28 @@
                         === 'infantiles' ? ' o libro de familia si no dispone de DNI' : ''}}</label>
                     <input type="file" id="dniEscaneado" class="form-control"
                         (change)="onFileChange($event, 'dniEscaneado')">
+                    @if(documentacionForm.get('dniEscaneado')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="fotoBelleza" class="text-naranja">Foto Belleza</label>
                     <input type="file" id="fotoBelleza" class="form-control"
                         (change)="onFileChange($event, 'fotoBelleza')">
+                    @if(documentacionForm.get('fotoBelleza')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div class="form-group mb-3">
                     <label for="fotoCalle" class="text-naranja">Foto Calle</label>
                     <input type="file" id="fotoCalle" class="form-control" (change)="onFileChange($event, 'fotoCalle')">
+                    @if(documentacionForm.get('fotoCalle')?.errors?.['fileSize']) {
+                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
+                    }
                 </div>
                 <div>
                     <button type="submit" class="btn btn-primary btn-foc-rojo" (click)="procesar()"
-                        [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid">Enviar</button>
+                        [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">Enviar</button>
                     <!-- <button (click)="procesar()">show</button> -->
                 </div>
             </form>

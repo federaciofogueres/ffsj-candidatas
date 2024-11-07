@@ -99,12 +99,12 @@ export class FormularioComponent implements OnInit {
   }, { validators: this.tipoCandidataValidator(this.personalInfo) });
 
   documentacionForm = this.fb.group({
-    autorizacionFoguera: [null, []],
-    compromisoDisponibilidad: [null, []],
-    derechosAutor: [null, []],
-    dniEscaneado: [null, []],
-    fotoBelleza: [null, []],
-    fotoCalle: [null, []],
+    autorizacionFoguera: [null, [this.fileSizeValidator(5)]],
+    compromisoDisponibilidad: [null, [this.fileSizeValidator(5)]],
+    derechosAutor: [null, [this.fileSizeValidator(5)]],
+    dniEscaneado: [null, [this.fileSizeValidator(5)]],
+    fotoBelleza: [null, [this.fileSizeValidator(5)]],
+    fotoCalle: [null, [this.fileSizeValidator(5)]],
   });
 
   constructor(
@@ -232,13 +232,14 @@ export class FormularioComponent implements OnInit {
   async procesar() {
 
     this.loading = true;
-
     const files = this.documentacionForm.value;
     const fileUrls = await Promise.all([
-      files.fotoCalle ? this.uploadFile('fotoCalle', files.fotoCalle) : Promise.resolve(''),
-      files.fotoBelleza ? this.uploadFile('fotoBelleza', files.fotoBelleza) : Promise.resolve(''),
+      files.autorizacionFoguera ? this.uploadFile('autorizacionFoguera', files.autorizacionFoguera) : Promise.resolve(''),
       files.compromisoDisponibilidad ? this.uploadFile('compromisoDisponibilidad', files.compromisoDisponibilidad) : Promise.resolve(''),
-      files.derechosAutor ? this.uploadFile('derechosAutor', files.derechosAutor) : Promise.resolve('')
+      files.derechosAutor ? this.uploadFile('derechosAutor', files.derechosAutor) : Promise.resolve(''),
+      files.dniEscaneado ? this.uploadFile('dniEscaneado', files.dniEscaneado) : Promise.resolve(''),
+      files.fotoBelleza ? this.uploadFile('fotoBelleza', files.fotoBelleza) : Promise.resolve(''),
+      files.fotoCalle ? this.uploadFile('fotoCalle', files.fotoCalle) : Promise.resolve(''),
     ]);
 
     const candidata: CandidataData = {
@@ -378,6 +379,16 @@ export class FormularioComponent implements OnInit {
 
   removeCurriculum(index: number) {
     this.cargos.splice(index, 1);
+  }
+
+  fileSizeValidator(maxSizeMB: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const file = control.value;
+      if (file && file.size > maxSizeMB * 1024 * 1024) {
+        return { fileSize: true };
+      }
+      return null;
+    };
   }
 
 }
