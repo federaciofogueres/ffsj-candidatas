@@ -221,36 +221,42 @@ export class FormularioComponent implements OnInit {
     ]);
 
     const candidata: CandidataData = {
-      id: this.asociado.id.toString() || '',
-      dni: this.personalInfo.get('dni')?.value || '',
-      nombre: this.personalInfo.get('nombre')?.value || '',
-      fechaNacimiento: this.personalInfo.get('fechaNacimiento')?.value || '',
-      ciudad: this.personalInfo.get('ciudad')?.value || '',
-      email: this.personalInfo.get('email')?.value || '',
-      telefono: this.personalInfo.get('telefono')?.value || '',
-      tipoCandidata: this.personalInfo.get('tipoCandidata')?.value || '',
-
-      curriculum: JSON.stringify(this.cargos) || '',
-      anyosFiesta: this.fogueresInfo.get('anyosFiesta')?.value || '',
-      asociacion: this.fogueresInfo.get('asociacion')?.value?.toString() || '',
-
-      formacion: this.academicInfo.get('formacion')?.value || '',
-      situacionLaboral: this.academicInfo.get('situacionLaboral')?.value || '',
-      observaciones: this.academicInfo.get('observaciones')?.value || '',
-      aficiones: this.academicInfo.get('aficiones')?.value || '',
-
-      edad: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '',
-      autorizacionFoguera: fileUrls[0],
-      compromisoDisponibilidad: fileUrls[1],
-      derechosAutor: fileUrls[2],
-      dniEscaneado: fileUrls[3],
-      fotoBelleza: fileUrls[4],
-      fotoCalle: fileUrls[5],
-
-      nombreTutor1: this.responsableInfo.get('nombreTutor1')?.value || '',
-      nombreTutor2: this.responsableInfo.get('nombreTutor2')?.value || '',
-      telefonoTutor1: this.responsableInfo.get('telefonoTutor1')?.value || '',
-      telefonoTutor2: this.responsableInfo.get('telefonoTutor2')?.value || ''
+      id: { value: this.asociado.id.toString() || '', required: true },
+      informacionPersonal: {
+        dni: { value: this.personalInfo.get('dni')?.value || '', required: true },
+        nombre: { value: this.personalInfo.get('nombre')?.value || '', required: true },
+        fechaNacimiento: { value: this.personalInfo.get('fechaNacimiento')?.value || '', required: true },
+        ciudad: { value: this.personalInfo.get('ciudad')?.value || '', required: true },
+        email: { value: this.personalInfo.get('email')?.value || '', required: true },
+        telefono: { value: this.personalInfo.get('telefono')?.value || '', required: true },
+        edad: { value: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '', required: true },
+        tipoCandidata: { value: this.personalInfo.get('tipoCandidata')?.value || '', required: true }
+      },
+      vidaEnFogueres: {
+        asociacion: { value: this.fogueresInfo.get('asociacion')?.value?.toString() || '', required: true },
+        anyosFiesta: { value: this.fogueresInfo.get('anyosFiesta')?.value || '', required: true },
+        curriculum: { value: JSON.stringify(this.cargos) || '', required: true }
+      },
+      academico: {
+        formacion: { value: this.academicInfo.get('formacion')?.value || '', required: true },
+        situacionLaboral: { value: this.academicInfo.get('situacionLaboral')?.value || '', required: true },
+        observaciones: { value: this.academicInfo.get('observaciones')?.value || '', required: true },
+        aficiones: { value: this.academicInfo.get('aficiones')?.value || '', required: true }
+      },
+      documentacion: {
+        autorizacionFoguera: { value: fileUrls[0], required: true },
+        compromisoDisponibilidad: { value: fileUrls[1], required: true },
+        derechosAutor: { value: fileUrls[2], required: true },
+        dniEscaneado: { value: fileUrls[3], required: true },
+        fotoBelleza: { value: fileUrls[4], required: true },
+        fotoCalle: { value: fileUrls[5], required: true }
+      },
+      responsables: {
+        nombreTutor1: { value: this.responsableInfo.get('nombreTutor1')?.value || '', required: true },
+        nombreTutor2: { value: this.responsableInfo.get('nombreTutor2')?.value || '', required: true },
+        telefonoTutor1: { value: this.responsableInfo.get('telefonoTutor1')?.value || '', required: true },
+        telefonoTutor2: { value: this.responsableInfo.get('telefonoTutor2')?.value || '', required: true }
+      }
     };
     this.loading = false;
     console.log(candidata);

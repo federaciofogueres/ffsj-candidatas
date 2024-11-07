@@ -45,7 +45,8 @@ export class FirebaseStorageService {
     }
 
     async addCandidata(candidata: CandidataData) {
-        await setDoc(doc(this._firestore, `candidatas/2024/${candidata.tipoCandidata}`, candidata.asociacion), candidata);
+        const candidataValues = this.extractValues(candidata);
+        await setDoc(doc(this._firestore, `candidatas/2024/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);
     }
 
     async getCollection(collectionName: string) {
@@ -55,4 +56,34 @@ export class FirebaseStorageService {
         return docs;
     }
 
+    extractValues(candidata: CandidataData) {
+        return {
+            id: candidata.id.value,
+            dni: candidata.informacionPersonal.dni.value,
+            nombre: candidata.informacionPersonal.nombre.value,
+            fechaNacimiento: candidata.informacionPersonal.fechaNacimiento.value,
+            ciudad: candidata.informacionPersonal.ciudad.value,
+            email: candidata.informacionPersonal.email.value,
+            telefono: candidata.informacionPersonal.telefono.value,
+            edad: candidata.informacionPersonal.edad.value,
+            tipoCandidata: candidata.informacionPersonal.tipoCandidata.value,
+            asociacion: candidata.vidaEnFogueres.asociacion.value,
+            anyosFiesta: candidata.vidaEnFogueres.anyosFiesta.value,
+            curriculum: candidata.vidaEnFogueres.curriculum.value,
+            formacion: candidata.academico.formacion.value,
+            situacionLaboral: candidata.academico.situacionLaboral.value,
+            observaciones: candidata.academico.observaciones.value,
+            aficiones: candidata.academico.aficiones.value,
+            autorizacionFoguera: candidata.documentacion.autorizacionFoguera.value,
+            compromisoDisponibilidad: candidata.documentacion.compromisoDisponibilidad.value,
+            derechosAutor: candidata.documentacion.derechosAutor.value,
+            dniEscaneado: candidata.documentacion.dniEscaneado.value,
+            fotoBelleza: candidata.documentacion.fotoBelleza.value,
+            fotoCalle: candidata.documentacion.fotoCalle.value,
+            nombreTutor1: candidata.responsables.nombreTutor1.value,
+            nombreTutor2: candidata.responsables.nombreTutor2.value,
+            telefonoTutor1: candidata.responsables.telefonoTutor1.value,
+            telefonoTutor2: candidata.responsables.telefonoTutor2.value
+        }
+    };
 }
