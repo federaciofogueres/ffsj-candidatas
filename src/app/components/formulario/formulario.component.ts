@@ -259,12 +259,15 @@ export class FormularioComponent implements OnInit {
       formacion: this.academicInfo.get('formacion')?.value || '',
       situacionLaboral: this.academicInfo.get('situacionLaboral')?.value || '',
       observaciones: this.academicInfo.get('observaciones')?.value || '',
+      aficiones: this.academicInfo.get('aficiones')?.value || '',
 
       edad: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '',
-      fotoCalle: fileUrls[0],
-      fotoFiesta: fileUrls[1],
-      cesionDerechos: fileUrls[3],
-      compromisoDisponibilidad: fileUrls[2]
+      autorizacionFoguera: fileUrls[0],
+      compromisoDisponibilidad: fileUrls[1],
+      derechosAutor: fileUrls[2],
+      dniEscaneado: fileUrls[3],
+      fotoBelleza: fileUrls[4],
+      fotoCalle: fileUrls[5],
     };
     this.loading = false;
     console.log(candidata);

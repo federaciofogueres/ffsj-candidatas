@@ -13,9 +13,12 @@ export interface CandidataData {
   telefono: string;
   observaciones: string;
   asociacion: string;
-  fotoCalle: string;
-  fotoFiesta: string;
-  cesionDerechos: string;
-  compromisoDisponibilidad: string;
   tipoCandidata: string;
+  aficiones: string;
+  autorizacionFoguera: string;
+  compromisoDisponibilidad: string;
+  derechosAutor: string;
+  dniEscaneado: string;
+  fotoBelleza: string;
+  fotoCalle: string;
 }
