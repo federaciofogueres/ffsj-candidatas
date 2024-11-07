@@ -74,8 +74,7 @@ export class FormularioComponent implements OnInit {
     nombreTutor2: [''],
     telefonoTutor1: ['', Validators.required],
     telefonoTutor2: [''],
-    patriaPotestad: ['', Validators.required],
-  }, { validators: this.patriaPotestadValidator() });
+  });
 
   fogueresInfo = this.fb.group({
     asociacion: [this.defaultAsociacionId, Validators.required],
@@ -247,6 +246,11 @@ export class FormularioComponent implements OnInit {
       dniEscaneado: fileUrls[3],
       fotoBelleza: fileUrls[4],
       fotoCalle: fileUrls[5],
+
+      nombreTutor1: this.responsableInfo.get('nombreTutor1')?.value || '',
+      nombreTutor2: this.responsableInfo.get('nombreTutor2')?.value || '',
+      telefonoTutor1: this.responsableInfo.get('telefonoTutor1')?.value || '',
+      telefonoTutor2: this.responsableInfo.get('telefonoTutor2')?.value || ''
     };
     this.loading = false;
     console.log(candidata);
@@ -254,6 +258,8 @@ export class FormularioComponent implements OnInit {
     console.log(this.fogueresInfo);
     console.log(this.academicInfo);
     console.log(this.documentacionForm);
+    console.log(this.responsableInfo);
+
     // Publicar el objeto candidata en Firestore
     try {
       await this.firebaseStorageService.addCandidata(candidata);

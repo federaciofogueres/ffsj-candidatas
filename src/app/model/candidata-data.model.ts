@@ -21,4 +21,8 @@ export interface CandidataData {
   dniEscaneado: string;
   fotoBelleza: string;
   fotoCalle: string;
+  nombreTutor1: string;
+  nombreTutor2: string;
+  telefonoTutor1: string;
+  telefonoTutor2: string;
 }
