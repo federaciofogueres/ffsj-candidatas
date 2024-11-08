@@ -2,11 +2,22 @@
 <div class="container">
     <h1 mat-dialog-title class="text-naranja h1 m-0 my-3">Detalles</h1>
     <div mat-dialog-content>
-        @for (item of Object.keys(data); track $index) {
-        <div class="d-flex align-items-center">
-            <h4 class="m-0 text-rojo">{{item}} </h4>
-            <span class="text-naranja"> - {{data[item].value}}</span>
+        <div class="d-flex flex-column gap-3">
+            @for (item of Object.keys(data.datos); track $index) {
+            <div class="d-flex align-items-center">
+                <h4 class="m-0 text-rojo me-3">{{LabelsFormulario[item]}} </h4>
+                @if (item === 'curriculum') {
+                <!-- <span class="text-naranja"> - {{data[item].value | json}}</span> -->
+                <div class="d-flex flex-column">
+                    @for(cargo of data.datos['curriculum'].value; track $index) {
+                    <span class="text-naranja">{{cargo['cargo']}} - Años {{cargo['comienzo']}}/{{cargo['final']}}</span>
+                    }
+                </div>
+                } @else {
+                <span class="text-naranja"> - {{data.datos[item].value}}</span>
+                }
+            </div>
+            }
         </div>
-        }
     </div>
 </div>

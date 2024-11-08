@@ -53,3 +53,32 @@ export interface CampoCandidataData {
 }
 
 export type TiposCampos = InformacionPersonal | VidaEnFogueres | Academico | Documentacion | Responsables;
+
+export const LabelsFormulario: { [key in string]: string } = {
+  ['id']: 'ID',
+  ['dni']: 'DNI',
+  ['nombre']: 'Nombre',
+  ['fechaNacimiento']: 'Fecha de nacimiento',
+  ['ciudad']: 'Ciudad',
+  ['email']: 'Email',
+  ['telefono']: 'Teléfono',
+  ['edad']: 'Edad',
+  ['tipoCandidata']: 'Tipo de candidata',
+  ['asociacion']: 'Asociación',
+  ['anyosFiesta']: 'Años en la fiesta',
+  ['curriculum']: 'Currículum',
+  ['formacion']: 'Formación',
+  ['situacionLaboral']: 'Situación laboral',
+  ['observaciones']: 'Observaciones',
+  ['aficiones']: 'Aficiones',
+  ['autorizacionFoguera']: 'Autorización Foguera',
+  ['compromisoDisponibilidad']: 'Compromiso de disponibilidad',
+  ['derechosAutor']: 'Derechos de autor',
+  ['dniEscaneado']: 'DNI escaneado',
+  ['fotoBelleza']: 'Foto belleza',
+  ['fotoCalle']: 'Foto calle',
+  ['nombreTutor1']: 'Nombre del tutor 1',
+  ['nombreTutor2']: 'Nombre del tutor 2',
+  ['telefonoTutor1']: 'Teléfono del tutor 1',
+  ['telefonoTutor2']: 'Teléfono del tutor 2'
+};
