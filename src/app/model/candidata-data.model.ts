@@ -80,5 +80,10 @@ export const LabelsFormulario: { [key in string]: string } = {
   ['nombreTutor1']: 'Nombre del tutor 1',
   ['nombreTutor2']: 'Nombre del tutor 2',
   ['telefonoTutor1']: 'Teléfono del tutor 1',
-  ['telefonoTutor2']: 'Teléfono del tutor 2'
+  ['telefonoTutor2']: 'Teléfono del tutor 2',
+  ['informacionPersonal']: 'Información personal',
+  ['vidaEnFogueres']: 'Vida en Fogueres',
+  ['academico']: 'Información académica',
+  ['documentacion']: 'Documentación',
+  ['responsables']: 'Responsables'
 };
