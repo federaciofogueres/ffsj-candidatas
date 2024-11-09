@@ -143,9 +143,20 @@ export class AdminComponent implements OnInit {
     ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
     ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
 
+    this.updateAsociacionValues(this.adultas, this.adultasData);
+    this.updateAsociacionValues(this.infantiles, this.adultasData);
+
     console.log(this.adultasData, this.infantilesData);
     this.loading = false;
+  }
 
+  updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
+    data.forEach((item, index) => {
+      const correspondingAdulta = adultasData.find(adulta => adulta.id === item.id.value);
+      if (correspondingAdulta) {
+        item.vidaEnFogueres.asociacion.value = correspondingAdulta.foguera;
+      }
+    });
   }
 
   agrupaColumnas(tipoCandidata: string, array: CandidataData[]) {
@@ -226,7 +237,7 @@ export class AdminComponent implements OnInit {
 
   getHeaders(key: keyof CandidataData): string[] {
     const headers = ['ID', 'Asociación'];
-    const obj = this.adultas[0][key];
+    const obj = (this.selectedTab === 'adultas' ? this.adultas : this.infantiles)[0][key];
     for (let k in obj) {
       if (obj.hasOwnProperty(k)) {
         headers.push(LabelsFormulario[k] || k);
