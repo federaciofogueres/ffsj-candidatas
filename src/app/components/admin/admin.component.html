@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-end mb-3">
-        <button mat-button [matMenuTriggerFor]="menuInfantiles">Descargar</button>
+        <button class="btn btn-foc-rojo" mat-button [matMenuTriggerFor]="menuInfantiles">Descargar</button>
         <mat-menu #menuInfantiles="matMenu">
             <button mat-menu-item (click)="download()">Todo</button>
             <button mat-menu-item (click)="download('informacionPersonal')">Información personal</button>
