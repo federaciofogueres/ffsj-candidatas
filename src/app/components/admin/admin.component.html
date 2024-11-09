@@ -10,7 +10,7 @@
     </div>
     <mat-tab-group dynamicHeight (selectedTabChange)="onTabChange($event)">
         <mat-tab label="Adultas">
-            <div class="example-small-box mat-elevation-z4">
+            <div class="scrollable-container mat-elevation-z4">
                 <table mat-table [dataSource]="adultasData" class="mat-elevation-z8">
                     <!-- ID Column -->
                     <ng-container matColumnDef="id">
@@ -50,7 +50,7 @@
             </div>
         </mat-tab>
         <mat-tab label="Infantiles">
-            <div class="example-large-box mat-elevation-z4">
+            <div class="scrollable-container mat-elevation-z4">
                 <table mat-table [dataSource]="infantilesData" class="mat-elevation-z8">
                     <!-- ID Column -->
                     <ng-container matColumnDef="id">
