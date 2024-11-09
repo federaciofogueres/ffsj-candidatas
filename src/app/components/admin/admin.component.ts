@@ -194,7 +194,7 @@ export class AdminComponent implements OnInit {
 
   openDialog(element: any, col: string, j: number): void {
     this.dialog.open(DialogOverviewComponent, {
-      data: { datos: element[j][col], asociaciones: this.asociaciones },
+      data: { datos: element[j][col], asociaciones: this.asociaciones, visorDocumentos: col.includes('documentacion') },
       width: '80%',
       height: '80%'
     });
