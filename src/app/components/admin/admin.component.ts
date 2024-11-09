@@ -136,18 +136,29 @@ export class AdminComponent implements OnInit {
   }
 
   async loadData() {
-    this.loadAsociaciones();
-    this.adultas = await this.loadFromBD('candidatas/2024/adultas');
-    this.infantiles = await this.loadFromBD('candidatas/2024/infantiles');
+    try {
+      await this.loadAsociaciones();
 
-    ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
-    ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
+      const [adultas, infantiles] = await Promise.all([
+        this.loadFromBD('candidatas/2024/adultas'),
+        this.loadFromBD('candidatas/2024/infantiles')
+      ]);
 
-    this.updateAsociacionValues(this.adultas, this.adultasData);
-    this.updateAsociacionValues(this.infantiles, this.adultasData);
+      this.adultas = adultas;
+      this.infantiles = infantiles;
 
-    console.log(this.adultasData, this.infantilesData);
-    this.loading = false;
+      ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
+      ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
+
+      this.updateAsociacionValues(this.adultas, this.adultasData);
+      this.updateAsociacionValues(this.infantiles, this.adultasData);
+
+      console.log(this.adultasData, this.infantilesData);
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
