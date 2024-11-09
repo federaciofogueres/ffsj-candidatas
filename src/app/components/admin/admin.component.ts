@@ -236,7 +236,10 @@ export class AdminComponent implements OnInit {
   }
 
   getHeaders(key: keyof CandidataData): string[] {
-    const headers = ['ID', 'Asociación'];
+    const headers = ['ID'];
+    if (key !== 'vidaEnFogueres') {
+      headers.push('Asociación');
+    }
     const obj = (this.selectedTab === 'adultas' ? this.adultas : this.infantiles)[0][key];
     for (let k in obj) {
       if (obj.hasOwnProperty(k)) {
@@ -248,7 +251,9 @@ export class AdminComponent implements OnInit {
 
   flattenObject(obj: any, parent: string = '', res: any = {}): any {
     res['ID'] = '';
-    res['Asociación'] = '';
+    if (!('asociacion' in obj)) {
+      res['Asociación'] = '';
+    }
     for (let key in obj) {
       const propName = parent ? `${parent}.${key}` : key;
       if (typeof obj[key] === 'object' && obj[key] !== null && 'value' in obj[key]) {
