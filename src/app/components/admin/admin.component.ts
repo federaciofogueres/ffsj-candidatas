@@ -11,6 +11,7 @@ import { Asociacion, ResponseAsociaciones } from '../../services/external-api/ex
 import { FirebaseStorageService } from '../../services/storage.service';
 import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
+import { FfsjAlertService } from 'ffsj-web-components';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
@@ -64,7 +65,8 @@ export class AdminComponent implements OnInit {
   constructor(
     private firebaseStorageService: FirebaseStorageService,
     private censoService: CensoService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private ffsjAlertService: FfsjAlertService
   ) {
 
   }
@@ -74,14 +76,20 @@ export class AdminComponent implements OnInit {
     this.loadData();
   }
 
-  loadAsociaciones() {
-    this.censoService.asociacionesGet().subscribe({
-      next: (response: ResponseAsociaciones) => {
-        if (response.status?.status === 200) {
-          this.asociaciones = response.asociaciones || [];
-        }
-      }
-    })
+  async loadAsociaciones(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.censoService.asociacionesGet().subscribe({
+        next: (response: ResponseAsociaciones) => {
+          if (response.status?.status === 200) {
+            this.asociaciones = response.asociaciones || [];
+            resolve();
+          } else {
+            reject('Error en la respuesta del servidor');
+          }
+        },
+        error: (err) => reject(err)
+      });
+    });
   }
 
   async loadFromBD(collection: string): Promise<CandidataData[]> {
@@ -203,9 +211,10 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  openDialog(element: any, col: string, j: number): void {
+  openDialog(element: any, col?: string, j?: number): void {
+    const datos = (j && col) ? element[j][col] : element;
     this.dialog.open(DialogOverviewComponent, {
-      data: { datos: element[j][col], asociaciones: this.asociaciones, visorDocumentos: col.includes('documentacion') },
+      data: { datos, asociaciones: this.asociaciones, visorDocumentos: col?.includes('documentacion') },
       width: '80%',
       height: '80%'
     });
@@ -285,6 +294,11 @@ export class AdminComponent implements OnInit {
 
   onTabChange(event: any): void {
     this.selectedTab = event.index === 0 ? 'adultas' : 'infantiles';
+  }
+
+  editElement(element: any) {
+    console.log(element);
+    this.ffsjAlertService.warning('Esta funcionalidad no está disponible de momento.');
   }
 
 }
