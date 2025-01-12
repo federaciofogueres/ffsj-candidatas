@@ -25,6 +25,7 @@ export class HomeComponent implements OnInit {
   public asociado!: Asociado;
 
   protected esAdmin: boolean = false;
+  protected esJurado: boolean = false;
 
   constructor(
     private censoService: CensoService,
@@ -42,6 +43,7 @@ export class HomeComponent implements OnInit {
     const cargos = this.authService.getCargos();
     console.log({ cargos });
     this.esAdmin = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 16 }));
+    this.esJurado = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 21 || cargo.idCargo === 22 }));
 
   }
   logout() {

@@ -6,10 +6,16 @@
                 Bienvenida/o {{asociado.nombre | titlecase}} {{asociado.apellidos | titlecase}}
             </span>
             <div class="d-flex flex-column gap-4">
+                @if(esJurado) {
+                <button class="btn btn-primary btn-foc-naranja" (click)="router.navigateByUrl('libro')">Libro de
+                    candidatas</button>
+                }
+                @else {
                 <button class="btn btn-primary btn-foc-naranja" (click)="visor = 'formulario'">Acceso al
                     formulario</button>
                 <button class="btn btn-primary btn-foc-naranja" (click)="visor = 'documentacion'">Adjuntar
                     documentación</button>
+                }
                 @if(esAdmin) {
                 <button class="btn btn-primary btn-foc-naranja"
                     (click)="router.navigateByUrl('admin')">Administracion</button>
