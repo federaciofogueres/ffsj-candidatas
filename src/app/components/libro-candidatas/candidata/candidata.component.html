@@ -1,0 +1,55 @@
+<div class="container">
+    <div class="row g-0">
+        @if(isTelefono) {
+        <img [src]="currentImage" class="img-fluid rounded-start animated-image" alt="Foto bellesa"
+            (click)="toggleImage()">
+        } @else {
+        <div class="col-md-6">
+            <img [src]="candidataData.documentacion.fotoBelleza.value" class="img-fluid rounded-start animated-image"
+                alt="Foto bellesa">
+        </div>
+        <div class="col-md-6">
+            <img [src]="candidataData.documentacion.fotoCalle.value" class="img-fluid rounded-start animated-image"
+                alt="Foto alternativa">
+        </div>
+        }
+    </div>
+    <div class="row g-0">
+        <div class="col-md-12">
+            <mat-tab-group>
+                <mat-tab label="Información personal">
+                    <div class="card-body">
+                        <div class="d-flex flex-column">
+                            <span class="h2">Información personal</span>
+                            <span><b>Nombre: </b>{{candidataData.informacionPersonal.nombre.value}}</span>
+                            <span><b>Fecha nacimiento:
+                                </b>{{candidataData.informacionPersonal.fechaNacimiento.value}}</span>
+                            <span><b>Edad: </b>{{candidataData.informacionPersonal.edad.value}} años</span>
+                            <span><b>Ciudad: </b>{{candidataData.informacionPersonal.ciudad.value}}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex flex-column">
+                            <span class="h2">Información de la fiesta</span>
+                            <span><b>Foguera: </b>{{candidataData.vidaEnFogueres.asociacion.value}}</span>
+                            <span><b>Años en la fiesta: </b>{{candidataData.vidaEnFogueres.anyosFiesta.value}}
+                                años</span>
+                            <span><b>Curriculum festero: </b>{{candidataData.vidaEnFogueres.curriculum.value}}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex flex-column">
+                            <span class="h2">Información académica y laboral</span>
+                            <span><b>Estudios: </b>{{candidataData.academico.formacion.value}}</span>
+                            <span><b>Situación laboral: </b>{{candidataData.academico.situacionLaboral.value}}</span>
+                            <span><b>Aficiones: </b>{{candidataData.academico.aficiones.value}}</span>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab label="Anotaciones">
+                    <div class="card-body">
+                        <textarea class="form-control" rows="10" [(ngModel)]="anotaciones"></textarea>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</div>

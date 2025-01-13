@@ -1,0 +1,10 @@
+/* filepath: /g:/Proyectos/FFSJ/ffsj-candidatas/src/app/components/libro-candidatas/candidata/candidata.component.scss */
+.animated-image {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.animated-image.ng-enter,
+.animated-image.ng-leave {
+    opacity: 0;
+}

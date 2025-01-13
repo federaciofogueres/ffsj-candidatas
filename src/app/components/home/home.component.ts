@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'ffsj-web-components';
+import { CookieService } from 'ngx-cookie-service';
 import { CandidataService } from '../../services/candidatas.service';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
@@ -31,7 +32,8 @@ export class HomeComponent implements OnInit {
     private censoService: CensoService,
     private candidataService: CandidataService,
     private authService: AuthService,
-    protected router: Router
+    protected router: Router,
+    private cookieService: CookieService
   ) { }
 
   ngOnInit() {
@@ -43,8 +45,13 @@ export class HomeComponent implements OnInit {
     const cargos = this.authService.getCargos();
     console.log({ cargos });
     this.esAdmin = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 16 }));
-    this.esJurado = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 21 || cargo.idCargo === 22 }));
 
+    let juradoAdulto = Boolean(cargos.find(cargo => { return cargo.idCargo === 21 }));
+    let juradoInfantil = Boolean(cargos.find(cargo => { return cargo.idCargo === 22 }));
+    this.esJurado = juradoAdulto || juradoInfantil;
+
+    this.cookieService.set('juradoAdulto', juradoAdulto.toString())
+    this.cookieService.set('juradoInfantil', juradoInfantil.toString())
   }
   logout() {
     this.authService.logout();

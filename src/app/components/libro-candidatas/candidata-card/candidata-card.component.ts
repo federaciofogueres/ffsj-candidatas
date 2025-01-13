@@ -1,0 +1,45 @@
+import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import { CandidataData } from '../../../model/candidata-data.model';
+
+@Component({
+  selector: 'app-candidata-card',
+  standalone: true,
+  imports: [],
+  templateUrl: './candidata-card.component.html',
+  styleUrl: './candidata-card.component.scss'
+})
+export class CandidataCardComponent {
+
+  @Input() candidataData!: CandidataData;
+
+  // URL de la imagen alternativa
+  alternateImageUrl: string = '';
+
+  // Estado de volteo
+  isFlipped: boolean = false;
+
+  // URL de la imagen actual
+  currentImage: string = '';
+
+  constructor(
+    protected router: Router
+  ) { }
+
+  ngOnInit() {
+    this.currentImage = (this.candidataData.documentacion.fotoBelleza.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza.value;
+    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle.value;
+  }
+
+  toggleImage() {
+    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza.value
+      ? this.candidataData.documentacion.fotoCalle.value
+      : this.candidataData.documentacion.fotoBelleza.value;
+  }
+
+  viewDetails() {
+    localStorage.setItem('candidataData', JSON.stringify(this.candidataData));
+    this.router.navigateByUrl('candidatas/' + this.candidataData.id);
+  }
+
+}

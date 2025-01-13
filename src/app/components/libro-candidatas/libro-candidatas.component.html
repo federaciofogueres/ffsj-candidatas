@@ -1,0 +1,13 @@
+<div class="container">
+    <span class="h1">
+        Libro de candidatas
+    </span>
+
+    @if (loading) {
+    <lib-ffsj-spinner [fullscreen]="false"></lib-ffsj-spinner>
+    }@else {
+    <app-listado [candidatas]="candidatas"></app-listado>
+    }
+
+
+</div>
