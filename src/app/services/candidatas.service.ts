@@ -8,6 +8,8 @@ import { CensoService } from "./censo.service";
 import { Asociacion, ResponseAsociaciones } from "./external-api/external-api";
 import { FirebaseStorageService } from "./storage.service";
 
+const BASE_URL_IMAGES = 'https://staticfoguerapp.hogueras.es/CANDIDATAS';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -81,6 +83,7 @@ export class CandidataService {
                         tipoCandidata: { value: dataBD['tipoCandidata'], required: true }
                     },
                     vidaEnFogueres: {
+                        asociacion_label: { value: dataBD['asociacion_label'], required: false },
                         asociacion: { value: dataBD['asociacion'], required: true },
                         anyosFiesta: { value: dataBD['anyosFiesta'], required: true },
                         curriculum: { value: dataBD['curriculum'], required: true }
@@ -158,9 +161,11 @@ export class CandidataService {
 
     updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
         data.forEach((item, index) => {
+            item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion.value}.jpg`;
+            item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion.value}.jpg`;
             const correspondingAdulta = adultasData.find(adulta => adulta.id === item.id.value);
             if (correspondingAdulta) {
-                item.vidaEnFogueres.asociacion.value = correspondingAdulta.foguera;
+                item.vidaEnFogueres.asociacion_label.value = correspondingAdulta.foguera;
             }
         });
     }

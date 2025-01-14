@@ -10,6 +10,7 @@ export interface InformacionPersonal {
 }
 
 export interface VidaEnFogueres {
+  asociacion_label: any;
   asociacion: CampoCandidataData;
   anyosFiesta: CampoCandidataData;
   curriculum: CampoCandidataData;
