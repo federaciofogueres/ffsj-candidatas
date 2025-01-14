@@ -61,10 +61,12 @@ export class LibroCandidatasComponent {
       this.columnasAdultasText = candidatas.columnasAdultasText;
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
 
-      if (this.cookieService.get('juradoAdulto')) {
+      if (this.cookieService.get('juradoAdulto') === 'true') {
         this.candidatas = this.adultas;
-      } else if (this.cookieService.get('juradoInfantil')) {
+      } else if (this.cookieService.get('juradoInfantil') === 'true') {
         this.candidatas = this.infantiles
+      } else {
+        this.candidatas = [];
       }
 
     } catch (error) {
