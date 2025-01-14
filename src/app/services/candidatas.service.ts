@@ -117,7 +117,7 @@ export class CandidataService {
         return arrayData;
     }
 
-    async getCandidatas(reload: boolean = true) {
+    async getCandidatas(reload: boolean = false) {
 
         const candidatasData = localStorage.getItem('candidatasData');
 
