@@ -63,4 +63,8 @@ export class CandidataComponent {
       : this.candidataData.documentacion.fotoBelleza.value;
   }
 
+  saveAnotaciones() {
+    console.log(this.anotaciones);
+  }
+
 }

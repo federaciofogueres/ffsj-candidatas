@@ -1,3 +1,5 @@
+@import '../../../../variables.scss';
+
 /* filepath: /g:/Proyectos/FFSJ/ffsj-candidatas/src/app/components/libro-candidatas/candidata/candidata.component.scss */
 .animated-image {
     transition: opacity 0.5s ease-in-out;
@@ -7,4 +9,9 @@
 .animated-image.ng-enter,
 .animated-image.ng-leave {
     opacity: 0;
+}
+
+.scrollable {
+    height: 100%;
+    overflow: auto;
 }
