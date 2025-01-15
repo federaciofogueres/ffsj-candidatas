@@ -132,11 +132,11 @@ export class CandidataService {
 
         if (candidatasData) {
             const dataParsed = JSON.parse(candidatasData);
-            this.adultas = dataParsed.adultas ? dataParsed.adultas : (await this.loadFromBD('candidatas/2024/adultas')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
-            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : (await this.loadFromBD('candidatas/2024/infantiles')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
+            this.adultas = dataParsed.adultas ? dataParsed.adultas : await this.loadFromBD('candidatas/2024/adultas')
+            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : await this.loadFromBD('candidatas/2024/infantiles')
         } else {
-            this.adultas = (await this.loadFromBD('candidatas/2024/adultas')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
-            this.infantiles = (await this.loadFromBD('candidatas/2024/infantiles')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
+            this.adultas = await this.loadFromBD('candidatas/2024/adultas')
+            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles')
         }
 
         ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
@@ -144,6 +144,9 @@ export class CandidataService {
 
         this.updateAsociacionValues(this.adultas, this.adultasData);
         this.updateAsociacionValues(this.infantiles, this.infantilesData);
+
+        this.adultas = this.sortCandidatasByOrder(this.adultas);
+        this.infantiles = this.sortCandidatasByOrder(this.infantiles);
 
         const returnObject = {
             adultas: this.adultas,
@@ -159,6 +162,14 @@ export class CandidataService {
         localStorage.setItem('candidatasData', JSON.stringify(returnObject));
 
         return returnObject;
+    }
+
+    sortCandidatasByOrder(candidatas: CandidataData[]) {
+        return candidatas.sort((a: CandidataData, b: CandidataData) => {
+            const aOrder = Number(a.vidaEnFogueres.asociacion_order?.value) || 0;
+            const bOrder = Number(b.vidaEnFogueres.asociacion_order?.value) || 0;
+            return aOrder - bOrder;
+        });
     }
 
     updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
