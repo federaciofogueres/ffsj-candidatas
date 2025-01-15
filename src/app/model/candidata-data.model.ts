@@ -10,7 +10,8 @@ export interface InformacionPersonal {
 }
 
 export interface VidaEnFogueres {
-  asociacion_label?: any;
+  asociacion_label: CampoCandidataData;
+  asociacion_order: CampoCandidataData;
   asociacion: CampoCandidataData;
   anyosFiesta: CampoCandidataData;
   curriculum: CampoCandidataData;

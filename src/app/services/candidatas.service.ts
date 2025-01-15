@@ -83,6 +83,7 @@ export class CandidataService {
                         tipoCandidata: { value: dataBD['tipoCandidata'], required: true }
                     },
                     vidaEnFogueres: {
+                        asociacion_order: { value: dataBD['asociacion_order'], required: false },
                         asociacion_label: { value: dataBD['asociacion_label'], required: false },
                         asociacion: { value: dataBD['asociacion'], required: true },
                         anyosFiesta: { value: dataBD['anyosFiesta'], required: true },
@@ -120,6 +121,7 @@ export class CandidataService {
     async getCandidatas(reload: boolean = false) {
 
         const candidatasData = localStorage.getItem('candidatasData');
+        this.loadAsociaciones();
 
         if (candidatasData && !reload) {
             return JSON.parse(candidatasData);
@@ -130,11 +132,11 @@ export class CandidataService {
 
         if (candidatasData) {
             const dataParsed = JSON.parse(candidatasData);
-            this.adultas = dataParsed.adultas ? dataParsed.adultas : await this.loadFromBD('candidatas/2024/adultas');
-            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : await this.loadFromBD('candidatas/2024/infantiles');
+            this.adultas = dataParsed.adultas ? dataParsed.adultas : (await this.loadFromBD('candidatas/2024/adultas')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
+            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : (await this.loadFromBD('candidatas/2024/infantiles')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
         } else {
-            this.adultas = await this.loadFromBD('candidatas/2024/adultas');
-            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles');
+            this.adultas = (await this.loadFromBD('candidatas/2024/adultas')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
+            this.infantiles = (await this.loadFromBD('candidatas/2024/infantiles')).sort((a: CandidataData, b: CandidataData) => a.vidaEnFogueres.asociacion_order.value.localeCompare(b.vidaEnFogueres.asociacion_order.value));
         }
 
         ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
@@ -161,11 +163,12 @@ export class CandidataService {
 
     updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
         data.forEach((item, index) => {
-            item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion.value}.jpg`;
-            item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion.value}.jpg`;
-            const correspondingAdulta = adultasData.find(adulta => adulta.id === item.id.value);
-            if (correspondingAdulta) {
-                item.vidaEnFogueres.asociacion_label.value = correspondingAdulta.foguera;
+            const asociacion = this.asociaciones.find(asociacion => { return item.vidaEnFogueres.asociacion.value === String(asociacion.id) });
+            if (asociacion) {
+                item.vidaEnFogueres.asociacion_label.value = asociacion.nombre;
+                item.vidaEnFogueres.asociacion_order.value = asociacion['asociacion_order'];
+                item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
+                item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
             }
         });
     }

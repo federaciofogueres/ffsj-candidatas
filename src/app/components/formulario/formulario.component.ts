@@ -236,7 +236,8 @@ export class FormularioComponent implements OnInit {
         asociacion: { value: this.fogueresInfo.get('asociacion')?.value?.toString() || '', required: true },
         anyosFiesta: { value: this.fogueresInfo.get('anyosFiesta')?.value || '', required: true },
         curriculum: { value: JSON.stringify(this.cargos) || '', required: true },
-        asociacion_label: undefined
+        asociacion_label: { value: this.fogueresInfo.get('asociacion_label')?.value || '', required: true },
+        asociacion_order: { value: this.fogueresInfo.get('asociacion_order')?.value || '', required: true },
       },
       academico: {
         formacion: { value: this.academicInfo.get('formacion')?.value || '', required: true },
