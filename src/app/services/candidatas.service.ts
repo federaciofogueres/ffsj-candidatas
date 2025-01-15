@@ -141,7 +141,7 @@ export class CandidataService {
         ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
 
         this.updateAsociacionValues(this.adultas, this.adultasData);
-        this.updateAsociacionValues(this.infantiles, this.adultasData);
+        this.updateAsociacionValues(this.infantiles, this.infantilesData);
 
         const returnObject = {
             adultas: this.adultas,
