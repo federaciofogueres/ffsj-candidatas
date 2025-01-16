@@ -10,3 +10,41 @@
 .animated-image.ng-leave {
     opacity: 0;
 }
+
+/* filepath: /g:/Proyectos/FFSJ/ffsj-candidatas/src/app/components/libro-candidatas/candidata-card/candidata-card.component.scss */
+.position-relative {
+    position: relative;
+}
+
+.overlay-circle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.image-candidata {
+    height: 250px;
+}
+
+.data-candidata {
+    height: 140px;
+}
+
+.candidata {
+    .candidata-data {
+        height: 4rem;
+    }
+
+    .asociacion-label {
+        font-size: 0.8rem;
+    }
+}

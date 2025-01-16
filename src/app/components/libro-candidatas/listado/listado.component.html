@@ -1,3 +1,5 @@
-@for (candidata of candidatas; track $index) {
-<app-candidata-card [candidataData]="candidata"></app-candidata-card>
-}
+<div class="candidata-list">
+    @for (candidata of candidatas; track $index) {
+    <app-candidata-card [candidataData]="candidata"></app-candidata-card>
+    }
+</div>

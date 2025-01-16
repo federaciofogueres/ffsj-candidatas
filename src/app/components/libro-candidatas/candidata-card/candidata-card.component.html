@@ -1,15 +1,21 @@
-<div class="card mb-3" style="max-width: 540px;">
-    <div class="row g-0">
-        <div class="col-md-4">
-            <img [src]="currentImage" class="img-fluid rounded-start animated-image" alt="Foto bellesa"
+<div class="card mb-3">
+    <div class="row g-0 ">
+        <div class="col-md-4 image-candidata">
+            <div class="overlay-circle background-naranja">{{ candidataData.vidaEnFogueres.asociacion_order.value }}
+            </div>
+            <img [src]="currentImage" class="img-fluid rounded-start animated-image h-100 w-100" alt="Foto bellesa"
                 (click)="toggleImage()">
         </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <div class="d-flex flex-column">
-                    <span class="h6">{{candidataData.informacionPersonal.nombre.value}}</span>
-                    <span>{{candidataData.vidaEnFogueres.asociacion_label.value}}</span>
-                    <button class="mt-2 btn btn-primary btn-foc-naranja" (click)="viewDetails()">Ver detalles</button>
+        <div class="col-md-8 data-candidata">
+            <div class="card-body h-100">
+                <div class="d-flex flex-column candidata">
+                    <div class="d-flex flex-column candidata-data">
+                        <span class="nombre h6">{{candidataData.informacionPersonal.nombre.value | titlecase }} </span>
+                        <span class="asociacion-label">{{(foguera | slice:0:20) + (foguera.length > 20 ? '...' : '') |
+                            titlecase}}</span>
+                    </div>
+                    <button class="details-button mt-2 btn btn-primary btn-foc-naranja" (click)="viewDetails()">Ver
+                        detalles</button>
                 </div>
             </div>
         </div>
