@@ -176,8 +176,8 @@ export class CandidataService {
         data.forEach((item, index) => {
             const asociacion = this.asociaciones.find(asociacion => { return item.vidaEnFogueres.asociacion.value === String(asociacion.id) });
             if (asociacion) {
-                item.vidaEnFogueres.asociacion_label.value = asociacion.nombre;
-                item.vidaEnFogueres.asociacion_order.value = asociacion['asociacion_order'];
+                item.vidaEnFogueres.asociacion_label = { value: asociacion.nombre, required: false };
+                item.vidaEnFogueres.asociacion_order = { value: asociacion['asociacion_order'], required: false };
                 item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
                 item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
             }
