@@ -1,4 +1,28 @@
+@import '../../../variables.scss';
+
 .scrollable {
     height: 100%;
     overflow: auto;
+}
+
+/* filepath: /g:/Proyectos/FFSJ/ffsj-candidatas/src/app/components/libro-candidatas/libro-candidatas.component.scss */
+.fab-button {
+    position: fixed;
+    bottom: 48px;
+    right: 16px;
+    z-index: 1000;
+    width: 56px;
+    height: 56px;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.fab-button mat-icon {
+    font-size: 24px;
 }

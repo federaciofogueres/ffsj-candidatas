@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CookieService } from 'ngx-cookie-service';
 import { CandidataData } from '../../model/candidata-data.model';
@@ -14,7 +15,8 @@ import { ListadoComponent } from './listado/listado.component';
   imports: [
     CommonModule,
     ListadoComponent,
-    FfsjSpinnerComponent
+    FfsjSpinnerComponent,
+    MatIconModule
   ],
   templateUrl: './libro-candidatas.component.html',
   styleUrl: './libro-candidatas.component.scss'
@@ -48,10 +50,10 @@ export class LibroCandidatasComponent {
     this.loadData();
   }
 
-  async loadData() {
+  async loadData(forceReload: boolean = false) {
     try {
 
-      const candidatas = await this.candidataService.getCandidatas();
+      const candidatas = await this.candidataService.getCandidatas(forceReload);
       this.infantiles = candidatas.infantiles;
       this.adultas = candidatas.adultas;
       this.adultasData = candidatas.adultasData;
@@ -74,6 +76,11 @@ export class LibroCandidatasComponent {
     } finally {
       this.loading = false;
     }
+  }
+
+  onFabClick() {
+    this.loading = true;
+    this.loadData(true);
   }
 
 }

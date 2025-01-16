@@ -130,13 +130,13 @@ export class CandidataService {
         await this.loadAsociaciones();
         console.log('Entering here');
 
-        if (candidatasData) {
+        if (reload) {
+            this.adultas = await this.loadFromBD('candidatas/2024/adultas')
+            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles')
+        } else if (candidatasData) {
             const dataParsed = JSON.parse(candidatasData);
             this.adultas = dataParsed.adultas ? dataParsed.adultas : await this.loadFromBD('candidatas/2024/adultas')
             this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : await this.loadFromBD('candidatas/2024/infantiles')
-        } else {
-            this.adultas = await this.loadFromBD('candidatas/2024/adultas')
-            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles')
         }
 
         ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
