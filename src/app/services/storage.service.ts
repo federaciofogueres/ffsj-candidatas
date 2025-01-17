@@ -44,6 +44,26 @@ export class FirebaseStorageService {
         });
     }
 
+    async addAnotation(anotation: any, anotador: string, candidata: string): Promise<void> {
+        const path = 'candidatas/2024/anotaciones/' + anotador + '/anotaciones/' + candidata;
+        try {
+            const anotationData = { anotation, timestamp: new Date() };
+            await setDoc(doc(this._firestore, path), anotationData).then((result) => {
+                if (localStorage.getItem('candidatasData')) {
+                    let storageItem = JSON.parse(localStorage.getItem('candidatasData')!);
+                    const anotacionIndex = storageItem.anotaciones.findIndex((anotacion: any) => anotacion.candidata === candidata);
+                    if (anotacionIndex !== -1) {
+                        storageItem.anotaciones[anotacionIndex] = anotation;
+                    }
+                    localStorage.setItem('candidatasData', JSON.stringify(storageItem));
+                }
+            });
+            console.log(`Anotation saved at ${path}`);
+        } catch (error) {
+            console.error(`Failed to save anotation at ${path}:`, error);
+        }
+    }
+
     async addCandidata(candidata: CandidataData) {
         const candidataValues = this.extractValues(candidata);
         await setDoc(doc(this._firestore, `candidatas/2024/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);

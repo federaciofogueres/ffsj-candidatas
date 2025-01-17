@@ -29,6 +29,8 @@ export class CandidataService {
     columnasAdultasText: string[] = [];
     columnasInfantilesText: string[] = [];
 
+    anotaciones: any;
+
     constructor(
         private firebaseStorageService: FirebaseStorageService,
         private cookieService: CookieService,
@@ -148,6 +150,14 @@ export class CandidataService {
         this.adultas = this.sortCandidatasByOrder(this.adultas);
         this.infantiles = this.sortCandidatasByOrder(this.infantiles);
 
+        const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + this.cookieService.get('idUsuario') + '/anotaciones');
+        if (data) {
+            this.anotaciones = [];
+            for (let anotation of data) {
+                this.anotaciones.push(anotation['anotation'])
+            }
+        }
+
         const returnObject = {
             adultas: this.adultas,
             infantiles: this.infantiles,
@@ -156,7 +166,8 @@ export class CandidataService {
             columnasAdultas: this.columnasAdultas,
             columnasInfantiles: this.columnasInfantiles,
             columnasAdultasText: this.columnasAdultasText,
-            columnasInfantilesText: this.columnasInfantilesText
+            columnasInfantilesText: this.columnasInfantilesText,
+            anotaciones: this.anotaciones
         }
 
         localStorage.setItem('candidatasData', JSON.stringify(returnObject));

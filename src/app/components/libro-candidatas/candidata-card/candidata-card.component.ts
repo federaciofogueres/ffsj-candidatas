@@ -45,7 +45,7 @@ export class CandidataCardComponent {
 
   viewDetails() {
     localStorage.setItem('candidataData', JSON.stringify(this.candidataData));
-    this.router.navigateByUrl('candidatas/' + this.candidataData.id);
+    this.router.navigateByUrl('candidatas/' + this.candidataData.id.value);
   }
 
 }
