@@ -6,7 +6,9 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 
 
 import { MatTabsModule } from '@angular/material/tabs';
+import { CookieService } from 'ngx-cookie-service';
 import { CandidataData } from '../../../model/candidata-data.model';
+import { FirebaseStorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-candidata',
@@ -40,12 +42,18 @@ export class CandidataComponent {
   // Indica si es un teléfono
   isTelefono: boolean = false;
 
+  idUsuario: string = '';
+
   constructor(
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private firebaseStorageService: FirebaseStorageService,
+    private cookieService: CookieService
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.candidataData = JSON.parse(localStorage.getItem('candidataData') || '');
+    this.idUsuario = this.cookieService.get('idUsuario');
+    this.loadAnotation();
 
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
@@ -64,7 +72,13 @@ export class CandidataComponent {
   }
 
   saveAnotaciones() {
-    console.log(this.anotaciones);
+    this.firebaseStorageService.addAnotation({ candidata: this.candidataData.id.value, anotacion: this.anotaciones }, this.idUsuario, this.candidataData.id.value);
+  }
+
+  loadAnotation() {
+    if (localStorage.getItem('candidatasData')) {
+      this.anotaciones = JSON.parse(localStorage.getItem('candidatasData')!).anotaciones.find((anotacion: any) => anotacion.candidata === this.candidataData.id.value)?.anotacion || '';
+    }
   }
 
 }
