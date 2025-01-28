@@ -9,10 +9,12 @@ import { CandidataData, LabelsFormulario } from '../../model/candidata-data.mode
 import { Asociacion } from '../../services/external-api/external-api';
 import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
-import { FfsjAlertService } from 'ffsj-web-components';
+import { FfsjAlertService, FfsjSpinnerComponent } from 'ffsj-web-components';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { CandidataService } from '../../services/candidatas.service';
+
+import jsPDF from 'jspdf';
 
 export interface InfoShowTable {
   id: string;
@@ -35,7 +37,8 @@ const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.
     MatTableModule,
     MatTabsModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
+    FfsjSpinnerComponent
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
@@ -180,6 +183,317 @@ export class AdminComponent implements OnInit {
   editElement(element: any) {
     console.log(element);
     this.ffsjAlertService.warning('Esta funcionalidad no está disponible de momento.');
+  }
+
+  async generarLibro(data: CandidataData[]) {
+    const doc = new jsPDF();
+    this.loading = true;
+
+    for (let i = 0; i < data.length; i++) {
+      const candidata = data[i];
+      const pagina = await this.generarPagina(candidata, false);
+      if (pagina) {
+        if (i > 0) {
+          doc.addPage();
+        }
+        doc.addImage(pagina, 'JPEG', 0, 0, 210, 297);
+      }
+    }
+
+    this.loading = false;
+    doc.save('Libro_Candidatas.pdf');
+  }
+
+  generarPagina(candidata: CandidataData, descarga: boolean = true): Promise<string | void> {
+    return new Promise((resolve) => {
+      const doc = new jsPDF();
+      let linea = 10;
+
+      // Añadir nombre y número de orden
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(196, 20, 28);
+      doc.text(this.capitalizeFirstLetter(candidata.informacionPersonal.nombre.value), 10, linea);
+      doc.setTextColor(196, 20, 28);
+      doc.text(candidata.vidaEnFogueres.asociacion_order.value.toString(), 200, linea, { align: 'right' });
+
+      linea += 5;
+
+      // Añadir línea horizontal
+      doc.setDrawColor(227, 116, 28); // Naranja
+      doc.line(10, linea, 200, linea);
+
+      linea += 5;
+
+      // Añadir asociación
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); // Negro
+      doc.text(this.capitalizeFirstLetter(candidata.vidaEnFogueres.asociacion_label.value), 10, linea);
+
+      linea += 10;
+
+      // Añadir imágenes
+      const addImages = () => {
+        if (candidata.documentacion.fotoBelleza.value) {
+          const img1 = new Image();
+          img1.src = candidata.documentacion.fotoBelleza.value;
+          img1.onload = () => {
+            doc.addImage(img1, 'JPEG', 10, linea, 90, 120);
+            if (candidata.documentacion.fotoCalle.value) {
+              const img2 = new Image();
+              img2.src = candidata.documentacion.fotoCalle.value;
+              img2.onload = () => {
+                doc.addImage(img2, 'JPEG', 110, linea, 90, 120);
+                addText();
+              };
+            } else {
+              addText();
+            }
+          };
+        } else if (candidata.documentacion.fotoCalle.value) {
+          const img2 = new Image();
+          img2.src = candidata.documentacion.fotoCalle.value;
+          img2.onload = () => {
+            doc.addImage(img2, 'JPEG', 110, linea, 90, 120);
+            addText();
+          };
+        } else {
+          addText();
+        }
+      };
+
+      // Añadir el resto de datos
+      const addText = () => {
+        linea += 130;
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Años en la fiesta:', 10, linea);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+        doc.text(candidata.vidaEnFogueres.anyosFiesta.value.toString(), 57, linea);
+
+        linea += 10;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Curriculum festero:', 10, linea);
+
+        linea += 10;
+
+        const curriculum: any[] = JSON.parse(candidata.vidaEnFogueres.curriculum.value);
+        curriculum.forEach(cargo => {
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          if (cargo.comienzo !== cargo.final) {
+            doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Años: ${cargo.comienzo} - ${cargo.final}`, 57, linea);
+          } else if (cargo.comienzo === cargo.final) {
+            doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Año: ${cargo.comienzo}`, 57, linea);
+          }
+          linea += 5;
+        });
+
+        linea += 5;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Formación académica:', 10, linea);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+        doc.text(this.capitalizeFirstLetter(candidata.academico.formacion.value), 57, linea);
+
+        linea += 10;
+
+        if (candidata.academico.situacionLaboral.value) {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(196, 20, 28);
+          doc.text('Situación laboral:', 10, linea);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.text(this.capitalizeFirstLetter(candidata.academico.situacionLaboral.value), 57, linea);
+        }
+
+        linea += 10;
+
+        if (candidata.academico.aficiones.value) {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(196, 20, 28);
+          doc.text('Aficiones:', 10, linea);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.text(this.capitalizeFirstLetter(candidata.academico.aficiones.value), 57, linea);
+        }
+
+        if (descarga) {
+          doc.save(`Candidata_${candidata.informacionPersonal.nombre.value}.pdf`);
+          resolve();
+        } else {
+          resolve(doc.output('datauristring'));
+        }
+      };
+
+      addImages();
+    });
+  }
+
+  // generarLibro(data: CandidataData[]) {
+  //   const doc = new jsPDF();
+  //   this.loading = true;
+
+  //   for (let candidata of data) {
+  //     const pagina = this.generarPagina(candidata, false);
+  //     if (pagina) {
+  //       doc.addPage();
+  //       doc.addImage(pagina, 'JPEG', 0, 0, 210, 297);
+  //     }
+  //   }
+
+  //   this.loading = false;
+  //   doc.save('Libro_Candidatas.pdf');
+  // }
+
+  // generarPagina(candidata: CandidataData, descarga: boolean = true): string | void {
+  //   const doc = new jsPDF();
+  //   let linea = 10;
+
+  //   // Añadir nombre y número de orden
+  //   doc.setFontSize(20);
+  //   doc.setFont('helvetica', 'bold');
+  //   doc.setTextColor(196, 20, 28);
+  //   doc.text(candidata.vidaEnFogueres.asociacion_label.value, 10, linea);
+  //   doc.setTextColor(196, 20, 28);
+  //   doc.text(candidata.vidaEnFogueres.asociacion_order.value.toString(), 200, linea, { align: 'right' });
+
+  //   linea += 5;
+
+  //   // Añadir línea horizontal
+  //   doc.setDrawColor(220, 124, 124);
+  //   doc.line(10, linea, 200, linea);
+
+  //   linea += 5;
+
+  //   // Añadir asociación
+  //   doc.setFontSize(12);
+  //   doc.setTextColor(227, 116, 28);
+  //   doc.text(candidata.informacionPersonal.nombre.value, 10, linea);
+
+
+  //   // Añadir imágenes
+  //   const addImages = () => {
+  //     if (candidata.documentacion.fotoBelleza.value) {
+  //       const img1 = new Image();
+  //       img1.src = candidata.documentacion.fotoBelleza.value;
+  //       img1.onload = () => {
+  //         doc.addImage(img1, 'JPEG', 10, 30, 90, 120);
+  //         if (candidata.documentacion.fotoCalle.value) {
+  //           const img2 = new Image();
+  //           img2.src = candidata.documentacion.fotoCalle.value;
+  //           img2.onload = () => {
+  //             doc.addImage(img2, 'JPEG', 110, 30, 90, 120);
+  //             addText();
+  //           };
+  //         } else {
+  //           addText();
+  //         }
+  //       };
+  //     } else if (candidata.documentacion.fotoCalle.value) {
+  //       const img2 = new Image();
+  //       img2.src = candidata.documentacion.fotoCalle.value;
+  //       img2.onload = () => {
+  //         doc.addImage(img2, 'JPEG', 110, 30, 90, 120);
+  //         addText();
+  //       };
+  //     } else {
+  //       addText();
+  //     }
+  //   };
+
+  //   // Añadir el resto de datos
+  //   const addText = () => {
+  //     linea = 160;
+
+  //     doc.setFontSize(12);
+  //     doc.setFont('helvetica', 'bold');
+  //     doc.setTextColor(196, 20, 28);
+  //     doc.text('Años en la fiesta:', 10, 160);
+
+  //     doc.setFont('helvetica', 'normal');
+  //     doc.setTextColor(0, 0, 0);
+  //     doc.text(candidata.vidaEnFogueres.anyosFiesta.value.toString(), 57, linea);
+
+  //     linea += 10;
+
+  //     doc.setFont('helvetica', 'bold');
+  //     doc.setTextColor(196, 20, 28);
+  //     doc.text('Curriculum festero:', 10, linea);
+
+  //     linea += 5;
+
+  //     const curriculum: any[] = JSON.parse(candidata.vidaEnFogueres.curriculum.value);
+  //     curriculum.forEach(cargo => {
+  //       doc.setFont('helvetica', 'normal');
+  //       doc.setTextColor(0, 0, 0);
+  //       if (cargo.comienzo !== cargo.final) {
+  //         doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Años: ${cargo.comienzo} - ${cargo.final}`, 57, linea);
+  //       } else if (cargo.comienzo === cargo.final) {
+  //         doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Año: ${cargo.comienzo}`, 57, linea);
+  //       }
+  //       linea += 5;
+  //     })
+
+  //     linea += 5;
+
+  //     doc.setFont('helvetica', 'bold');
+  //     doc.setTextColor(196, 20, 28);
+  //     doc.text('Formación académica:', 10, linea);
+
+  //     doc.setFont('helvetica', 'normal');
+  //     doc.setTextColor(0, 0, 0);
+  //     doc.text(this.capitalizeFirstLetter(candidata.academico.formacion.value), 57, linea);
+
+  //     linea += 10;
+
+  //     if (candidata.academico.situacionLaboral.value) {
+  //       doc.setFont('helvetica', 'bold');
+  //       doc.setTextColor(196, 20, 28);
+  //       doc.text('Situación laboral:', 10, linea);
+
+  //       doc.setFont('helvetica', 'normal');
+  //       doc.setTextColor(0, 0, 0);
+  //       doc.text(this.capitalizeFirstLetter(candidata.academico.situacionLaboral.value), 57, linea);
+  //     }
+
+  //     linea += 10;
+
+  //     if (candidata.academico.aficiones.value) {
+  //       doc.setFont('helvetica', 'bold');
+  //       doc.setTextColor(196, 20, 28);
+  //       doc.text('Aficiones:', 10, linea);
+
+  //       doc.setFont('helvetica', 'normal');
+  //       doc.setTextColor(0, 0, 0);
+  //       doc.text(this.capitalizeFirstLetter(candidata.academico.aficiones.value), 57, linea);
+  //     }
+
+  //   };
+
+  //   addImages();
+
+  //   if (descarga) {
+  //     doc.save(`Candidata_${candidata.informacionPersonal.nombre.value}.pdf`);
+  //   } else {
+  //     return doc.output('datauristring');
+  //   }
+  // }
+
+  capitalizeFirstLetter(text: string): string {
+    if (!text) return text;
+    text = text.toLowerCase();
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
 }

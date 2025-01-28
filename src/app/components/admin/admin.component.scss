@@ -5,3 +5,37 @@
     overflow-x: auto;
     overflow-y: auto;
 }
+
+.tab-container {
+    height: calc(100% - 60px);
+
+}
+
+// :ng-deep tbody {
+//     overflow-x: auto;
+//     overflow-y: auto;
+//     height: 100%;
+// }
+
+tbody {
+    display: block;
+    height: 200px;
+    overflow: auto !important;
+}
+
+thead,
+tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    /* even columns width , fix width of table too*/
+}
+
+thead {
+    width: calc(100% - 1em)
+        /* scrollbar is average 1em/16px width, remove it from thead width */
+}
+
+table {
+    width: 400px;
+}
