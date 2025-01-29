@@ -3,10 +3,17 @@
         Candidatas a Bellesa del Foc
     </span>
 
+    <div class="input-group m-2 mb-3 w-auto">
+        <span class="input-group-text" id="basic-addon1">
+            <i class="bi bi-person-circle"></i>
+        </span>
+            <input type="text" class="form-control" [formControl]="searchControl" placeholder="Búsqueda por nombre, apellido o foguera" (input)="filterItems($event)">
+    </div>
+
     @if (loading) {
     <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
     }@else {
-    <app-listado [candidatas]="candidatas"></app-listado>
+    <app-listado [candidatas]="candidatasToShow"></app-listado>
     }
 
     <button mat-fab class="fab-button background-naranja" (click)="onFabClick()">

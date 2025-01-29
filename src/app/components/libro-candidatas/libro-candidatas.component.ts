@@ -8,6 +8,7 @@ import { CandidataService } from '../../services/candidatas.service';
 import { Asociacion } from '../../services/external-api/external-api';
 import { InfoShowTable } from '../admin/admin.component';
 import { ListadoComponent } from './listado/listado.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-libro-candidatas',
@@ -16,13 +17,16 @@ import { ListadoComponent } from './listado/listado.component';
     CommonModule,
     ListadoComponent,
     FfsjSpinnerComponent,
-    MatIconModule
+    MatIconModule,
+    ReactiveFormsModule
   ],
   templateUrl: './libro-candidatas.component.html',
   styleUrl: './libro-candidatas.component.scss'
 })
 export class LibroCandidatasComponent {
 
+  searchControl = new FormControl();
+  
   candidatas: CandidataData[] = [];
 
   loading: boolean = true;
@@ -39,6 +43,8 @@ export class LibroCandidatasComponent {
   columnasInfantiles: string[] = [];
   columnasAdultasText: string[] = [];
   columnasInfantilesText: string[] = [];
+
+  candidatasToShow: CandidataData[] = [];
 
   constructor(
     private candidataService: CandidataService,
@@ -62,7 +68,7 @@ export class LibroCandidatasComponent {
       this.columnasInfantiles = candidatas.columnasInfantiles;
       this.columnasAdultasText = candidatas.columnasAdultasText;
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
-
+      
       if (this.cookieService.get('juradoAdulto') === 'true') {
         this.candidatas = this.adultas;
       } else if (this.cookieService.get('juradoInfantil') === 'true') {
@@ -70,12 +76,23 @@ export class LibroCandidatasComponent {
       } else {
         this.candidatas = [];
       }
+      this.candidatasToShow = this.candidatas;
 
     } catch (error) {
       console.error('Error cargando datos:', error);
     } finally {
       this.loading = false;
     }
+  }
+
+  filterItems(value: string | any) {
+    value = (value.target as HTMLInputElement).value.toLowerCase();
+    this.candidatasToShow = this.candidatas.filter(item => {
+      const nombreCompleto = item.informacionPersonal.nombre.value ? item.informacionPersonal.nombre.value.toLowerCase() : '';
+      const asociacion = item.vidaEnFogueres.asociacion_label.value ? item.vidaEnFogueres.asociacion_label.value.toLowerCase() : '';
+      const numeroFoguera = item.vidaEnFogueres.asociacion_order.value ? item.vidaEnFogueres.asociacion_order.value : -1;
+      return nombreCompleto.includes(value) || asociacion.includes(value) || numeroFoguera === value;
+    });
   }
 
   onFabClick() {
