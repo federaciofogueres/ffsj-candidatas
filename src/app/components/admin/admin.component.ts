@@ -204,6 +204,232 @@ export class AdminComponent implements OnInit {
     doc.save('Libro_Candidatas.pdf');
   }
 
+  async agruparPaginas(data: CandidataData[]) {
+    this.loading = true;
+    const doc = new jsPDF();
+    let linea = 10; // Inicializa la línea en la que se empezará a escribir
+
+    for (let i = 0; i < data.length; i++) {
+      const candidata = data[i];
+      if (i > 0) {
+        doc.addPage();
+        linea = 10; // Reinicia la línea para la nueva página
+      }
+      await this.generarPaginaNueva(doc, candidata, linea);
+      console.log('Generando: ', i);
+
+    }
+
+    doc.save('Libro_Candidatas_Agrupadas.pdf');
+    this.loading = false;
+  }
+
+  generarPaginaNueva(doc: any, candidata: any, linea: number, descarga: boolean = true) {
+    return new Promise<void>((resolve) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 10;
+      const initialPosition = 57;
+      const maxLineWidth = pageWidth - initialPosition - margin;
+      // const doc = new jsPDF();
+      // let linea = 10;
+
+      // Añadir nombre y número de orden
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(196, 20, 28);
+      doc.text(this.capitalizeFirstLetter(candidata.informacionPersonal.nombre.value), 10, linea);
+      doc.setTextColor(196, 20, 28);
+      doc.text(candidata.vidaEnFogueres.asociacion_order.value.toString(), 200, linea, { align: 'right' });
+
+      linea += 5;
+
+      // Añadir línea horizontal
+      doc.setDrawColor(227, 116, 28); // Naranja
+      doc.line(10, linea, 200, linea);
+
+      linea += 5;
+
+      // Añadir asociación
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); // Negro
+      doc.text(this.capitalizeFirstLetter(candidata.vidaEnFogueres.asociacion_label.value), 10, linea);
+      doc.text(this.capitalizeFirstLetter(`${candidata.informacionPersonal.edad.value} años`), 200, linea, { align: 'right' });
+
+      linea += 10;
+
+      // Añadir imágenes
+      const addImages = () => {
+        try {
+          if (candidata.documentacion.fotoBelleza.value) {
+            const img1 = new Image();
+            img1.src = candidata.documentacion.fotoBelleza.value;
+            img1.onload = () => {
+              try {
+                doc.addImage(img1, 'JPEG', 10, linea, 90, 120);
+                if (candidata.documentacion.fotoCalle.value) {
+                  const img2 = new Image();
+                  img2.src = candidata.documentacion.fotoCalle.value;
+                  img2.onload = () => {
+                    try {
+                      doc.addImage(img2, 'JPEG', 110, linea, 90, 120);
+                      addText();
+                    } catch (error) {
+                      console.error('Error adding img2:', error);
+                      addText();
+                    }
+                  };
+                  img2.onerror = () => {
+                    console.error('Error loading img2');
+                    addText();
+                  };
+                } else {
+                  addText();
+                }
+              } catch (error) {
+                console.error('Error adding img1:', error);
+                addText();
+              }
+            };
+            img1.onerror = () => {
+              console.error('Error loading img1');
+              if (candidata.documentacion.fotoCalle.value) {
+                const img2 = new Image();
+                img2.src = candidata.documentacion.fotoCalle.value;
+                img2.onload = () => {
+                  try {
+                    doc.addImage(img2, 'JPEG', 110, linea, 90, 120);
+                    addText();
+                  } catch (error) {
+                    console.error('Error adding img2:', error);
+                    addText();
+                  }
+                };
+                img2.onerror = () => {
+                  console.error('Error loading img2');
+                  addText();
+                };
+              } else {
+                addText();
+              }
+            };
+          } else if (candidata.documentacion.fotoCalle.value) {
+            const img2 = new Image();
+            img2.src = candidata.documentacion.fotoCalle.value;
+            img2.onload = () => {
+              try {
+                doc.addImage(img2, 'JPEG', 110, linea, 90, 120);
+                addText();
+              } catch (error) {
+                console.error('Error adding img2:', error);
+                addText();
+              }
+            };
+            img2.onerror = () => {
+              console.error('Error loading img2');
+              addText();
+            };
+          } else {
+            addText();
+          }
+        } catch (error) {
+          console.error('Error in addImages:', error);
+          addText();
+        }
+      };
+
+      // Añadir el resto de datos
+      const addText = () => {
+        linea += 130;
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Años en la fiesta:', 10, linea);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+        doc.text(candidata.vidaEnFogueres.anyosFiesta.value.toString(), 57, linea);
+
+        linea += 10;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Curriculum festero:', 10, linea);
+
+        linea += 10;
+
+        const curriculum: any[] = JSON.parse(candidata.vidaEnFogueres.curriculum.value);
+        curriculum.forEach(cargo => {
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          if (cargo.comienzo !== cargo.final) {
+            doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Años: ${cargo.comienzo} - ${cargo.final}`, 57, linea);
+          } else if (cargo.comienzo === cargo.final) {
+            doc.text(`${this.capitalizeFirstLetter(cargo.cargo)} - Año: ${cargo.comienzo}`, 57, linea);
+          }
+          linea += 5;
+        });
+
+        linea += 5;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(196, 20, 28);
+        doc.text('Formación académica:', 10, linea);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+        // doc.text(this.capitalizeFirstLetter(candidata.academico.formacion.value), 57, linea);
+        let textLines = doc.splitTextToSize(this.capitalizeFirstLetter(candidata.academico.formacion.value), maxLineWidth);
+        textLines.forEach((line: any) => {
+          doc.text(line, initialPosition, linea);
+          linea += 5;
+        });
+
+        linea += 10;
+
+        if (candidata.academico.situacionLaboral.value) {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(196, 20, 28);
+          doc.text('Situación laboral:', 10, linea);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          // doc.text(this.capitalizeFirstLetter(candidata.academico.situacionLaboral.value), 57, linea);
+          textLines = doc.splitTextToSize(this.capitalizeFirstLetter(candidata.academico.situacionLaboral.value), maxLineWidth);
+          textLines.forEach((line: any) => {
+            doc.text(line, initialPosition, linea);
+            linea += 5;
+          });
+        }
+
+        linea += 10;
+
+        if (candidata.academico.aficiones.value) {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(196, 20, 28);
+          doc.text('Aficiones:', 10, linea);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          // doc.text(this.capitalizeFirstLetter(candidata.academico.aficiones.value), 57, linea);
+          textLines = doc.splitTextToSize(this.capitalizeFirstLetter(candidata.academico.aficiones.value), maxLineWidth);
+          textLines.forEach((line: any) => {
+            doc.text(line, initialPosition, linea);
+            linea += 5;
+          });
+        }
+
+        if (descarga) {
+          // doc.save(`Candidata_${candidata.informacionPersonal.nombre.value}.pdf`);
+          resolve();
+        } else {
+          resolve(doc.output('datauristring'));
+        }
+      };
+
+      addImages();
+    });
+  }
+
   generarPagina(candidata: CandidataData, descarga: boolean = true): Promise<string | void> {
     return new Promise((resolve) => {
       const doc = new jsPDF();
