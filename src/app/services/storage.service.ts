@@ -76,6 +76,18 @@ export class FirebaseStorageService {
         return docs;
     }
 
+    async addDevideConnection(userId: string, ip: string, deviceInfo: string) {
+        const timestamp = new Date().toISOString();
+        const newConnection = {
+            ip: ip,
+            device: deviceInfo,
+            timestamp: timestamp
+        }
+        await setDoc(doc(this._firestore, `/users/${userId}/connections/${timestamp}`), newConnection).then((result) => {
+            console.log(result);
+        });
+    }
+
     extractValues(candidata: CandidataData) {
         return {
             id: candidata.id.value,
