@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelsFormulario } from '../../model/candidata-data.model';
 import { Asociacion } from '../../services/external-api/external-api';
@@ -10,7 +10,8 @@ import { Asociacion } from '../../services/external-api/external-api';
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogModule
   ],
   templateUrl: './dialog-overview.component.html',
   styleUrl: './dialog-overview.component.scss'
@@ -22,11 +23,28 @@ export class DialogOverviewComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit() {
-    if (this.data.datos['curriculum']) {
-      this.data.datos['curriculum'].value = JSON.parse(this.data.datos['curriculum'].value);
-    }
-    if (this.data.datos['asociacion']) {
-      this.data.datos['asociacion'].value = this.data.asociaciones.find((asociacion: Asociacion) => asociacion.id.toString() === this.data.datos['asociacion'].value).nombre;
+    const datos = this.data?.datos;
+    if (!datos) return;
+
+    // Sólo operar si "datos" es un objeto (evita sobrescribir arrays/primitivos)
+    if (typeof datos === 'object' && datos !== null) {
+      // curriculum puede venir como JSON string en datos.curriculum.value
+      if (datos['curriculum'] && typeof datos['curriculum'].value === 'string') {
+        try {
+          datos['curriculum'].value = JSON.parse(datos['curriculum'].value);
+        } catch (e) {
+          console.warn('No se pudo parsear curriculum:', e);
+        }
+      }
+
+      // Resolver etiqueta de asociación si vienen asociaciones y existe campo asociacion
+      if (datos['asociacion'] && Array.isArray(this.data?.asociaciones)) {
+        const assocId = datos['asociacion'].value;
+        const found = this.data.asociaciones.find((asociacion: Asociacion) => String(asociacion.id) === String(assocId));
+        if (found) {
+          datos['asociacion'].value = found.nombre;
+        }
+      }
     }
   }
 

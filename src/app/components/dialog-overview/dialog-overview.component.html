@@ -1,39 +1,37 @@
 <!-- dialog-overview.component.html -->
-<div class="container">
-    <h1 mat-dialog-title class="text-naranja h1 m-0 my-3">Detalles</h1>
-    <div mat-dialog-content>
-        <div class="d-flex flex-column gap-3">
+<div class="dialog-container">
+    <h2 mat-dialog-title class="text-naranja h1 m-0 my-3">Detalles</h2>
+    <mat-dialog-content class="dialog-content">
+        @if (data?.datos) {
+        <div class="details-table">
             @for (item of Object.keys(data.datos); track $index) {
-            <div class="d-flex align-items-center w-100">
-                <div class="d-flex w-25">
-                    <h4 class="m-0 text-rojo me-3">{{LabelsFormulario[item]}} </h4>
-                </div>
-                <div class="d-flex w-75">
+            <div class="detail-row">
+                <div class="detail-label">{{ LabelsFormulario[item] || item }}</div>
+                <div class="detail-value">
                     @if (item === 'curriculum') {
-                    <!-- <span class="text-naranja"> - {{data[item].value | json}}</span> -->
                     <div class="d-flex flex-column">
-                        @for(cargo of data.datos['curriculum'].value; track $index) {
-                        <span class="text-naranja">{{cargo['cargo']}} - Años
-                            {{cargo['comienzo']}}/{{cargo['final']}}</span>
+                        @for (cargo of data.datos['curriculum'].value; track $index) {
+                        <span>{{ cargo.cargo }} - Años {{ cargo.comienzo }}/{{ cargo.final }}</span>
                         }
                     </div>
-                    } @else if(data.visorDocumentos) {
-                    @if(data.datos[item].value !== '') {
-                    <div class="d-flex">
-                        <mat-icon class="ml-2" style="cursor: pointer;"
-                            (click)="viewFile(data.datos[item].value)">visibility</mat-icon>
-                        <mat-icon class="ml-2" style="cursor: pointer;"
-                            (click)="downloadFile(data.datos[item].value, LabelsFormulario[item])">download</mat-icon>
+                    } @else if (data.visorDocumentos) {
+                    @if (data.datos[item].value !== '') {
+                    <div class="icons">
+                        <mat-icon (click)="viewFile(data.datos[item].value)">visibility</mat-icon>
+                        <mat-icon (click)="downloadFile(data.datos[item].value, LabelsFormulario[item])">
+                            download
+                        </mat-icon>
                     </div>
                     } @else {
                     <span>No existe el documento.</span>
                     }
                     } @else {
-                    <span class="text-naranja">{{data.datos[item].value}}</span>
+                    <span>{{ data.datos[item]?.value }}</span>
                     }
                 </div>
             </div>
             }
         </div>
-    </div>
+        }
+    </mat-dialog-content>
 </div>
