@@ -122,23 +122,30 @@ export class CandidataService {
 
     async getCandidatas(reload: boolean = false) {
 
-        const candidatasData = localStorage.getItem('candidatasData');
-        this.loadAsociaciones();
+        const candidatasDataRaw = localStorage.getItem('candidatasData');
 
-        if (candidatasData && !reload) {
-            return JSON.parse(candidatasData);
+        // Asegurar que las asociaciones están cargadas antes de cualquier procesado
+        await this.loadAsociaciones();
+
+        // Intentar parsear cache si existe y no pedimos reload
+        let cachedData: any = null;
+        if (candidatasDataRaw && !reload) {
+            try {
+                cachedData = JSON.parse(candidatasDataRaw);
+            } catch (e) {
+                console.warn('candidatasData en localStorage corrupto o inválido, forzando reload', e);
+                cachedData = null;
+            }
         }
 
-        await this.loadAsociaciones();
-        console.log('Entering here');
-
-        if (reload) {
-            this.adultas = await this.loadFromBD('candidatas/2024/adultas')
-            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles')
-        } else if (candidatasData) {
-            const dataParsed = JSON.parse(candidatasData);
-            this.adultas = dataParsed.adultas ? dataParsed.adultas : await this.loadFromBD('candidatas/2024/adultas')
-            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : await this.loadFromBD('candidatas/2024/infantiles')
+        // Si pedimos reload o no hay cache válida, cargar desde BD
+        if (reload || !cachedData) {
+            this.adultas = await this.loadFromBD('candidatas/2024/adultas');
+            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles');
+        } else {
+            // Usar cache si disponible, si faltan colecciones en la cache, cargarlas desde BD
+            this.adultas = cachedData.adultas ? cachedData.adultas : await this.loadFromBD('candidatas/2024/adultas');
+            this.infantiles = cachedData.infantiles ? cachedData.infantiles : await this.loadFromBD('candidatas/2024/infantiles');
         }
 
         ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
@@ -150,11 +157,22 @@ export class CandidataService {
         this.adultas = this.sortCandidatasByOrder(this.adultas);
         this.infantiles = this.sortCandidatasByOrder(this.infantiles);
 
-        const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + this.cookieService.get('idUsuario') + '/anotaciones');
-        if (data) {
-            this.anotaciones = [];
-            for (let anotation of data) {
-                this.anotaciones.push(anotation['anotation'])
+        // Asegurar que existe idUsuario en cookie (getIdUsuario también cachea)
+        try {
+            this.getIdUsuario();
+        } catch (e) {
+            console.warn('No se pudo obtener idUsuario desde token', e);
+        }
+
+        const usuarioId = this.cookieService.get('idUsuario') || (this.idUsuario !== -1 ? String(this.idUsuario) : null);
+        if (usuarioId) {
+            try {
+                const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + usuarioId + '/anotaciones');
+                if (Array.isArray(data)) {
+                    this.anotaciones = data.map((anotation: any) => anotation['anotation']);
+                }
+            } catch (e) {
+                console.warn('Error cargando anotaciones:', e);
             }
         }
 
@@ -170,7 +188,11 @@ export class CandidataService {
             anotaciones: this.anotaciones
         }
 
-        localStorage.setItem('candidatasData', JSON.stringify(returnObject));
+        try {
+            localStorage.setItem('candidatasData', JSON.stringify(returnObject));
+        } catch (e) {
+            console.warn('No se pudo guardar candidatasData en localStorage', e);
+        }
 
         return returnObject;
     }

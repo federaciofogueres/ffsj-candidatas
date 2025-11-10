@@ -9,10 +9,29 @@
             <button mat-menu-item (click)="download('academico')">Académico</button>
         </mat-menu>
     </div>
+
     <mat-tab-group dynamicHeight (selectedTabChange)="onTabChange($event)">
+
         <mat-tab label="Adultas">
+
+            <div class="table-toolbar d-flex align-items-center mb-2">
+                <mat-form-field appearance="outline" class="flex-grow-1">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput type="text" (input)="applyFilter($any($event.target).value, 'adultas')"
+                        placeholder="Buscar en la tabla">
+
+                    @if (adultasDataSource?.filter || '') {
+                    <button matSuffix mat-icon-button aria-label="Limpiar">
+                        <mat-icon (click)="applyFilter('', 'adultas')">close</mat-icon>
+                    </button>
+                    }
+                </mat-form-field>
+            </div>
+
+
             <div class="scrollable-container mat-elevation-z4">
-                <table mat-table [dataSource]="adultasData" class="mat-elevation-z8">
+                <table mat-table [dataSource]="adultasDataSource" class="mat-elevation-z8" role="table">
+
                     <!-- ID Column -->
                     <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef> ID </th>
@@ -49,11 +68,29 @@
                     <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
                     <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
                 </table>
+
+                <mat-paginator #paginatorAdultas [pageSizeOptions]="[5,10,25,50]" [pageSize]="10" showFirstLastButtons>
+                </mat-paginator>
+
             </div>
         </mat-tab>
         <mat-tab label="Infantiles">
+
+            <div class="table-toolbar d-flex align-items-center mb-2">
+                <mat-form-field appearance="outline" class="flex-grow-1">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput type="text" (input)="applyFilter($any($event.target).value, 'infantiles')"
+                        placeholder="Buscar en la tabla">
+                    @if (infantilesDataSource?.filter || '') {
+                    <button matSuffix mat-icon-button aria-label="Limpiar">
+                        <mat-icon (click)="applyFilter('', 'infantiles')">close</mat-icon>
+                    </button>
+                    }
+                </mat-form-field>
+            </div>
+
             <div class="scrollable-container mat-elevation-z4">
-                <table mat-table [dataSource]="infantilesData" class="mat-elevation-z8">
+                <table mat-table [dataSource]="infantilesDataSource" class="mat-elevation-z8" role="table">
                     <!-- ID Column -->
                     <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef> ID </th>
@@ -89,6 +126,11 @@
                     <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
                     <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
                 </table>
+
+                <mat-paginator #paginatorInfantiles [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
+                    showFirstLastButtons>
+                </mat-paginator>
+
             </div>
         </mat-tab>
     </mat-tab-group>

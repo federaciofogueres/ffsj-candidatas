@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CandidataData, LabelsFormulario } from '../../model/candidata-data.model';
 import { Asociacion } from '../../services/external-api/external-api';
 import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -35,7 +40,13 @@ const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.
     MatTableModule,
     MatTabsModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
+    MatPaginator,
+    FormsModule,
+    MatFormFieldModule,
+    MatPaginatorModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
@@ -53,6 +64,12 @@ export class AdminComponent implements OnInit {
 
   adultasData: InfoShowTable[] = [];
   infantilesData: InfoShowTable[] = [];
+
+  adultasDataSource = new MatTableDataSource<InfoShowTable>([]);
+  infantilesDataSource = new MatTableDataSource<InfoShowTable>([]);
+
+  @ViewChild('paginatorAdultas') paginatorAdultas!: MatPaginator;
+  @ViewChild('paginatorInfantiles') paginatorInfantiles!: MatPaginator;
 
   columnasAdultas: string[] = [];
   columnasInfantiles: string[] = [];
@@ -74,6 +91,11 @@ export class AdminComponent implements OnInit {
     this.loadData();
   }
 
+  ngAfterViewInit(): void {
+    if (this.paginatorAdultas) this.adultasDataSource.paginator = this.paginatorAdultas;
+    if (this.paginatorInfantiles) this.infantilesDataSource.paginator = this.paginatorInfantiles;
+  }
+
   async loadData() {
     try {
       const candidatas = await this.candidataService.getCandidatas();
@@ -85,6 +107,9 @@ export class AdminComponent implements OnInit {
       this.columnasInfantiles = candidatas.columnasInfantiles;
       this.columnasAdultasText = candidatas.columnasAdultasText;
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
+
+      this.adultasDataSource.data = this.adultasData;
+      this.infantilesDataSource.data = this.infantilesData;
     } catch (error) {
       console.error('Error cargando datos:', error);
     } finally {
@@ -180,6 +205,17 @@ export class AdminComponent implements OnInit {
   editElement(element: any) {
     console.log(element);
     this.ffsjAlertService.warning('Esta funcionalidad no está disponible de momento.');
+  }
+
+  applyFilter(filterValue: string, tipo: 'adultas' | 'infantiles') {
+    const value = (filterValue || '').trim().toLowerCase();
+    if (tipo === 'adultas') {
+      this.adultasDataSource.filter = value;
+      if (this.paginatorAdultas) this.paginatorAdultas.firstPage();
+    } else {
+      this.infantilesDataSource.filter = value;
+      if (this.paginatorInfantiles) this.paginatorInfantiles.firstPage();
+    }
   }
 
 }
