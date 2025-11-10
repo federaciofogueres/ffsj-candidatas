@@ -17,12 +17,13 @@
             <div class="table-toolbar d-flex align-items-center mb-2">
                 <mat-form-field appearance="outline" class="flex-grow-1">
                     <mat-label>Buscar</mat-label>
-                    <input matInput type="text" (input)="applyFilter($any($event.target).value, 'adultas')"
-                        placeholder="Buscar en la tabla">
+                    <input #adultasSearch matInput type="text"
+                        (input)="applyFilter($any($event.target).value, 'adultas')" placeholder="Buscar en la tabla">
 
-                    @if (adultasDataSource?.filter || '') {
-                    <button matSuffix mat-icon-button aria-label="Limpiar">
-                        <mat-icon (click)="applyFilter('', 'adultas')">close</mat-icon>
+                    @if ((adultasDataSource?.filter?.length || 0) > 0) {
+                    <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
+                        (click)="applyFilter('', 'adultas'); adultasSearch.value = '';">
+                        <mat-icon>close</mat-icon>
                     </button>
                     }
                 </mat-form-field>
@@ -79,11 +80,12 @@
             <div class="table-toolbar d-flex align-items-center mb-2">
                 <mat-form-field appearance="outline" class="flex-grow-1">
                     <mat-label>Buscar</mat-label>
-                    <input matInput type="text" (input)="applyFilter($any($event.target).value, 'infantiles')"
-                        placeholder="Buscar en la tabla">
-                    @if (infantilesDataSource?.filter || '') {
-                    <button matSuffix mat-icon-button aria-label="Limpiar">
-                        <mat-icon (click)="applyFilter('', 'infantiles')">close</mat-icon>
+                    <input #infantilesSearch matInput type="text"
+                        (input)="applyFilter($any($event.target).value, 'infantiles')" placeholder="Buscar en la tabla">
+                    @if ((infantilesDataSource?.filter?.length || 0) > 0) {
+                    <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
+                        (click)="applyFilter('', 'infantiles'); infantilesSearch.value = '';">
+                        <mat-icon>close</mat-icon>
                     </button>
                     }
                 </mat-form-field>
