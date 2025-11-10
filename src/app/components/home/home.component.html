@@ -2,9 +2,11 @@
 <div class="container">
     <div class="d-flex flex-column h-100">
         <div class="d-flex flex-column justify-content-evenly h-50">
+            @if(asociado) {
             <span class="h3 text-rojo">
                 Bienvenida/o {{asociado.nombre | titlecase}} {{asociado.apellidos | titlecase}}
             </span>
+            }
             <div class="d-flex flex-column gap-4">
                 @if(esJurado) {
                 <button class="btn btn-primary btn-foc-naranja" (click)="router.navigateByUrl('libro-candidatas')">Libro
