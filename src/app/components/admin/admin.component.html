@@ -125,8 +125,11 @@
             <input #searchInput matInput type="text" (input)="applyFilter($any($event.target).value, tipo)"
                 placeholder="Buscar en la tabla">
             @if (
-            (tipo === 'adultas' && (adultasDataSource?.filter?.length || 0) > 0) ||
-            (tipo === 'infantiles' && (infantilesDataSource?.filter?.length || 0) > 0)
+            (tipo === 'adultas' && ((adultasDataSource && adultasDataSource.filter && adultasDataSource.filter.length)
+            || 0) > 0)
+            ||
+            (tipo === 'infantiles' && ((infantilesDataSource && infantilesDataSource.filter &&
+            infantilesDataSource.filter.length) || 0) > 0)
             ) {
             <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
                 (click)="applyFilter('', tipo); searchInput.value = '';">
