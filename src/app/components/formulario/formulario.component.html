@@ -4,174 +4,186 @@
 <div class="formulario-container">
 
     <mat-stepper orientation="vertical" [linear]="false" #stepper>
+        <!-- icono del lápiz → check si el step está OK -->
         <ng-template matStepperIcon="edit" let-index="index">
-            @if(isStepCompleted(index)){
+            @if (isStepCompleted(index)) {
             <mat-icon>check</mat-icon>
             } @else {
             <mat-icon>edit</mat-icon>
             }
         </ng-template>
 
-        @if(visor === 'formulario') {
+        @if (visor === 'formulario') {
+
+        <!-- ========== STEP 1: DATOS PERSONALES ========== -->
         <mat-step [stepControl]="personalInfo">
             <form [formGroup]="personalInfo">
                 <ng-template matStepLabel>Datos personales</ng-template>
+
+                <!-- tipo de candidata -->
                 <div class="form-group mb-3">
-                    <label for="tipoCandidata" class="text-naranja">Tipo de Candidata</label>
+                    <label class="text-naranja">Tipo de Candidata</label>
                     <mat-radio-group formControlName="tipoCandidata">
                         <mat-radio-button value="adultas">Adulta</mat-radio-button>
                         <mat-radio-button value="infantiles">Infantil</mat-radio-button>
                     </mat-radio-group>
                 </div>
+
+                <!-- DNI -->
                 <div class="form-group mb-3">
                     <label for="dni" class="text-naranja">DNI/NIF</label>
-                    <input type="text" id="dni" class="form-control" formControlName="dni" required>
-                    @if(personalInfo.get('dni')?.errors?.['required'] && personalInfo.get('dni')?.invalid &&
-                    (personalInfo.get('dni')?.touched || personalInfo.get('dni')?.dirty)) {
-                    <small class="text-danger">El DNI es obligatorio.</small>
-                    }
+                    <input id="dni" type="text" class="form-control" formControlName="dni" required>
+                    <app-form-error [control]="personalInfo.get('dni')" message="El DNI es obligatorio.">
+                    </app-form-error>
                 </div>
+
+                <!-- Nombre -->
                 <div class="form-group mb-3">
                     <label for="nombre" class="text-naranja">Nombre completo</label>
-                    <input type="text" id="nombre" class="form-control" formControlName="nombre" required>
-                    @if(personalInfo.get('nombre')?.errors?.['required'] && personalInfo.get('nombre')?.invalid &&
-                    (personalInfo.get('nombre')?.touched || personalInfo.get('nombre')?.dirty)) {
-                    <small class="text-danger">El nombre es obligatorio.</small>
-                    }
+                    <input id="nombre" type="text" class="form-control" formControlName="nombre" required>
+                    <app-form-error [control]="personalInfo.get('nombre')" message="El nombre es obligatorio.">
+                    </app-form-error>
                 </div>
+
+                <!-- Fecha nacimiento -->
                 <div class="form-group mb-3">
                     <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
-                    <input type="date" id="fechaNacimiento" class="form-control" formControlName="fechaNacimiento"
+                    <input id="fechaNacimiento" type="date" class="form-control" formControlName="fechaNacimiento"
                         required>
-                    @if(personalInfo.get('fechaNacimiento')?.errors?.['required'] &&
-                    personalInfo.get('fechaNacimiento')?.invalid &&
-                    (personalInfo.get('fechaNacimiento')?.touched || personalInfo.get('fechaNacimiento')?.dirty)) {
-                    <small class="text-danger">La fecha de nacimiento es obligatoria.</small>
-                    }
+                    <app-form-error [control]="personalInfo.get('fechaNacimiento')"
+                        message="La fecha de nacimiento es obligatoria.">
+                    </app-form-error>
                 </div>
+
+                <!-- Ciudad -->
                 <div class="form-group mb-3">
                     <label for="ciudad" class="text-naranja">Ciudad</label>
-                    <input type="text" id="ciudad" class="form-control" formControlName="ciudad" required>
-                    @if(personalInfo.get('ciudad')?.errors?.['required'] && personalInfo.get('ciudad')?.invalid &&
-                    (personalInfo.get('ciudad')?.touched || personalInfo.get('ciudad')?.dirty)) {
-                    <small class="text-danger">Hay errores con la ciudad.</small>
-                    }
+                    <input id="ciudad" type="text" class="form-control" formControlName="ciudad" required>
+                    <app-form-error [control]="personalInfo.get('ciudad')" message="Hay errores con la ciudad.">
+                    </app-form-error>
                 </div>
+
+                <!-- Teléfono -->
                 <div class="form-group mb-3">
                     <label for="telefono" class="text-naranja">Teléfono</label>
-                    <input type="text" id="telefono" class="form-control" formControlName="telefono" required>
-                    @if(personalInfo.get('telefono')?.errors?.['required'] && personalInfo.get('telefono')?.invalid &&
-                    (personalInfo.get('telefono')?.touched || personalInfo.get('telefono')?.dirty)) {
-                    <small class="text-danger">Hay errores con el teléfono.</small>
-                    }
+                    <input id="telefono" type="text" class="form-control" formControlName="telefono" required>
+                    <app-form-error [control]="personalInfo.get('telefono')" message="Hay errores con el teléfono.">
+                    </app-form-error>
                 </div>
+
+                <!-- Email -->
                 <div class="form-group mb-3">
                     <label for="email" class="text-naranja">Email</label>
-                    <input type="email" id="email" class="form-control" formControlName="email" required>
-                    @if(personalInfo.get('email')?.errors?.['required'] && personalInfo.get('email')?.invalid &&
-                    (personalInfo.get('email')?.touched || personalInfo.get('email')?.dirty)) {
-                    <small class="text-danger">Hay errores con el email.</small>
-                    }
+                    <input id="email" type="email" class="form-control" formControlName="email" required>
+                    <app-form-error [control]="personalInfo.get('email')" message="Hay errores con el email.">
+                    </app-form-error>
                 </div>
             </form>
         </mat-step>
 
-        @if(personalInfo.get('tipoCandidata')?.value === 'infantiles') {
+        <!-- ========== STEP 2 (solo infantiles): RESPONSABLE ========== -->
+        @if (personalInfo.get('tipoCandidata')?.value === 'infantiles') {
         <mat-step [stepControl]="responsableInfo">
             <form [formGroup]="responsableInfo">
                 <ng-template matStepLabel>Información del Responsable</ng-template>
-                <span class="text-rojo mb-2">
+
+                <span class="text-rojo mb-2 d-block">
                     En caso de que exista limitación de la patria potestad por parte de algún tutor o tutora legal de la
                     menor, indicad sólo el nombre y teléfono de la persona que la ostente.
                 </span>
+
+                <!-- Tutor 1 -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
-                    <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
+                    <input id="nombreTutor1" type="text" class="form-control" formControlName="nombreTutor1" required>
+                    <app-form-error [control]="responsableInfo.get('nombreTutor1')"
+                        message="Hay errores con el nombre.">
+                    </app-form-error>
                 </div>
-                @if(responsableInfo.get('nombreTutor1')?.errors?.['required'] &&
-                responsableInfo.get('nombreTutor1')?.invalid &&
-                (responsableInfo.get('nombreTutor1')?.touched || responsableInfo.get('nombreTutor1')?.dirty)) {
-                <small class="text-danger">Hay errores con el nombre.</small>
-                }
+
+                <!-- Teléfono tutor 1 -->
                 <div class="form-group mb-3">
                     <label for="telefonoTutor1" class="text-naranja">Teléfono del/la Tutor/a 1</label>
-                    <input type="text" id="telefonoTutor1" class="form-control" formControlName="telefonoTutor1"
+                    <input id="telefonoTutor1" type="text" class="form-control" formControlName="telefonoTutor1"
                         required>
+                    <app-form-error [control]="responsableInfo.get('telefonoTutor1')"
+                        message="Hay errores con el teléfono.">
+                    </app-form-error>
                 </div>
-                @if(responsableInfo.get('telefonoTutor1')?.errors?.['required'] &&
-                responsableInfo.get('telefonoTutor1')?.invalid &&
-                (responsableInfo.get('telefonoTutor1')?.touched || responsableInfo.get('telefonoTutor1')?.dirty)) {
-                <small class="text-danger">Hay errores con el teléfono.</small>
-                }
+
+                <!-- Tutor 2 (opcionales) -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor2" class="text-naranja">Nombre del/la Tutor/a 2</label>
-                    <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2">
+                    <input id="nombreTutor2" type="text" class="form-control" formControlName="nombreTutor2">
                 </div>
                 <div class="form-group mb-3">
                     <label for="telefonoTutor2" class="text-naranja">Teléfono del/la Tutor/a 2</label>
-                    <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2">
+                    <input id="telefonoTutor2" type="text" class="form-control" formControlName="telefonoTutor2">
                 </div>
             </form>
         </mat-step>
         }
 
+        <!-- ========== STEP: DATOS DE LA FIESTA ========== -->
         <mat-step [stepControl]="fogueresInfo">
             <form [formGroup]="fogueresInfo">
                 <ng-template matStepLabel>Datos de la fiesta</ng-template>
+
+                <!-- Asociación -->
                 <div class="form-group mb-3">
                     <label for="asociacion" class="text-naranja">Asociación</label>
                     <select id="asociacion" class="form-control" formControlName="asociacion" required>
-                        @for(asociacion of asociaciones; track $index) {
-                        <option [value]="asociacion.id">{{ asociacion.nombre }}
-                        </option>
+                        @for (asociacion of asociaciones; track $index) {
+                        <option [value]="asociacion.id">{{ asociacion.nombre }}</option>
                         }
                     </select>
-                    @if(fogueresInfo.get('asociacion')?.errors?.['required'] &&
-                    fogueresInfo.get('asociacion')?.invalid &&
-                    (fogueresInfo.get('asociacion')?.touched || fogueresInfo.get('asociacion')?.dirty)) {
-                    <small class="text-danger">Hay errores con la asociación, por favor, selecciona una de la
-                        lista.</small>
-                    }
+                    <app-form-error [control]="fogueresInfo.get('asociacion')"
+                        message="Hay errores con la asociación, por favor, selecciona una de la lista.">
+                    </app-form-error>
                 </div>
+
+                <!-- Años fiesta -->
                 <div class="form-group mb-3">
                     <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
-                    <input type="number" id="anyosFiesta" class="form-control" formControlName="anyosFiesta" required>
+                    <input id="anyosFiesta" type="number" class="form-control" formControlName="anyosFiesta" required>
+                    <app-form-error [control]="fogueresInfo.get('anyosFiesta')"
+                        message="Hay errores con la cantidad introducida, por favor, introduce un valor válido.">
+                    </app-form-error>
                 </div>
-                @if(fogueresInfo.get('anyosFiesta')?.errors?.['required'] &&
-                fogueresInfo.get('anyosFiesta')?.invalid &&
-                (fogueresInfo.get('anyosFiesta')?.touched || fogueresInfo.get('anyosFiesta')?.dirty)) {
-                <small class="text-danger">Hay errores con la cantidad introducida, por favor, introduce un valor
-                    numérico mayor que 1.</small>
-                }
+
+                <!-- Curriculum -->
                 <div formGroupName="curriculum">
                     <span class="h3 text-naranja">Curriculum festero</span>
+
                     <div class="form-group my-3">
                         <label for="cargo" class="text-naranja">Cargo</label>
-                        <input type="text" id="cargo" class="form-control" formControlName="cargo">
+                        <input id="cargo" type="text" class="form-control" formControlName="cargo">
                     </div>
-                    <div class="d-flex justify-content-between align-items-end">
-                        <div class="form-group">
+
+                    <div class="d-flex justify-content-between align-items-end gap-2">
+                        <div class="form-group mb-3">
                             <label for="comienzo" class="text-naranja">Desde</label>
-                            <input type="number" id="comienzo" placeholder="aaaa" class="form-control"
+                            <input id="comienzo" type="number" placeholder="aaaa" class="form-control"
                                 formControlName="comienzo" min="0" max="2025">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="final" class="text-naranja">Hasta</label>
-                            <input type="number" id="final" placeholder="aaaa" class="form-control"
+                            <input id="final" type="number" placeholder="aaaa" class="form-control"
                                 formControlName="final" min="0" max="2025">
                         </div>
                         <button type="button" style="height: 38px;" class="btn btn-primary"
                             (click)="addCurriculum()">Añadir</button>
                     </div>
+
                     <ul class="mt-3">
                         @for (cargo of cargos; track cargo; let i = $index) {
-                        <li class="d-flex align-items-center">
+                        <li class="d-flex align-items-center gap-2">
                             <span>
                                 {{ cargo.cargo | titlecase }} -
-                                @if(cargo.comienzo === cargo.final){
-                                Año {{cargo.comienzo}}
+                                @if (cargo.comienzo === cargo.final) {
+                                Año {{ cargo.comienzo }}
                                 } @else {
-                                Años {{cargo.comienzo }} - {{ cargo.final}}
+                                Años {{ cargo.comienzo }} - {{ cargo.final }}
                                 }
                             </span>
                             <button mat-icon-button color="warn" (click)="removeCurriculum(i)">
@@ -184,103 +196,84 @@
             </form>
         </mat-step>
 
+        <!-- ========== STEP: ACADÉMICO / INFO ADICIONAL ========== -->
         <mat-step [stepControl]="academicInfo">
             <form [formGroup]="academicInfo">
                 <ng-template matStepLabel>Formación e información adicional</ng-template>
+
+                <!-- Formación -->
                 <div class="form-group mb-3">
                     <label for="formacion" class="text-naranja">Formación</label>
-                    <input type="text" id="formacion" class="form-control" formControlName="formacion" required>
+                    <input id="formacion" type="text" class="form-control" formControlName="formacion" required>
+                    <app-form-error [control]="academicInfo.get('formacion')" message="La formación es obligatoria.">
+                    </app-form-error>
                 </div>
-                @if(personalInfo.get('tipoCandidata')?.value === 'adultas') {
+
+                <!-- Situación laboral solo adultas -->
+                @if (personalInfo.get('tipoCandidata')?.value === 'adultas') {
                 <div class="form-group mb-3">
                     <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
-                    <input type="text" id="situacionLaboral" class="form-control" formControlName="situacionLaboral"
+                    <input id="situacionLaboral" type="text" class="form-control" formControlName="situacionLaboral"
                         required>
+                    <app-form-error [control]="academicInfo.get('situacionLaboral')"
+                        message="La situación laboral es obligatoria para adultas.">
+                    </app-form-error>
                 </div>
                 }
+
+                <!-- Aficiones -->
                 <div class="form-group mb-3">
                     <label for="aficiones" class="text-naranja">Aficiones</label>
-                    <input type="text" id="aficiones" class="form-control" formControlName="aficiones" required>
+                    <input id="aficiones" type="text" class="form-control" formControlName="aficiones" required>
+                    <app-form-error [control]="academicInfo.get('aficiones')" message="Las aficiones son obligatorias.">
+                    </app-form-error>
                 </div>
+
+                <!-- Checkbox observaciones -->
                 <div class="form-group mb-3">
                     <mat-checkbox formControlName="aceptoTratamiento" (change)="toggleObservaciones($event)"
                         class="text-rojo">
                         Acepto el tratamiento de mis "observaciones"
                     </mat-checkbox>
                 </div>
+
+                <!-- Observaciones -->
                 <div class="form-group mb-3">
                     <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
-                    <textarea id="observaciones" class="form-control" formControlName="observaciones"
-                        required></textarea>
+                    <textarea id="observaciones" class="form-control" formControlName="observaciones"></textarea>
+                    <app-form-error [control]="academicInfo.get('observaciones')"
+                        message="Hay algún error, por favor, revisa las observaciones.">
+                    </app-form-error>
                 </div>
-                @if(academicInfo.errors &&
-                academicInfo.invalid &&
-                (academicInfo.touched || academicInfo.dirty)) {
-                <small class="text-danger">Hay algún error, por favor, revisa todos los campos.</small>
-                }
             </form>
         </mat-step>
         }
 
+        <!-- ========== STEP: DOCUMENTACIÓN (siempre) ========== -->
         <mat-step [stepControl]="documentacionForm">
             <ng-template matStepLabel>Documentación</ng-template>
             <form [formGroup]="documentacionForm">
+
+                @for (f of fileFields; track f.name) {
                 <div class="form-group mb-3">
-                    <label for="autorizacionFoguera" class="text-naranja">Autorización Foguera</label>
-                    <input type="file" id="autorizacionFoguera" class="form-control"
-                        (change)="onFileChange($event, 'autorizacionFoguera')">
-                    @if(documentacionForm.get('autorizacionFoguera')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
+                    <label [for]="f.name" class="text-naranja">{{ f.label }}</label>
+                    <input [id]="f.name" type="file" class="form-control" (change)="onFileChange($event, f.name)">
+                    <app-form-error [control]="documentacionForm.get(f.name)"
+                        message="El archivo debe pesar menos de 5MB.">
+                    </app-form-error>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="compromisoDisponibilidad" class="text-naranja">Compromiso Disponibilidad</label>
-                    <input type="file" id="compromisoDisponibilidad" class="form-control"
-                        (change)="onFileChange($event, 'compromisoDisponibilidad')">
-                    @if(documentacionForm.get('compromisoDisponibilidad')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
-                </div>
-                <div class="form-group mb-3">
-                    <label for="derechosAutor" class="text-naranja">Derechos de autor</label>
-                    <input type="file" id="derechosAutor" class="form-control"
-                        (change)="onFileChange($event, 'derechosAutor')">
-                    @if(documentacionForm.get('derechosAutor')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
-                </div>
-                <div class="form-group mb-3">
-                    <label for="dniEscaneado" class="text-naranja">DNI Escaneado
-                        {{personalInfo.get('tipoCandidata')?.value
-                        === 'infantiles' ? ' o libro de familia si no dispone de DNI' : ''}}</label>
-                    <input type="file" id="dniEscaneado" class="form-control"
-                        (change)="onFileChange($event, 'dniEscaneado')">
-                    @if(documentacionForm.get('dniEscaneado')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
-                </div>
-                <div class="form-group mb-3">
-                    <label for="fotoBelleza" class="text-naranja">Foto Belleza</label>
-                    <input type="file" id="fotoBelleza" class="form-control"
-                        (change)="onFileChange($event, 'fotoBelleza')">
-                    @if(documentacionForm.get('fotoBelleza')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
-                </div>
-                <div class="form-group mb-3">
-                    <label for="fotoCalle" class="text-naranja">Foto Calle</label>
-                    <input type="file" id="fotoCalle" class="form-control" (change)="onFileChange($event, 'fotoCalle')">
-                    @if(documentacionForm.get('fotoCalle')?.errors?.['fileSize']) {
-                    <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
-                    }
-                </div>
+                }
+
             </form>
         </mat-step>
 
     </mat-stepper>
-    <div class="container">
+
+    <div class="container mt-3">
         <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar()"
-            [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">Enviar</button>
+            [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">
+            Enviar
+        </button>
     </div>
 </div>
 }

@@ -27,11 +27,13 @@ import { FirebaseStorageService } from '../../services/storage.service';
 import { VisorType } from '../home/home.component';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
+import { FormErrorComponent } from './form-error/form-error.component';
 
 @Component({
   selector: 'app-formulario',
   standalone: true,
   imports: [
+    FormErrorComponent,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
@@ -114,6 +116,20 @@ export class FormularioComponent implements OnInit {
     fotoBelleza: [null, [this.fileSizeValidator(5)]],
     fotoCalle: [null, [this.fileSizeValidator(5)]],
   });
+
+  fileFields = [
+    { name: 'autorizacionFoguera', label: 'Autorización Foguera' },
+    { name: 'compromisoDisponibilidad', label: 'Compromiso Disponibilidad' },
+    { name: 'derechosAutor', label: 'Derechos de autor' },
+    {
+      name: 'dniEscaneado',
+      label: `DNI Escaneado ${this.personalInfo.get('tipoCandidata')?.value === 'infantiles'
+        ? 'o libro de familia si no dispone de DNI'
+        : ''}`
+    },
+    { name: 'fotoBelleza', label: 'Foto Belleza' },
+    { name: 'fotoCalle', label: 'Foto Calle' },
+  ];
 
   constructor(
     private censoService: CensoService,
