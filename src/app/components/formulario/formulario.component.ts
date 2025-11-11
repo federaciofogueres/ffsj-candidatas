@@ -1,6 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -41,16 +50,19 @@ import { ResultDialogComponent } from '../result-dialog/result-dialog.component'
 })
 export class FormularioComponent implements OnInit {
   FormGroup = FormGroup;
+
   @Input()
   visor!: VisorType;
+
   @Input()
   asociado!: Asociado;
+
   @Output()
   cambioVisor: EventEmitter<VisorType> = new EventEmitter<VisorType>();
 
   loading: boolean = false;
 
-  asociaciones: Asociacion[] = []
+  asociaciones: Asociacion[] = [];
 
   candidataForm!: FormGroup;
 
@@ -108,9 +120,7 @@ export class FormularioComponent implements OnInit {
     private fb: FormBuilder,
     private firebaseStorageService: FirebaseStorageService,
     private dialog: MatDialog
-  ) {
-
-  }
+  ) { }
 
   async ngOnInit() {
     this.loading = true;
@@ -157,7 +167,7 @@ export class FormularioComponent implements OnInit {
 
     this.personalInfo.patchValue({
       dni: asociadoData?.nif || '',
-      nombre: asociadoData?.nombre || '',
+      nombre: `${asociadoData?.nombre} ${asociadoData?.apellidos}` || '',
       fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString().split('T')[0] : '',
       ciudad: asociadoData?.direccion?.split(',')[0] || '',
       telefono: asociadoData?.telefono || '',
@@ -293,7 +303,7 @@ export class FormularioComponent implements OnInit {
   }
 
   private uploadFile(fieldName: string, file: File): Promise<string> {
-    const filePath = `candidatas/2024/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
+    const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
     return this.firebaseStorageService.uploadFile(filePath, file);
   }
 
@@ -390,6 +400,34 @@ export class FormularioComponent implements OnInit {
       }
       return null;
     };
+  }
+
+  // 👇 NUEVO: decide qué icono mostrar en cada paso
+  isStepCompleted(index: number): boolean {
+    const tipo = this.personalInfo.get('tipoCandidata')?.value;
+
+    // paso 0: datos personales
+    if (index === 0) {
+      return this.personalInfo.valid;
+    }
+
+    // si es infantil hay un paso más en medio
+    if (tipo === 'infantiles') {
+      if (index === 1) return this.responsableInfo.valid;
+      if (index === 2) return this.fogueresInfo.valid;
+      if (index === 3) return this.academicInfo.valid;
+      if (index === 4) return this.documentacionForm.valid;
+      return false;
+    }
+
+    // si es adulta
+    if (tipo === 'adultas') {
+      if (index === 1) return this.fogueresInfo.valid;
+      if (index === 2) return this.academicInfo.valid;
+      if (index === 3) return this.documentacionForm.valid;
+    }
+
+    return false;
   }
 
 }

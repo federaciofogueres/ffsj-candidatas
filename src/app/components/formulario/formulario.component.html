@@ -2,7 +2,15 @@
 <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
 } @else {
 <div class="formulario-container">
+
     <mat-stepper orientation="vertical" [linear]="false" #stepper>
+        <ng-template matStepperIcon="edit" let-index="index">
+            @if(isStepCompleted(index)){
+            <mat-icon>check</mat-icon>
+            } @else {
+            <mat-icon>edit</mat-icon>
+            }
+        </ng-template>
 
         @if(visor === 'formulario') {
         <mat-step [stepControl]="personalInfo">
@@ -76,13 +84,6 @@
                     En caso de que exista limitación de la patria potestad por parte de algún tutor o tutora legal de la
                     menor, indicad sólo el nombre y teléfono de la persona que la ostente.
                 </span>
-                <!-- <div class="form-group mb-3">
-                                <label for="patriaPotestad" class="text-naranja">¿Existe limitación de la patria potestad por parte de alguno de los tutores?</label>
-                                <select id="patriaPotestad" class="form-control" formControlName="patriaPotestad" required>
-                                    <option value="si">Sí</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div> -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
                     <input type="text" id="nombreTutor1" class="form-control" formControlName="nombreTutor1" required>
@@ -102,7 +103,6 @@
                 (responsableInfo.get('telefonoTutor1')?.touched || responsableInfo.get('telefonoTutor1')?.dirty)) {
                 <small class="text-danger">Hay errores con el teléfono.</small>
                 }
-                <!-- @if(responsableInfo.get('patriaPotestad')?.value === 'no') { -->
                 <div class="form-group mb-3">
                     <label for="nombreTutor2" class="text-naranja">Nombre del/la Tutor/a 2</label>
                     <input type="text" id="nombreTutor2" class="form-control" formControlName="nombreTutor2">
@@ -111,7 +111,6 @@
                     <label for="telefonoTutor2" class="text-naranja">Teléfono del/la Tutor/a 2</label>
                     <input type="text" id="telefonoTutor2" class="form-control" formControlName="telefonoTutor2">
                 </div>
-                <!-- } -->
             </form>
         </mat-step>
         }
@@ -122,8 +121,10 @@
                 <div class="form-group mb-3">
                     <label for="asociacion" class="text-naranja">Asociación</label>
                     <select id="asociacion" class="form-control" formControlName="asociacion" required>
-                        <option *ngFor="let asociacion of asociaciones" [value]="asociacion.id">{{ asociacion.nombre }}
+                        @for(asociacion of asociaciones; track $index) {
+                        <option [value]="asociacion.id">{{ asociacion.nombre }}
                         </option>
+                        }
                     </select>
                     @if(fogueresInfo.get('asociacion')?.errors?.['required'] &&
                     fogueresInfo.get('asociacion')?.invalid &&
@@ -166,10 +167,12 @@
                         @for (cargo of cargos; track cargo; let i = $index) {
                         <li class="d-flex align-items-center">
                             <span>
-                                {{ cargo.cargo | titlecase }} - @if(cargo.comienzo === cargo.final){ Año
-                                {{cargo.comienzo}}
+                                {{ cargo.cargo | titlecase }} -
+                                @if(cargo.comienzo === cargo.final){
+                                Año {{cargo.comienzo}}
                                 } @else {
-                                Años {{cargo.comienzo }} - {{ cargo.final}}}
+                                Años {{cargo.comienzo }} - {{ cargo.final}}
+                                }
                             </span>
                             <button mat-icon-button color="warn" (click)="removeCurriculum(i)">
                                 <mat-icon>close</mat-icon>
@@ -271,14 +274,13 @@
                     <small class="text-danger">El archivo debe pesar menos de 5MB.</small>
                     }
                 </div>
-                <div>
-                    <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar()"
-                        [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">Enviar</button>
-                    <!-- <button (click)="procesar()">show</button> -->
-                </div>
             </form>
         </mat-step>
 
     </mat-stepper>
+    <div class="container">
+        <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar()"
+            [disabled]="personalInfo.invalid || academicInfo.invalid || fogueresInfo.invalid || documentacionForm.invalid">Enviar</button>
+    </div>
 </div>
 }
