@@ -140,12 +140,12 @@ export class CandidataService {
 
         // Si pedimos reload o no hay cache válida, cargar desde BD
         if (reload || !cachedData) {
-            this.adultas = await this.loadFromBD('candidatas/2024/adultas');
-            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles');
+            this.adultas = await this.loadFromBD('candidatas/2025/adultas');
+            this.infantiles = await this.loadFromBD('candidatas/2025/infantiles');
         } else {
             // Usar cache si disponible, si faltan colecciones en la cache, cargarlas desde BD
-            this.adultas = cachedData.adultas ? cachedData.adultas : await this.loadFromBD('candidatas/2024/adultas');
-            this.infantiles = cachedData.infantiles ? cachedData.infantiles : await this.loadFromBD('candidatas/2024/infantiles');
+            this.adultas = cachedData.adultas ? cachedData.adultas : await this.loadFromBD('candidatas/2025/adultas');
+            this.infantiles = cachedData.infantiles ? cachedData.infantiles : await this.loadFromBD('candidatas/2025/infantiles');
         }
 
         ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
@@ -167,7 +167,7 @@ export class CandidataService {
         const usuarioId = this.cookieService.get('idUsuario') || (this.idUsuario !== -1 ? String(this.idUsuario) : null);
         if (usuarioId) {
             try {
-                const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + usuarioId + '/anotaciones');
+                const data = await this.firebaseStorageService.getCollection('candidatas/2025/anotaciones/' + usuarioId + '/anotaciones');
                 if (Array.isArray(data)) {
                     this.anotaciones = data.map((anotation: any) => anotation['anotation']);
                 }

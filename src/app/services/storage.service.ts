@@ -45,7 +45,7 @@ export class FirebaseStorageService {
     }
 
     async addAnotation(anotation: any, anotador: string, candidata: string): Promise<void> {
-        const path = 'candidatas/2024/anotaciones/' + anotador + '/anotaciones/' + candidata;
+        const path = 'candidatas/2025/anotaciones/' + anotador + '/anotaciones/' + candidata;
         try {
             const anotationData = { anotation, timestamp: new Date() };
             await setDoc(doc(this._firestore, path), anotationData).then((result) => {
@@ -66,7 +66,7 @@ export class FirebaseStorageService {
 
     async addCandidata(candidata: CandidataData) {
         const candidataValues = this.extractValues(candidata);
-        await setDoc(doc(this._firestore, `candidatas/2024/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);
+        await setDoc(doc(this._firestore, `candidatas/2025/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);
     }
 
     async getCollection(collectionName: string) {
