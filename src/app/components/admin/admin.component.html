@@ -1,8 +1,8 @@
 @if (!loading) {
-<div class="container-fluid">
-    <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-foc-rojo" mat-button [matMenuTriggerFor]="menuInfantiles">Descargar</button>
-        <mat-menu #menuInfantiles="matMenu">
+<div class="admin-wrapper">
+    <div class="top-actions d-flex justify-content-end mb-3">
+        <button class="btn btn-foc-rojo" mat-button [matMenuTriggerFor]="menuDescargas">Descargar</button>
+        <mat-menu #menuDescargas="matMenu">
             <button mat-menu-item (click)="download()">Todo</button>
             <button mat-menu-item (click)="download('informacionPersonal')">Información personal</button>
             <button mat-menu-item (click)="download('vidaEnFogueres')">Vida en fogueres</button>
@@ -10,132 +10,129 @@
         </mat-menu>
     </div>
 
-    <mat-tab-group dynamicHeight (selectedTabChange)="onTabChange($event)">
+    <mat-tab-group dynamicHeight class="tabs-wrapper" (selectedTabChange)="onTabChange($event)">
 
+        <!-- TAB ADULTAS -->
         <mat-tab label="Adultas">
+            <div class="tab-body">
+                <ng-container *ngTemplateOutlet="searchBar; context: { tipo: 'adultas' }"></ng-container>
 
-            <div class="table-toolbar d-flex align-items-center mb-2">
-                <mat-form-field appearance="outline" class="flex-grow-1">
-                    <mat-label>Buscar</mat-label>
-                    <input #adultasSearch matInput type="text"
-                        (input)="applyFilter($any($event.target).value, 'adultas')" placeholder="Buscar en la tabla">
+                <div class="scrollable-container mat-elevation-z4">
+                    <table mat-table [dataSource]="adultasDataSource" matSort #sortAdultas="matSort"
+                        class="mat-elevation-z8 compact-table" role="table">
 
-                    @if ((adultasDataSource?.filter?.length || 0) > 0) {
-                    <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
-                        (click)="applyFilter('', 'adultas'); adultasSearch.value = '';">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                    }
-                </mat-form-field>
-            </div>
+                        <!-- ID -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.id }} </td>
+                        </ng-container>
 
+                        <!-- Foguera -->
+                        <ng-container matColumnDef="foguera">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Foguera </th>
+                            <td mat-cell *matCellDef="let element" class="foguera-cell"> {{ element.foguera }} </td>
+                        </ng-container>
 
-            <div class="scrollable-container mat-elevation-z4">
-                <table mat-table [dataSource]="adultasDataSource" class="mat-elevation-z8" role="table">
+                        @for (columna of columnasAdultas.slice(2); track $index) {
+                        <ng-container matColumnDef="{{ columna }}">
+                            <th mat-header-cell *matHeaderCellDef>
+                                {{ columnasAdultasText[$index + 2] }}
+                            </th>
+                            <td mat-cell *matCellDef="let element; let j = index">
+                                <div class="status-cell">
+                                    @if (element[columna] === 'Completo') {
+                                    <span class="text-verde"><mat-icon>check</mat-icon></span>
+                                    } @else {
+                                    <span class="text-rojo"><mat-icon>close</mat-icon></span>
+                                    }
+                                    <mat-icon class="action-icon"
+                                        (click)="openDialog(adultas, columna, j)">visibility</mat-icon>
+                                </div>
+                            </td>
+                        </ng-container>
+                        }
 
-                    <!-- ID Column -->
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> ID </th>
-                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-                    </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
+                        <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
+                    </table>
 
-                    <!-- Foguera Column -->
-                    <ng-container matColumnDef="foguera">
-                        <th mat-header-cell *matHeaderCellDef> Foguera </th>
-                        <td mat-cell *matCellDef="let element"> {{element.foguera}} </td>
-                    </ng-container>
-
-                    @for(columna of columnasAdultas.slice(2); track $index) {
-                    <ng-container matColumnDef="{{columna}}">
-                        <th mat-header-cell *matHeaderCellDef>{{columnasAdultasText[$index + 2]}}</th>
-                        <td mat-cell *matCellDef="let element; let j = index">
-                            <div class="d-flex">
-                                @if(element[columna] === 'Completo') {
-                                <span class="d-flex text-verde aling-items-center">
-                                    <mat-icon class="mr-2">check</mat-icon>
-                                </span>
-                                } @else {
-                                <span class="d-flex text-rojo aling-items-center">
-                                    <mat-icon class="mr-2">close</mat-icon>
-                                </span>
-                                }
-                                <mat-icon class="ml-2" style="cursor: pointer;"
-                                    (click)="openDialog(adultas, columna, j)">visibility</mat-icon>
-                            </div>
-                        </td>
-                    </ng-container>
-                    }
-
-                    <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
-                    <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
-                </table>
-
-                <mat-paginator #paginatorAdultas [pageSizeOptions]="[5,10,25,50]" [pageSize]="10" showFirstLastButtons>
-                </mat-paginator>
-
+                    <mat-paginator #paginatorAdultas [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
+                        showFirstLastButtons>
+                    </mat-paginator>
+                </div>
             </div>
         </mat-tab>
+
+        <!-- TAB INFANTILES -->
         <mat-tab label="Infantiles">
+            <div class="tab-body">
+                <ng-container *ngTemplateOutlet="searchBar; context: { tipo: 'infantiles' }"></ng-container>
 
-            <div class="table-toolbar d-flex align-items-center mb-2">
-                <mat-form-field appearance="outline" class="flex-grow-1">
-                    <mat-label>Buscar</mat-label>
-                    <input #infantilesSearch matInput type="text"
-                        (input)="applyFilter($any($event.target).value, 'infantiles')" placeholder="Buscar en la tabla">
-                    @if ((infantilesDataSource?.filter?.length || 0) > 0) {
-                    <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
-                        (click)="applyFilter('', 'infantiles'); infantilesSearch.value = '';">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                    }
-                </mat-form-field>
-            </div>
+                <div class="scrollable-container mat-elevation-z4">
+                    <table mat-table [dataSource]="infantilesDataSource" matSort #sortInfantiles="matSort"
+                        class="mat-elevation-z8 compact-table" role="table">
 
-            <div class="scrollable-container mat-elevation-z4">
-                <table mat-table [dataSource]="infantilesDataSource" class="mat-elevation-z8" role="table">
-                    <!-- ID Column -->
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> ID </th>
-                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-                    </ng-container>
+                        <!-- ID -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.id }} </td>
+                        </ng-container>
 
-                    <!-- Foguera Column -->
-                    <ng-container matColumnDef="foguera">
-                        <th mat-header-cell *matHeaderCellDef> Foguera </th>
-                        <td mat-cell *matCellDef="let element"> {{element.foguera}} </td>
-                    </ng-container>
+                        <!-- Foguera -->
+                        <ng-container matColumnDef="foguera">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Foguera </th>
+                            <td mat-cell *matCellDef="let element" class="foguera-cell"> {{ element.foguera }} </td>
+                        </ng-container>
 
-                    @for(columna of columnasInfantiles.slice(2); track $index) {
-                    <ng-container matColumnDef="{{columna}}">
-                        <th mat-header-cell *matHeaderCellDef>{{columnasInfantilesText[$index + 2]}}</th>
-                        <td mat-cell *matCellDef="let element; let j = index">
-                            <div class="d-flex">
-                                @if(element[columna] === 'Completo') {
-                                <span class="d-flex text-verde aling-items-center">
-                                    <mat-icon class="mr-2">check</mat-icon>
-                                </span>
-                                } @else {
-                                <span class="d-flex text-rojo aling-items-center">
-                                    <mat-icon class="mr-2">close</mat-icon>
-                                </span>
-                                }
-                                <mat-icon class="ml-2" style="cursor: pointer;"
-                                    (click)="openDialog(infantiles, columna, j)">visibility</mat-icon>
-                            </div>
-                        </td>
-                    </ng-container>
-                    }
-                    <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
-                    <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
-                </table>
+                        @for (columna of columnasInfantiles.slice(2); track $index) {
+                        <ng-container matColumnDef="{{ columna }}">
+                            <th mat-header-cell *matHeaderCellDef>
+                                {{ columnasInfantilesText[$index + 2] }}
+                            </th>
+                            <td mat-cell *matCellDef="let element; let j = index">
+                                <div class="status-cell">
+                                    @if (element[columna] === 'Completo') {
+                                    <span class="text-verde"><mat-icon>check</mat-icon></span>
+                                    } @else {
+                                    <span class="text-rojo"><mat-icon>close</mat-icon></span>
+                                    }
+                                    <mat-icon class="action-icon"
+                                        (click)="openDialog(infantiles, columna, j)">visibility</mat-icon>
+                                </div>
+                            </td>
+                        </ng-container>
+                        }
 
-                <mat-paginator #paginatorInfantiles [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
-                    showFirstLastButtons>
-                </mat-paginator>
+                        <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
+                        <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
+                    </table>
 
+                    <mat-paginator #paginatorInfantiles [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
+                        showFirstLastButtons>
+                    </mat-paginator>
+                </div>
             </div>
         </mat-tab>
     </mat-tab-group>
-
 </div>
 }
+
+<!-- buscador -->
+<ng-template #searchBar let-tipo="tipo">
+    <div class="table-toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar</mat-label>
+            <input #searchInput matInput type="text" (input)="applyFilter($any($event.target).value, tipo)"
+                placeholder="Buscar en la tabla">
+            @if (
+            (tipo === 'adultas' && (adultasDataSource?.filter?.length || 0) > 0) ||
+            (tipo === 'infantiles' && (infantilesDataSource?.filter?.length || 0) > 0)
+            ) {
+            <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
+                (click)="applyFilter('', tipo); searchInput.value = '';">
+                <mat-icon>close</mat-icon>
+            </button>
+            }
+        </mat-form-field>
+    </div>
+</ng-template>

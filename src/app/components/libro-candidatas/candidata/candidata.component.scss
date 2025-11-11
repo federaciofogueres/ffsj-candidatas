@@ -12,6 +12,6 @@
 }
 
 .scrollable {
-    height: 100%;
+    height: calc(100% - 120px);
     overflow: auto;
 }
