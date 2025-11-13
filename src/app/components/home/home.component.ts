@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit {
   checkAdmin() {
     const cargos = this.authService.getCargos();
     console.log({ cargos });
-    this.esAdmin = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 16 }));
+    this.esAdmin = Boolean(this.authService.getCargos().find(cargo => { return cargo.idCargo === 16 || cargo.idCargo === 17 }));
 
     let juradoAdulto = Boolean(cargos.find(cargo => { return cargo.idCargo === 21 }));
     let juradoInfantil = Boolean(cargos.find(cargo => { return cargo.idCargo === 22 }));
