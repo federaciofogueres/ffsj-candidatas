@@ -2,9 +2,7 @@
 <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
 } @else {
 <div class="formulario-container">
-
     <mat-stepper orientation="vertical" [linear]="false" #stepper>
-        <!-- icono del lápiz → check si el step está OK -->
         <ng-template matStepperIcon="edit" let-index="index">
             @if (isStepCompleted(index)) {
             <mat-icon>check</mat-icon>
@@ -15,12 +13,11 @@
 
         @if (visor === 'formulario') {
 
-        <!-- ========== STEP 1: DATOS PERSONALES ========== -->
+        <!-- 1. Datos personales -->
         <mat-step [stepControl]="personalInfo">
             <form [formGroup]="personalInfo">
                 <ng-template matStepLabel>Datos personales</ng-template>
 
-                <!-- tipo de candidata -->
                 <div class="form-group mb-3">
                     <label class="text-naranja">Tipo de Candidata</label>
                     <mat-radio-group formControlName="tipoCandidata">
@@ -29,107 +26,67 @@
                     </mat-radio-group>
                 </div>
 
-                <!-- DNI -->
-                <div class="form-group mb-3">
-                    <label for="dni" class="text-naranja">DNI/NIF</label>
-                    <input id="dni" type="text" class="form-control" formControlName="dni" required>
-                    <app-form-error [control]="personalInfo.get('dni')" message="El DNI es obligatorio.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="DNI/NIF" forId="dni" [control]="personalInfo.get('dni')"
+                    errorMessage="El DNI es obligatorio.">
+                </app-form-field>
 
-                <!-- Nombre -->
-                <div class="form-group mb-3">
-                    <label for="nombre" class="text-naranja">Nombre completo</label>
-                    <input id="nombre" type="text" class="form-control" formControlName="nombre" required>
-                    <app-form-error [control]="personalInfo.get('nombre')" message="El nombre es obligatorio.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Nombre completo" forId="nombre" [control]="personalInfo.get('nombre')"
+                    errorMessage="El nombre es obligatorio.">
+                </app-form-field>
 
-                <!-- Fecha nacimiento -->
-                <div class="form-group mb-3">
-                    <label for="fechaNacimiento" class="text-naranja">Fecha de Nacimiento</label>
-                    <input id="fechaNacimiento" type="date" class="form-control" formControlName="fechaNacimiento"
-                        required>
-                    <app-form-error [control]="personalInfo.get('fechaNacimiento')"
-                        message="La fecha de nacimiento es obligatoria.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Fecha de nacimiento" forId="fechaNacimiento" type="date"
+                    [control]="personalInfo.get('fechaNacimiento')"
+                    errorMessage="La fecha de nacimiento es obligatoria.">
+                </app-form-field>
 
-                <!-- Ciudad -->
-                <div class="form-group mb-3">
-                    <label for="ciudad" class="text-naranja">Ciudad</label>
-                    <input id="ciudad" type="text" class="form-control" formControlName="ciudad" required>
-                    <app-form-error [control]="personalInfo.get('ciudad')" message="Hay errores con la ciudad.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Ciudad" forId="ciudad" [control]="personalInfo.get('ciudad')"
+                    errorMessage="Hay errores con la ciudad.">
+                </app-form-field>
 
-                <!-- Teléfono -->
-                <div class="form-group mb-3">
-                    <label for="telefono" class="text-naranja">Teléfono</label>
-                    <input id="telefono" type="text" class="form-control" formControlName="telefono" required>
-                    <app-form-error [control]="personalInfo.get('telefono')" message="Hay errores con el teléfono.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Teléfono" forId="telefono" [control]="personalInfo.get('telefono')"
+                    errorMessage="Hay errores con el teléfono.">
+                </app-form-field>
 
-                <!-- Email -->
-                <div class="form-group mb-3">
-                    <label for="email" class="text-naranja">Email</label>
-                    <input id="email" type="email" class="form-control" formControlName="email" required>
-                    <app-form-error [control]="personalInfo.get('email')" message="Hay errores con el email.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Email" forId="email" type="email" [control]="personalInfo.get('email')"
+                    errorMessage="Hay errores con el email.">
+                </app-form-field>
             </form>
         </mat-step>
 
-        <!-- ========== STEP 2 (solo infantiles): RESPONSABLE ========== -->
+        <!-- 2. Responsable (solo infantiles) -->
         @if (personalInfo.get('tipoCandidata')?.value === 'infantiles') {
         <mat-step [stepControl]="responsableInfo">
             <form [formGroup]="responsableInfo">
                 <ng-template matStepLabel>Información del Responsable</ng-template>
 
                 <span class="text-rojo mb-2 d-block">
-                    En caso de que exista limitación de la patria potestad por parte de algún tutor o tutora legal de la
-                    menor, indicad sólo el nombre y teléfono de la persona que la ostente.
+                    En caso de limitación de patria potestad, indicad solo el nombre y teléfono de quien la ostente.
                 </span>
 
-                <!-- Tutor 1 -->
-                <div class="form-group mb-3">
-                    <label for="nombreTutor1" class="text-naranja">Nombre del/la Tutor/a 1</label>
-                    <input id="nombreTutor1" type="text" class="form-control" formControlName="nombreTutor1" required>
-                    <app-form-error [control]="responsableInfo.get('nombreTutor1')"
-                        message="Hay errores con el nombre.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Nombre del/la Tutor/a 1" forId="nombreTutor1"
+                    [control]="responsableInfo.get('nombreTutor1')" errorMessage="Hay errores con el nombre.">
+                </app-form-field>
 
-                <!-- Teléfono tutor 1 -->
-                <div class="form-group mb-3">
-                    <label for="telefonoTutor1" class="text-naranja">Teléfono del/la Tutor/a 1</label>
-                    <input id="telefonoTutor1" type="text" class="form-control" formControlName="telefonoTutor1"
-                        required>
-                    <app-form-error [control]="responsableInfo.get('telefonoTutor1')"
-                        message="Hay errores con el teléfono.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Teléfono del/la Tutor/a 1" forId="telefonoTutor1"
+                    [control]="responsableInfo.get('telefonoTutor1')" errorMessage="Hay errores con el teléfono.">
+                </app-form-field>
 
-                <!-- Tutor 2 (opcionales) -->
-                <div class="form-group mb-3">
-                    <label for="nombreTutor2" class="text-naranja">Nombre del/la Tutor/a 2</label>
-                    <input id="nombreTutor2" type="text" class="form-control" formControlName="nombreTutor2">
-                </div>
-                <div class="form-group mb-3">
-                    <label for="telefonoTutor2" class="text-naranja">Teléfono del/la Tutor/a 2</label>
-                    <input id="telefonoTutor2" type="text" class="form-control" formControlName="telefonoTutor2">
-                </div>
+                <app-form-field label="Nombre del/la Tutor/a 2" forId="nombreTutor2"
+                    [control]="responsableInfo.get('nombreTutor2')">
+                </app-form-field>
+
+                <app-form-field label="Teléfono del/la Tutor/a 2" forId="telefonoTutor2"
+                    [control]="responsableInfo.get('telefonoTutor2')">
+                </app-form-field>
             </form>
         </mat-step>
         }
 
-        <!-- ========== STEP: DATOS DE LA FIESTA ========== -->
+        <!-- 3. Datos de la fiesta -->
         <mat-step [stepControl]="fogueresInfo">
             <form [formGroup]="fogueresInfo">
                 <ng-template matStepLabel>Datos de la fiesta</ng-template>
 
-                <!-- Asociación -->
                 <div class="form-group mb-3">
                     <label for="asociacion" class="text-naranja">Asociación</label>
                     <select id="asociacion" class="form-control" formControlName="asociacion" required>
@@ -142,35 +99,26 @@
                     </app-form-error>
                 </div>
 
-                <!-- Años fiesta -->
-                <div class="form-group mb-3">
-                    <label for="anyosFiesta" class="text-naranja">Años en la Fiesta</label>
-                    <input id="anyosFiesta" type="number" class="form-control" formControlName="anyosFiesta" required>
-                    <app-form-error [control]="fogueresInfo.get('anyosFiesta')"
-                        message="Hay errores con la cantidad introducida, por favor, introduce un valor válido.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Años en la fiesta" forId="anyosFiesta" type="number"
+                    [control]="fogueresInfo.get('anyosFiesta')" errorMessage="Introduce un valor válido.">
+                </app-form-field>
 
-                <!-- Curriculum -->
+                <!-- curriculum mantiene su estructura porque es distinta -->
                 <div formGroupName="curriculum">
                     <span class="h3 text-naranja">Curriculum festero</span>
 
-                    <div class="form-group my-3">
-                        <label for="cargo" class="text-naranja">Cargo</label>
-                        <input id="cargo" type="text" class="form-control" formControlName="cargo">
-                    </div>
+                    <app-form-field label="Cargo" forId="cargo" [control]="fogueresInfo.get('curriculum.cargo')">
+                    </app-form-field>
 
                     <div class="d-flex justify-content-between align-items-end gap-2">
-                        <div class="form-group mb-3">
-                            <label for="comienzo" class="text-naranja">Desde</label>
-                            <input id="comienzo" type="number" placeholder="aaaa" class="form-control"
-                                formControlName="comienzo" min="0" max="2025">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="final" class="text-naranja">Hasta</label>
-                            <input id="final" type="number" placeholder="aaaa" class="form-control"
-                                formControlName="final" min="0" max="2025">
-                        </div>
+                        <app-form-field label="Desde" forId="comienzo" type="number"
+                            [control]="fogueresInfo.get('curriculum.comienzo')">
+                        </app-form-field>
+
+                        <app-form-field label="Hasta" forId="final" type="number"
+                            [control]="fogueresInfo.get('curriculum.final')">
+                        </app-form-field>
+
                         <button type="button" style="height: 38px;" class="btn btn-primary"
                             (click)="addCurriculum()">Añadir</button>
                     </div>
@@ -196,40 +144,26 @@
             </form>
         </mat-step>
 
-        <!-- ========== STEP: ACADÉMICO / INFO ADICIONAL ========== -->
+        <!-- 4. Académico -->
         <mat-step [stepControl]="academicInfo">
             <form [formGroup]="academicInfo">
                 <ng-template matStepLabel>Formación e información adicional</ng-template>
 
-                <!-- Formación -->
-                <div class="form-group mb-3">
-                    <label for="formacion" class="text-naranja">Formación</label>
-                    <input id="formacion" type="text" class="form-control" formControlName="formacion" required>
-                    <app-form-error [control]="academicInfo.get('formacion')" message="La formación es obligatoria.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Formación" forId="formacion" [control]="academicInfo.get('formacion')"
+                    errorMessage="La formación es obligatoria.">
+                </app-form-field>
 
-                <!-- Situación laboral solo adultas -->
                 @if (personalInfo.get('tipoCandidata')?.value === 'adultas') {
-                <div class="form-group mb-3">
-                    <label for="situacionLaboral" class="text-naranja">Situación Laboral</label>
-                    <input id="situacionLaboral" type="text" class="form-control" formControlName="situacionLaboral"
-                        required>
-                    <app-form-error [control]="academicInfo.get('situacionLaboral')"
-                        message="La situación laboral es obligatoria para adultas.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Situación laboral" forId="situacionLaboral"
+                    [control]="academicInfo.get('situacionLaboral')"
+                    errorMessage="La situación laboral es obligatoria para adultas.">
+                </app-form-field>
                 }
 
-                <!-- Aficiones -->
-                <div class="form-group mb-3">
-                    <label for="aficiones" class="text-naranja">Aficiones</label>
-                    <input id="aficiones" type="text" class="form-control" formControlName="aficiones" required>
-                    <app-form-error [control]="academicInfo.get('aficiones')" message="Las aficiones son obligatorias.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Aficiones" forId="aficiones" [control]="academicInfo.get('aficiones')"
+                    errorMessage="Las aficiones son obligatorias.">
+                </app-form-field>
 
-                <!-- Checkbox observaciones -->
                 <div class="form-group mb-3">
                     <mat-checkbox formControlName="aceptoTratamiento" (change)="toggleObservaciones($event)"
                         class="text-rojo">
@@ -237,23 +171,18 @@
                     </mat-checkbox>
                 </div>
 
-                <!-- Observaciones -->
-                <div class="form-group mb-3">
-                    <label for="observaciones" class="text-naranja">Observaciones (alergias, intolerancias...)</label>
-                    <textarea id="observaciones" class="form-control" formControlName="observaciones"></textarea>
-                    <app-form-error [control]="academicInfo.get('observaciones')"
-                        message="Hay algún error, por favor, revisa las observaciones.">
-                    </app-form-error>
-                </div>
+                <app-form-field label="Observaciones (alergias, intolerancias...)" forId="observaciones" type="textarea"
+                    [control]="academicInfo.get('observaciones')"
+                    errorMessage="Hay algún error, por favor, revisa las observaciones.">
+                </app-form-field>
             </form>
         </mat-step>
         }
 
-        <!-- ========== STEP: DOCUMENTACIÓN (siempre) ========== -->
+        <!-- 5. Documentación -->
         <mat-step [stepControl]="documentacionForm">
             <ng-template matStepLabel>Documentación</ng-template>
             <form [formGroup]="documentacionForm">
-
                 @for (f of fileFields; track f.name) {
                 <div class="form-group mb-3">
                     <label [for]="f.name" class="text-naranja">{{ f.label }}</label>
@@ -263,7 +192,6 @@
                     </app-form-error>
                 </div>
                 }
-
             </form>
         </mat-step>
 

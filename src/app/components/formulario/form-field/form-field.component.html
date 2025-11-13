@@ -1,0 +1,22 @@
+<div class="form-group mb-3">
+    <label [for]="forId" class="text-naranja">{{ label }}</label>
+
+    @if (type === 'textarea') {
+    @if (formControl) {
+    <textarea class="form-control" [id]="forId" [placeholder]="placeholder" [formControl]="formControl">
+      </textarea>
+    } @else {
+    <textarea class="form-control" [id]="forId" [placeholder]="placeholder">
+      </textarea>
+    }
+    } @else {
+    @if (formControl) {
+    <input class="form-control" [id]="forId" [type]="type" [placeholder]="placeholder" [formControl]="formControl" />
+    } @else {
+    <input class="form-control" [id]="forId" [type]="type" [placeholder]="placeholder" />
+    }
+    }
+
+    <app-form-error [control]="control" [message]="errorMessage">
+    </app-form-error>
+</div>

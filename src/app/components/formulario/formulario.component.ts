@@ -28,11 +28,13 @@ import { VisorType } from '../home/home.component';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
 import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 import { FormErrorComponent } from './form-error/form-error.component';
+import { FormFieldComponent } from './form-field/form-field.component';
 
 @Component({
   selector: 'app-formulario',
   standalone: true,
   imports: [
+    FormFieldComponent,
     FormErrorComponent,
     FormsModule,
     ReactiveFormsModule,
