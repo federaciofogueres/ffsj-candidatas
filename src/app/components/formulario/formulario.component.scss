@@ -42,16 +42,16 @@
 }
 
 ::ng-deep .mat-mdc-radio-button.mat-accent {
-    --mdc-radio-selected-focus-icon-color: #c4141c !important;
-    --mdc-radio-selected-hover-icon-color: #c4141c !important;
-    --mdc-radio-selected-icon-color: #c4141c !important;
-    --mdc-radio-selected-pressed-icon-color: #c4141c !important;
+    --mat-radio-selected-focus-icon-color: #c4141c !important;
+    --mat-radio-selected-hover-icon-color: #c4141c !important;
+    --mat-radio-selected-icon-color: #c4141c !important;
+    --mat-radio-selected-pressed-icon-color: #c4141c !important;
     --mat-radio-checked-ripple-color: #c4141c !important;
     --mat-radio-ripple-color: #c4141c !important;
 
-    --mdc-radio-disabled-selected-icon-color: #e3741c !important;
-    --mdc-radio-disabled-unselected-icon-color: #e3741c !important;
-    --mdc-radio-unselected-hover-icon-color: #e3741c !important;
-    --mdc-radio-unselected-icon-color: #e3741c !important;
-    --mdc-radio-unselected-pressed-icon-color: #e3741c !important;
+    --mat-radio-disabled-selected-icon-color: #e3741c !important;
+    --mat-radio-disabled-unselected-icon-color: #e3741c !important;
+    --mat-radio-unselected-hover-icon-color: #e3741c !important;
+    --mat-radio-unselected-icon-color: #e3741c !important;
+    --mat-radio-unselected-pressed-icon-color: #e3741c !important;
 }
