@@ -28,7 +28,7 @@
     "bootstrap": "^5.3.3",
     "crypto-js": "^4.2.0",
     "express": "^4.18.2",
-    "ffsj-web-components": "src/lib/ffsj-web-components",
+    "ffsj-web-components": "file:../ffsj-workspace-2/dist/ffsj-web-components",
     "file-saver": "^2.0.5",
     "jwt-decode": "^4.0.0",
     "ngx-cookie-service": "^17.1.0",
