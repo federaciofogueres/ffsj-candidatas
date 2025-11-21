@@ -133,6 +133,17 @@ export class FormularioComponent implements OnInit {
     { name: 'fotoCalle', label: 'Foto Calle' },
   ];
 
+  existingDocuments: Record<string, string | null> = {
+    autorizacionFoguera: null,
+    compromisoDisponibilidad: null,
+    derechosAutor: null,
+    dniEscaneado: null,
+    fotoBelleza: null,
+    fotoCalle: null
+  };
+
+  loadedFromFirebase = false;
+
   constructor(
     private censoService: CensoService,
     private fb: FormBuilder,
@@ -145,13 +156,94 @@ export class FormularioComponent implements OnInit {
     try {
       this.loadAsociaciones();
       this.getAsociacion();
-      this.loadAsociadoDataOnForm(this.asociado);
+
+      await this.loadInitialData();  // 👈 NUEVO
+
       this.academicInfo.get('observaciones')?.disable();
     } catch (error) {
       console.error('Error loading asociado data:', error);
     }
     this.loading = false;
   }
+
+  private async loadInitialData() {
+    const tipoCandidata =
+      this.calcularEdad(this.asociado['fecha_nacimiento']) >= 18 ? 'adultas' : 'infantiles';
+
+    const data = await this.firebaseStorageService.getCandidataByIdAsociado(
+      this.asociado.id.toString(),
+      tipoCandidata
+    );
+
+    if (data) {
+      this.loadedFromFirebase = true;      // 👈 IMPORTANTE
+      this.loadFirebaseDataOnForm(data);   // aquí se hace el patchValue de asociacion desde Firebase
+    } else {
+      this.loadedFromFirebase = false;
+      this.loadAsociadoDataOnForm(this.asociado); // rellenas con datos del back
+    }
+  }
+
+
+
+  private loadFirebaseDataOnForm(data: any) {
+    // Datos personales
+    this.personalInfo.patchValue({
+      dni: data.dni || '',
+      nombre: data.nombre || '',
+      fechaNacimiento: data.fechaNacimiento || '',
+      ciudad: data.ciudad || '',
+      telefono: data.telefono || '',
+      email: data.email || '',
+      tipoCandidata: data.tipoCandidata || ''
+    });
+
+    // Vida en Fogueres
+    this.fogueresInfo.patchValue({
+      asociacion: data.asociacion ? +data.asociacion : this.defaultAsociacionId,
+      anyosFiesta: data.anyosFiesta || '',
+      curriculum: {
+        cargo: '',
+        comienzo: '',
+        final: ''
+      }
+    });
+
+    // Cargos (curriculum) guardados como JSON
+    try {
+      this.cargos = data.curriculum ? JSON.parse(data.curriculum) : [];
+    } catch {
+      this.cargos = [];
+    }
+
+    // Académico
+    this.academicInfo.patchValue({
+      formacion: data.formacion || '',
+      situacionLaboral: data.situacionLaboral || '',
+      observaciones: data.observaciones || '',
+      aficiones: data.aficiones || ''
+    });
+
+    // Responsables
+    this.responsableInfo.patchValue({
+      nombreTutor1: data.nombreTutor1 || '',
+      nombreTutor2: data.nombreTutor2 || '',
+      telefonoTutor1: data.telefonoTutor1 || '',
+      telefonoTutor2: data.telefonoTutor2 || ''
+    });
+
+    // Documentación:
+    this.existingDocuments = {
+      autorizacionFoguera: data.autorizacionFoguera || null,
+      compromisoDisponibilidad: data.compromisoDisponibilidad || null,
+      derechosAutor: data.derechosAutor || null,
+      dniEscaneado: data.dniEscaneado || null,
+      fotoBelleza: data.fotoBelleza || null,
+      fotoCalle: data.fotoCalle || null
+    };
+  }
+
+
 
   loadAsociaciones() {
     this.censoService.asociacionesGet().subscribe({
@@ -166,18 +258,30 @@ export class FormularioComponent implements OnInit {
   getAsociacion() {
     this.censoService.getHistoricoByAsociado(this.asociado?.id).subscribe({
       next: (response: any) => {
-        const registrosFiltrados = response.historico.filter((registro: any) => registro.ejercicio >= 2024);
-        const idAsociacionesUnicas = [...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))];
+        const registrosFiltrados = response.historico.filter(
+          (registro: any) => registro.ejercicio >= 2024
+        );
+        const idAsociacionesUnicas = [
+          ...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))
+        ];
 
-        const asociacionesFiltradas = this.asociaciones.filter(asociacion => idAsociacionesUnicas.includes(asociacion.id));
-        this.defaultAsociacionId = asociacionesFiltradas[0]?.id
-        this.fogueresInfo.patchValue({ asociacion: this.defaultAsociacionId });
+        const asociacionesFiltradas = this.asociaciones.filter(asociacion =>
+          idAsociacionesUnicas.includes(asociacion.id)
+        );
+
+        this.defaultAsociacionId = asociacionesFiltradas[0]?.id;
+
+        // 👇 Solo si NO hemos cargado desde Firebase, aplicamos la "por defecto"
+        if (!this.loadedFromFirebase) {
+          this.fogueresInfo.patchValue({ asociacion: this.defaultAsociacionId });
+        }
       },
       error: (err) => {
         console.error('Error fetching historico:', err);
       }
     });
   }
+
 
   loadAsociadoDataOnForm(asociadoData?: Asociado) {
 
@@ -236,18 +340,54 @@ export class FormularioComponent implements OnInit {
   }
 
   async procesar() {
-
+    // activamos spinner
     this.loading = true;
-    const files = this.documentacionForm.value;
-    const fileUrls = await Promise.all([
-      files.autorizacionFoguera ? this.uploadFile('autorizacionFoguera', files.autorizacionFoguera) : Promise.resolve(''),
-      files.compromisoDisponibilidad ? this.uploadFile('compromisoDisponibilidad', files.compromisoDisponibilidad) : Promise.resolve(''),
-      files.derechosAutor ? this.uploadFile('derechosAutor', files.derechosAutor) : Promise.resolve(''),
-      files.dniEscaneado ? this.uploadFile('dniEscaneado', files.dniEscaneado) : Promise.resolve(''),
-      files.fotoBelleza ? this.uploadFile('fotoBelleza', files.fotoBelleza) : Promise.resolve(''),
-      files.fotoCalle ? this.uploadFile('fotoCalle', files.fotoCalle) : Promise.resolve(''),
+
+    // valores del form de documentación (File | null)
+    const files = this.documentacionForm.value as any;
+
+    /**
+     * Sube un fichero nuevo o, si no hay, mantiene la URL existente
+     * en this.existingDocuments[field].
+     */
+    const uploadOrKeep = async (
+      field: keyof typeof this.existingDocuments,
+      storageFieldName: string
+    ): Promise<string> => {
+      const newFile = files[field]; // File del form
+
+      if (newFile) {
+        // hay archivo nuevo → lo subimos a Firebase Storage
+        return await this.uploadFile(storageFieldName, newFile);
+      }
+
+      // no hay archivo nuevo → si hay URL ya guardada, la mantenemos
+      if (this.existingDocuments[field]) {
+        return this.existingDocuments[field] as string;
+      }
+
+      // ni archivo nuevo ni URL previa → queda vacío
+      return '';
+    };
+
+    // obtenemos las URLs finales (subiendo solo lo necesario)
+    const [
+      autorizacionFogueraUrl,
+      compromisoDisponibilidadUrl,
+      derechosAutorUrl,
+      dniEscaneadoUrl,
+      fotoBellezaUrl,
+      fotoCalleUrl
+    ] = await Promise.all([
+      uploadOrKeep('autorizacionFoguera', 'autorizacionFoguera'),
+      uploadOrKeep('compromisoDisponibilidad', 'compromisoDisponibilidad'),
+      uploadOrKeep('derechosAutor', 'derechosAutor'),
+      uploadOrKeep('dniEscaneado', 'dniEscaneado'),
+      uploadOrKeep('fotoBelleza', 'fotoBelleza'),
+      uploadOrKeep('fotoCalle', 'fotoCalle')
     ]);
 
+    // construimos el objeto candidata que se enviará a Firestore
     const candidata: CandidataData = {
       id: { value: this.asociado.id.toString() || '', required: true },
       informacionPersonal: {
@@ -257,71 +397,140 @@ export class FormularioComponent implements OnInit {
         ciudad: { value: this.personalInfo.get('ciudad')?.value || '', required: true },
         email: { value: this.personalInfo.get('email')?.value || '', required: true },
         telefono: { value: this.personalInfo.get('telefono')?.value || '', required: true },
-        edad: { value: this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '', required: true },
-        tipoCandidata: { value: this.personalInfo.get('tipoCandidata')?.value || '', required: true }
+        edad: {
+          value:
+            this.calcularEdad(this.personalInfo.get('fechaNacimiento')?.value || '').toString() || '',
+          required: true
+        },
+        tipoCandidata: {
+          value: this.personalInfo.get('tipoCandidata')?.value || '',
+          required: true
+        }
       },
+
       vidaEnFogueres: {
-        asociacion: { value: this.fogueresInfo.get('asociacion')?.value?.toString() || '', required: true },
-        anyosFiesta: { value: this.fogueresInfo.get('anyosFiesta')?.value || '', required: true },
-        curriculum: { value: JSON.stringify(this.cargos) || '', required: true },
-        asociacion_label: { value: this.fogueresInfo.get('asociacion_label')?.value || '', required: true },
-        asociacion_order: { value: this.fogueresInfo.get('asociacion_order')?.value || '', required: true },
+        asociacion: {
+          value: this.fogueresInfo.get('asociacion')?.value?.toString() || '',
+          required: true
+        },
+        anyosFiesta: {
+          value: this.fogueresInfo.get('anyosFiesta')?.value || '',
+          required: true
+        },
+        curriculum: {
+          value: JSON.stringify(this.cargos) || '',
+          required: true
+        },
+        // si no tienes estos controles en el form, puedes dejarlos vacíos
+        asociacion_label: {
+          value: this.fogueresInfo.get('asociacion_label')?.value || '',
+          required: true
+        },
+        asociacion_order: {
+          value: this.fogueresInfo.get('asociacion_order')?.value || '',
+          required: true
+        }
       },
+
       academico: {
-        formacion: { value: this.academicInfo.get('formacion')?.value || '', required: true },
-        situacionLaboral: { value: this.academicInfo.get('situacionLaboral')?.value || '', required: true },
-        observaciones: { value: this.academicInfo.get('observaciones')?.value || '', required: true },
-        aficiones: { value: this.academicInfo.get('aficiones')?.value || '', required: true }
+        formacion: {
+          value: this.academicInfo.get('formacion')?.value || '',
+          required: true
+        },
+        situacionLaboral: {
+          value: this.academicInfo.get('situacionLaboral')?.value || '',
+          required: true
+        },
+        observaciones: {
+          value: this.academicInfo.get('observaciones')?.value || '',
+          required: true
+        },
+        aficiones: {
+          value: this.academicInfo.get('aficiones')?.value || '',
+          required: true
+        }
       },
+
       documentacion: {
-        autorizacionFoguera: { value: fileUrls[0], required: true },
-        compromisoDisponibilidad: { value: fileUrls[1], required: true },
-        derechosAutor: { value: fileUrls[2], required: true },
-        dniEscaneado: { value: fileUrls[3], required: true },
-        fotoBelleza: { value: fileUrls[4], required: true },
-        fotoCalle: { value: fileUrls[5], required: true }
+        autorizacionFoguera: {
+          value: autorizacionFogueraUrl,
+          required: true
+        },
+        compromisoDisponibilidad: {
+          value: compromisoDisponibilidadUrl,
+          required: true
+        },
+        derechosAutor: {
+          value: derechosAutorUrl,
+          required: true
+        },
+        dniEscaneado: {
+          value: dniEscaneadoUrl,
+          required: true
+        },
+        fotoBelleza: {
+          value: fotoBellezaUrl,
+          required: true
+        },
+        fotoCalle: {
+          value: fotoCalleUrl,
+          required: true
+        }
       },
+
       responsables: {
-        nombreTutor1: { value: this.responsableInfo.get('nombreTutor1')?.value || '', required: true },
-        nombreTutor2: { value: this.responsableInfo.get('nombreTutor2')?.value || '', required: true },
-        telefonoTutor1: { value: this.responsableInfo.get('telefonoTutor1')?.value || '', required: true },
-        telefonoTutor2: { value: this.responsableInfo.get('telefonoTutor2')?.value || '', required: true }
+        nombreTutor1: {
+          value: this.responsableInfo.get('nombreTutor1')?.value || '',
+          required: true
+        },
+        nombreTutor2: {
+          value: this.responsableInfo.get('nombreTutor2')?.value || '',
+          required: true
+        },
+        telefonoTutor1: {
+          value: this.responsableInfo.get('telefonoTutor1')?.value || '',
+          required: true
+        },
+        telefonoTutor2: {
+          value: this.responsableInfo.get('telefonoTutor2')?.value || '',
+          required: true
+        }
       }
     };
-    this.loading = false;
-    console.log(candidata);
-    console.log(this.personalInfo);
-    console.log(this.fogueresInfo);
-    console.log(this.academicInfo);
-    console.log(this.documentacionForm);
-    console.log(this.responsableInfo);
 
-    // Publicar el objeto candidata en Firestore
     try {
       await this.firebaseStorageService.addCandidata(candidata);
       console.log('Candidata publicada en Firestore');
+
       this.dialog.open(ResultDialogComponent, {
-        data: {
-          message: 'El formulario se ha enviado correctamente.'
-        }
+        data: { message: 'El formulario se ha enviado correctamente.' }
       });
     } catch (error) {
       console.error('Error publicando candidata en Firestore:', error);
+
       this.dialog.open(ResultDialogComponent, {
-        data: {
-          message: 'Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.'
-        }
+        data: { message: 'Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.' }
       });
+    } finally {
+      this.loading = false;
     }
+
     this.dialog.afterAllClosed.subscribe({
       next: () => {
         this.cambioVisor.emit('menu');
       }
-    })
+    });
   }
 
+
   private uploadFile(fieldName: string, file: File): Promise<string> {
-    const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
+    const asociacionId = this.fogueresInfo.get('asociacion')?.value;
+    const asociacion = this.asociaciones.find(a => a.id === Number(asociacionId));
+    const asociacionNombre = asociacion ? asociacion.nombre.replace(/\s+/g, '_') : 'sin-nombre';
+
+    const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${asociacionId}-${asociacionNombre}`;
+
+    // const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
     return this.firebaseStorageService.uploadFile(filePath, file);
   }
 
@@ -447,5 +656,15 @@ export class FormularioComponent implements OnInit {
 
     return false;
   }
+
+  getFileName(url: string | null | undefined): string {
+    if (!url) return '';
+    return decodeURIComponent(url.split('/').pop()!.split('?')[0]);
+  }
+
+  replaceDocument(fieldName: string) {
+    this.existingDocuments[fieldName] = null;
+  }
+
 
 }

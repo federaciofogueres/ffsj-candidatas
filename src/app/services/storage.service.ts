@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
+import { getDoc } from 'firebase/firestore';
 import { CandidataData } from '../model/candidata-data.model';
 
 @Injectable({
@@ -67,10 +68,23 @@ export class FirebaseStorageService {
     async addCandidata(candidata: CandidataData) {
         const candidataValues = this.extractValues(candidata);
         await setDoc(
-            doc(this._firestore, `candidatas/2025/${candidataValues.tipoCandidata}`, candidataValues.asociacion),
-            candidataValues
+            doc(this._firestore, `candidatas/2025/${candidataValues.tipoCandidata}`, candidataValues.id),
+            candidataValues,
+            { merge: true }
         );
     }
+
+    async getCandidataByIdAsociado(idAsociado: string, tipoCandidata: string): Promise<any | null> {
+        const ref = doc(this._firestore, `candidatas/2025/${tipoCandidata}/${idAsociado}`);
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) {
+            return null;
+        }
+
+        return snap.data(); // devuelve el objeto plano creado en extractValues()
+    }
+
 
     async getCollection(collectionName: string) {
         const colRef = collection(this._firestore, collectionName);

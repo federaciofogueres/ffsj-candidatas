@@ -186,10 +186,30 @@
                 @for (f of fileFields; track f.name) {
                 <div class="form-group mb-3">
                     <label [for]="f.name" class="text-naranja">{{ f.label }}</label>
-                    <input [id]="f.name" type="file" class="form-control" (change)="onFileChange($event, f.name)">
+
+                    @if (existingDocuments && existingDocuments[f.name]) {
+                    <!-- Hay documento ya subido en Firebase -->
+                    <div class="existing-file d-flex flex-column gap-1">
+                        <small class="text-muted">
+                            📄 Documento ya subido:
+                            <a [href]="existingDocuments[f.name]" target="_blank">
+                                {{ getFileName(existingDocuments[f.name]) }}
+                            </a>
+                        </small>
+
+                        <button type="button" class="btn btn-outline-primary btn-sm align-self-start"
+                            (click)="replaceDocument(f.name)">
+                            Reemplazar documento
+                        </button>
+                    </div>
+                    } @else {
+                    <!-- No hay documento o el usuario ha elegido reemplazarlo -->
+                    <input [id]="f.name" type="file" class="form-control" (change)="onFileChange($event, f.name)" />
+
                     <app-form-error [control]="documentacionForm.get(f.name)"
                         message="El archivo debe pesar menos de 5MB.">
                     </app-form-error>
+                    }
                 </div>
                 }
             </form>
