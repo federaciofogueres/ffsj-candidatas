@@ -5,7 +5,13 @@
     "outDir": "./out-tsc/app",
     "types": [
       "node"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "ffsj-web-components": [
+        "./src/lib/ffsj-web-components"
+      ]
+    }
   },
   "files": [
     "src/main.ts",

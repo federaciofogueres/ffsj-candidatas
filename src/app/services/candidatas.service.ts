@@ -71,7 +71,7 @@ export class CandidataService {
         let arrayData: CandidataData[] = [];
         try {
             const data = await this.firebaseStorageService.getCollection(collection);
-            data.forEach(dataBD => {
+            data.forEach((dataBD: any) => {
                 let candidata: CandidataData = {
                     id: { value: dataBD['id'], required: true },
                     informacionPersonal: {
@@ -242,7 +242,7 @@ export class CandidataService {
     }
 
     checkCampos(campos: TiposCampos): boolean {
-        return Object.values(campos).every(campo => {
+        return Object.values(campos).every((campo: any) => {
             if (campo.required) {
                 return campo.value !== null && campo.value !== undefined && String(campo.value).trim() !== '';
             }

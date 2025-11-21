@@ -40,7 +40,7 @@ export class LoginComponent {
       this.saveDeviceInfo();
     } else {
       console.log('Login failed');
-      this.ffsjAlertService.danger('Hubo un problema al iniciar sesión. Por favor, inténtalo de nuevo o contacta con transformaciondigital@hogueras.es.')
+      // this.ffsjAlertService.danger('Hubo un problema al iniciar sesión. Por favor, inténtalo de nuevo o contacta con transformaciondigital@hogueras.es.')
     }
   }
 

@@ -1,4 +1,4 @@
-@import '../../../variables.scss';
+@use '../../../variables' as *;
 
 /* 1. El componente ocupa casi toda la pantalla */
 .admin-wrapper {

@@ -9,7 +9,7 @@ import { CandidataData } from '../model/candidata-data.model';
 export class FirebaseStorageService {
 
     private _firestore = inject(Firestore);
-    private _firebaseApp = this._firestore.app;
+    private _firebaseApp: any = (this._firestore as any).app;
     private _collection = collection(this._firestore, 'candidatas');
     private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
 
@@ -21,7 +21,7 @@ export class FirebaseStorageService {
             const task = uploadBytesResumable(fileRef, file);
 
             task.on('state_changed',
-                (snapshot) => {
+                (snapshot: any) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log(`Upload is ${progress}% done`);
                     switch (snapshot.state) {
@@ -32,7 +32,7 @@ export class FirebaseStorageService {
                             console.log('Upload is running');
                             break;
                     }
-                }, (error) => {
+                }, (error: any) => {
                     console.error('Error uploading file -> ', error);
                     reject(error);
                 }, () => {
@@ -48,7 +48,7 @@ export class FirebaseStorageService {
         const path = 'candidatas/2025/anotaciones/' + anotador + '/anotaciones/' + candidata;
         try {
             const anotationData = { anotation, timestamp: new Date() };
-            await setDoc(doc(this._firestore, path), anotationData).then((result) => {
+            await setDoc(doc(this._firestore, path), anotationData).then((result: any) => {
                 if (localStorage.getItem('candidatasData')) {
                     let storageItem = JSON.parse(localStorage.getItem('candidatasData')!);
                     const anotacionIndex = storageItem.anotaciones.findIndex((anotacion: any) => anotacion.candidata === candidata);
@@ -66,13 +66,16 @@ export class FirebaseStorageService {
 
     async addCandidata(candidata: CandidataData) {
         const candidataValues = this.extractValues(candidata);
-        await setDoc(doc(this._firestore, `candidatas/2025/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);
+        await setDoc(
+            doc(this._firestore, `candidatas/2025/${candidataValues.tipoCandidata}`, candidataValues.asociacion),
+            candidataValues
+        );
     }
 
     async getCollection(collectionName: string) {
         const colRef = collection(this._firestore, collectionName);
         const snapshot = await getDocs(colRef);
-        const docs = snapshot.docs.map(doc => doc.data());
+        const docs = snapshot.docs.map((doc: any) => doc.data());
         return docs;
     }
 
@@ -83,7 +86,7 @@ export class FirebaseStorageService {
             device: deviceInfo,
             timestamp: timestamp
         }
-        await setDoc(doc(this._firestore, `/users/${userId}/connections/${timestamp}`), newConnection).then((result) => {
+        await setDoc(doc(this._firestore, `/users/${userId}/connections/${timestamp}`), newConnection).then((result: any) => {
             console.log(result);
         });
     }
