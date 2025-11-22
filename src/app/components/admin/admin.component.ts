@@ -132,7 +132,7 @@ export class AdminComponent implements OnInit {
 
   async loadData() {
     try {
-      const candidatas = await this.candidataService.getCandidatas();
+      const candidatas = await this.candidataService.getCandidatas(true);
 
       this.infantiles = candidatas.infantiles;
       this.adultas = candidatas.adultas;

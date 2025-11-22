@@ -55,6 +55,8 @@ export class HomeComponent implements OnInit {
   }
   logout() {
     this.authService.logout();
+    localStorage.clear();
+    this.cookieService.deleteAll();
   }
 
   onCambioVisor(event: any) {
