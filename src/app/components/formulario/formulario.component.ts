@@ -18,7 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
-import { FfsjSpinnerComponent } from 'ffsj-web-components';
+import { AlertButtonType, FfsjDialogAlertService, FfsjSpinnerComponent } from 'ffsj-web-components';
 import { CandidataData } from '../../model/candidata-data.model';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
@@ -148,15 +148,15 @@ export class FormularioComponent implements OnInit {
     private censoService: CensoService,
     private fb: FormBuilder,
     private firebaseStorageService: FirebaseStorageService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dialogAlertService: FfsjDialogAlertService
   ) { }
 
   async ngOnInit() {
     this.loading = true;
     try {
-      this.loadAsociaciones();
-      this.getAsociacion();
-
+      await this.loadAsociaciones();
+      await this.getAsociacion();
       await this.loadInitialData();  // 👈 NUEVO
 
       this.academicInfo.get('observaciones')?.disable();
@@ -245,42 +245,52 @@ export class FormularioComponent implements OnInit {
 
 
 
-  loadAsociaciones() {
-    this.censoService.asociacionesGet().subscribe({
-      next: (response: ResponseAsociaciones) => {
-        if (response.status?.status === 200 && response.asociaciones) {
-          this.asociaciones = response.asociaciones.filter(asociacion => asociacion['tipo_asociacion'] === 2);
-        }
-      }
-    })
-  }
-
-  getAsociacion() {
-    this.censoService.getHistoricoByAsociado(this.asociado?.id).subscribe({
-      next: (response: any) => {
-        const registrosFiltrados = response.historico.filter(
-          (registro: any) => registro.ejercicio >= 2024
-        );
-        const idAsociacionesUnicas = [
-          ...new Set(registrosFiltrados.map((registro: any) => registro.idAsociacion))
-        ];
-
-        const asociacionesFiltradas = this.asociaciones.filter(asociacion =>
-          idAsociacionesUnicas.includes(asociacion.id)
-        );
-
-        this.defaultAsociacionId = asociacionesFiltradas[0]?.id;
-
-        // 👇 Solo si NO hemos cargado desde Firebase, aplicamos la "por defecto"
-        if (!this.loadedFromFirebase) {
-          this.fogueresInfo.patchValue({ asociacion: this.defaultAsociacionId });
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching historico:', err);
-      }
+  loadAsociaciones(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.censoService.asociacionesGet().subscribe({
+        next: (response: ResponseAsociaciones) => {
+          if (response.status?.status === 200 && response.asociaciones) {
+            this.asociaciones = response.asociaciones.filter(
+              a => a['tipo_asociacion'] === 2
+            );
+          }
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
     });
   }
+
+  getAsociacion(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.censoService.getHistoricoByAsociado(this.asociado?.id).subscribe({
+        next: (response: any) => {
+          const registrosFiltrados = response.historico.filter(
+            (registro: any) => registro.ejercicio >= 2024
+          );
+
+          const idAsociacionesUnicas = [
+            ...new Set(registrosFiltrados.map((r: any) => r.idAsociacion))
+          ];
+
+          const asociacionesFiltradas = this.asociaciones.filter(a =>
+            idAsociacionesUnicas.includes(a.id)
+          );
+
+          this.defaultAsociacionId = asociacionesFiltradas[0]?.id ?? -1;
+
+          // SOLO si no hemos cargado desde Firebase
+          if (!this.loadedFromFirebase) {
+            this.fogueresInfo.patchValue({ asociacion: this.defaultAsociacionId });
+          }
+
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
 
 
   loadAsociadoDataOnForm(asociadoData?: Asociado) {
@@ -663,8 +673,21 @@ export class FormularioComponent implements OnInit {
   }
 
   replaceDocument(fieldName: string) {
-    this.existingDocuments[fieldName] = null;
+    const dialogRef = this.dialogAlertService.openDialogAlert({
+      title: 'Cambiar documento',
+      content: 'Al cambiar el documento se borrará de la base de datos el actual, ¿deseas proceder con el cambio de todas formas?',
+      buttonsAlert: [AlertButtonType.Cancelar, AlertButtonType.Aceptar]
+    });
+
+    dialogRef.afterClosed().subscribe((result: AlertButtonType | string | undefined) => {
+      if (result === AlertButtonType.Aceptar) {
+        // El usuario confirma → limpiamos la URL y mostramos el input file
+        this.existingDocuments[fieldName] = null;
+      }
+      // Si pulsa Cancelar o cierra el diálogo → no hacemos nada
+    });
   }
+
 
 
 }
