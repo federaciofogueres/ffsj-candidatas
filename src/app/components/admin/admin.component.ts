@@ -162,24 +162,31 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  openDialog(element: any, col?: string, j?: number): void {
-    let datos: any;
+  openDialog(tipo: TableKey, row: InfoShowTable, col: string): void {
+    // 1. Elegir el array correcto de candidatas
+    const dataArray = tipo === 'adultas' ? this.adultas : this.infantiles;
 
-    if (Array.isArray(element) && typeof j === 'number' && col) {
-      datos = element[j]?.[col];
-    } else if (col && element && col in element) {
-      datos = element[col];
-    } else if (col && Array.isArray(element) && typeof j !== 'number') {
-      datos = element[0]?.[col];
-    } else {
-      datos = element;
+    // Ojo: InfoShowTable.id es string, CandidataData.id.value también (según tu modelo)
+    const candidata = dataArray.find(c => c.id?.value?.toString() === row.id?.toString());
+
+    if (!candidata) {
+      console.error('No se encontró la candidata para la fila', row);
+      return;
     }
 
+    // 2. Sacar la parte del objeto que queremos mostrar (informacionPersonal, vidaEnFogueres, academico, documentacion, responsables...)
+    const datos = (candidata as any)[col];
+
+    if (!datos) {
+      console.warn(`No se encontraron datos para la columna "${col}" en la candidata con id ${row.id}`);
+    }
+
+    // 3. Abrir el diálogo
     this.dialog.open(DialogOverviewComponent, {
       data: {
         datos,
         asociaciones: this.asociaciones,
-        visorDocumentos: Boolean(col && col.includes('documentacion')),
+        visorDocumentos: col.includes('documentacion'),
       },
       width: 'auto',
       maxWidth: '90vw',
@@ -188,6 +195,7 @@ export class AdminComponent implements OnInit {
       panelClass: 'dialog-auto-size',
     });
   }
+
 
   download(option?: keyof CandidataData): void {
     const data = this.selectedTab === 'adultas' ? this.adultas : this.infantiles;

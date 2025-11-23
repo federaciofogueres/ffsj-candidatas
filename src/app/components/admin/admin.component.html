@@ -46,11 +46,12 @@
                                     <span class="text-rojo"><mat-icon>close</mat-icon></span>
                                     }
                                     <mat-icon class="action-icon"
-                                        (click)="openDialog(adultas, columna, j)">visibility</mat-icon>
+                                        (click)="openDialog('adultas', element, columna)">visibility</mat-icon>
                                 </div>
                             </td>
                         </ng-container>
                         }
+
 
                         <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
                         <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
@@ -97,11 +98,12 @@
                                     <span class="text-rojo"><mat-icon>close</mat-icon></span>
                                     }
                                     <mat-icon class="action-icon"
-                                        (click)="openDialog(infantiles, columna, j)">visibility</mat-icon>
+                                        (click)="openDialog('infantiles', element, columna)">visibility</mat-icon>
                                 </div>
                             </td>
                         </ng-container>
                         }
+
 
                         <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
                         <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
