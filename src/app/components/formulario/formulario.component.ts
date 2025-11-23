@@ -538,7 +538,14 @@ export class FormularioComponent implements OnInit {
     const asociacion = this.asociaciones.find(a => a.id === Number(asociacionId));
     const asociacionNombre = asociacion ? asociacion.nombre.replace(/\s+/g, '_') : 'sin-nombre';
 
-    const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${asociacionId}-${asociacionNombre}`;
+    // sacar extensión del archivo original
+    const originalName = file.name;                   // ej: "autorizacion.pdf"
+    const ext = originalName.includes('.') ? originalName.split('.').pop() : '';
+    const sanitizedExt = ext ? `.${ext}` : '';
+
+    const tipo = this.personalInfo.get('tipoCandidata')?.value;
+
+    const filePath = `candidatas/2025/${tipo}/${fieldName}/${asociacionId}-${asociacionNombre}${sanitizedExt}`;
 
     // const filePath = `candidatas/2025/${this.personalInfo.get('tipoCandidata')?.value}/${fieldName}/${this.fogueresInfo.get('asociacion')?.value}-${this.fogueresInfo.get('nombre')?.value}`;
     return this.firebaseStorageService.uploadFile(filePath, file);

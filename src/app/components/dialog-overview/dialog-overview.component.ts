@@ -56,18 +56,91 @@ export class DialogOverviewComponent implements OnInit {
     link.click();
   }
 
-  downloadFile(url: string, fileName: string): void {
-    const proxyUrl = `/api${url.split('https://firebasestorage.googleapis.com')[1]}`;
+  downloadFile(url: string, label: string): void {
+    if (!url || !url.includes('https://firebasestorage.googleapis.com')) {
+      console.error('URL de descarga no válida:', url);
+      return;
+    }
+
+    // 1. Construir la URL del proxy (como en tu versión que funcionaba)
+    const [, pathPart] = url.split('https://firebasestorage.googleapis.com');
+
+    if (!pathPart) {
+      console.error('No se pudo extraer la ruta de Firebase de la URL:', url);
+      return;
+    }
+
+    const proxyUrl = `/api${pathPart}`;
+
+    // 2. Obtener el nombre de fichero real desde la URL de Firebase (sin query, decodificado)
+    const lastPart = decodeURIComponent(
+      url.split('/').pop()!.split('?')[0]
+    );
+    // ej: "25-DOCTOR_BERGEZ_-_CAROLINAS.pdf"
+
+    // 3. Separar base y extensión
+    const dotIndex = lastPart.lastIndexOf('.');
+    const baseName = dotIndex >= 0 ? lastPart.substring(0, dotIndex) : lastPart;
+    const ext = dotIndex >= 0 ? lastPart.substring(dotIndex) : '';
+
+    // 4. Tomar todo el path a partir de /o/ y DECODIFICARLO
+    //    ej bruto: "candidatas%2F2025%2Fadultas%2FautorizacionFoguera%2F25-DOCTOR_BERGEZ_-_CAROLINAS.pdf"
+    const fullPathSegmentRaw = url.split('/o/')[1]?.split('?')[0] || '';
+    const fullPathDecoded = decodeURIComponent(fullPathSegmentRaw);
+    // ej decodificado: "candidatas/2025/adultas/autorizacionFoguera/25-DOCTOR_BERGEZ_-_CAROLINAS.pdf"
+
+    // 5. Quitar extensión del path
+    const fullPathWithoutExt = fullPathDecoded.replace(/\.[^/.]+$/, '');
+    // "candidatas/2025/adultas/autorizacionFoguera/25-DOCTOR_BERGEZ_-_CAROLINAS"
+
+    // 6. Función para slugificar textos (minúsculas, sin acentos, "/" y "_" a "-")
+    const slugifyPath = (text: string): string =>
+      text
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+        .toLowerCase()
+        .replace(/[\/_]+/g, '-')        // "/" o "_" -> "-"
+        .replace(/[^a-z0-9-]+/g, '-')   // resto raro -> "-"
+        .replace(/-+/g, '-')            // colapsar guiones
+        .replace(/^-+|-+$/g, '');       // quitar guiones extremos
+
+    let assocSlug = slugifyPath(fullPathWithoutExt);
+    // ej: "candidatas-2025-adultas-autorizacionfoguera-25-doctor-bergez-carolinas"
+
+    // 7. Limpiar lo que sobra:
+    //    - "candidatas-2025-adultas-" o "candidatas-2025-infantiles-"
+    //    - el "-25-" (id) de en medio
+    assocSlug = assocSlug
+      .replace(/^candidatas-\d{4}-(adultas|infantiles)-/, '') // quita "candidatas-2025-adultas-"
+      .replace(/-\d+-/, '-')                                  // quita "-25-"
+      .replace(/-+/g, '-')                                    // limpia dobles guiones
+      .replace(/^-+|-+$/g, '');                               // limpia guiones extremos
+
+    // Resultado esperado: "autorizacionfoguera-doctor-bergez-carolinas"
+
+    // 8. Nombre final (slug limpio + extensión original)
+    const finalFileName = `${assocSlug || baseName}${ext}`;
+
+    // 9. Descargar vía proxy como Blob (sin visor, como en tu versión que funcionaba)
     fetch(proxyUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName || url.split('/').pop() || 'document';
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error HTTP ${response.status}`);
+        }
+        return response.blob();
       })
-      .catch(console.error);
+      .then(blob => {
+        const objectUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = finalFileName;
+        link.click();
+        window.URL.revokeObjectURL(objectUrl);
+      })
+      .catch(err => {
+        console.error('Error descargando archivo a través del proxy:', err);
+      });
   }
+
+
 
 }
