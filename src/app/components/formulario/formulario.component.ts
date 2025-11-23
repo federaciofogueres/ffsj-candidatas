@@ -553,11 +553,19 @@ export class FormularioComponent implements OnInit {
 
   onFileChange(event: any, field: string) {
     const file = event.target.files[0];
+    const control = this.documentacionForm.get(field);
+
+    if (!control) return;
+
     if (file) {
-      this.documentacionForm.patchValue({
-        [field]: file
-      });
+      control.setValue(file);
+    } else {
+      control.setValue(null);
     }
+
+    // 👇 Esto hace que se vea el error en app-form-error
+    control.markAsTouched();
+    control.updateValueAndValidity();
   }
 
   addCurriculum() {
