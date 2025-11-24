@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+
 
 import { FormsModule } from '@angular/forms';
 import { FfsjAlertService } from 'ffsj-web-components';
@@ -56,6 +59,8 @@ const EXCEL_TYPE =
     MatInputModule,
     MatButtonModule,
     MatSortModule,
+    MatSelectModule,
+    MatCheckboxModule
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -119,6 +124,14 @@ export class AdminComponent implements OnInit {
     { key: 'infantiles', label: 'Infantiles' },
   ];
 
+  // 🔍 filtros de texto
+  searchFilterAdultas = '';
+  searchFilterInfantiles = '';
+
+  // 🎯 filtro de tipo (Todos, Pendiente, informacionPersonal, vidaEnFogueres, ...)
+  selectedFilterAdultas: string = '';
+  selectedFilterInfantiles: string = '';
+
   constructor(
     public dialog: MatDialog,
     private ffsjAlertService: FfsjAlertService,
@@ -155,12 +168,122 @@ export class AdminComponent implements OnInit {
 
       this.adultasDataSource.data = this.adultasData;
       this.infantilesDataSource.data = this.infantilesData;
+
+      // 🔎 PREDICATE ADULTAS
+      this.adultasDataSource.filterPredicate = (
+        data: InfoShowTable,
+        filter: string
+      ) => {
+        let parsed: any = {};
+        try {
+          parsed = filter ? JSON.parse(filter) : {};
+        } catch {
+          parsed = {};
+        }
+
+        const text: string = (parsed.text || '').trim().toLowerCase();
+        const filterType: string = parsed.filterType || '';
+
+        // 1) Filtro de texto
+        const matchesText =
+          !text ||
+          Object.values(data).some((v) =>
+            (v ?? '').toString().toLowerCase().includes(text)
+          );
+
+        // 2) Filtro de “Filtros”
+        const keysToCheck = this.columnasAdultas.slice(2); // ej: ['informacionPersonal','vidaEnFogueres',...]
+        const isAllComplete = keysToCheck.every(
+          (key) => (data as any)[key] === 'Completo'
+        );
+
+        let matchesFilterType = true;
+
+        switch (filterType) {
+          case '':
+            // "Todos": no filtra por completado
+            matchesFilterType = true;
+            break;
+
+          case 'pendiente':
+            // “Pendiente”: al menos 1 sección distinta de 'Completo'
+            matchesFilterType = !isAllComplete;
+            break;
+
+          case 'todo':
+            // “Todo completo”: todas las secciones en 'Completo'
+            matchesFilterType = isAllComplete;
+            break;
+
+          default:
+            // Una sección concreta: solo mostrar si ESA está completa
+            matchesFilterType = (data as any)[filterType] === 'Completo';
+            break;
+        }
+
+        return matchesText && matchesFilterType;
+      };
+
+      // 🔎 PREDICATE INFANTILES
+      this.infantilesDataSource.filterPredicate = (
+        data: InfoShowTable,
+        filter: string
+      ) => {
+        let parsed: any = {};
+        try {
+          parsed = filter ? JSON.parse(filter) : {};
+        } catch {
+          parsed = {};
+        }
+
+        const text: string = (parsed.text || '').trim().toLowerCase();
+        const filterType: string = parsed.filterType || '';
+
+        const matchesText =
+          !text ||
+          Object.values(data).some((v) =>
+            (v ?? '').toString().toLowerCase().includes(text)
+          );
+
+        const keysToCheck = this.columnasInfantiles.slice(2);
+        const isAllComplete = keysToCheck.every(
+          (key) => (data as any)[key] === 'Completo'
+        );
+
+        let matchesFilterType = true;
+
+        switch (filterType) {
+          case '':
+            matchesFilterType = true;
+            break;
+
+          case 'pendiente':
+            matchesFilterType = !isAllComplete;
+            break;
+
+          case 'todo':
+            matchesFilterType = isAllComplete;
+            break;
+
+          default:
+            matchesFilterType = (data as any)[filterType] === 'Completo';
+            break;
+        }
+
+        return matchesText && matchesFilterType;
+      };
+
+      // Inicializa filtros vacíos
+      this.updateFilters('adultas');
+      this.updateFilters('infantiles');
+
     } catch (error) {
       console.error('Error cargando datos:', error);
     } finally {
       this.loading = false;
     }
   }
+
 
   openDialog(tipo: TableKey, row: InfoShowTable, col: string): void {
     // 1. Elegir el array correcto de candidatas
@@ -278,18 +401,49 @@ export class AdminComponent implements OnInit {
     this.ffsjAlertService.warning('Esta funcionalidad no está disponible de momento.');
   }
 
-  applyFilter(filterValue: string, tipo: TableKey) {
-    const value = (filterValue || '').trim().toLowerCase();
+  private updateFilters(tipo: TableKey) {
     if (tipo === 'adultas') {
-      this.adultasDataSource.filter = value;
+      const filterObj = {
+        text: this.searchFilterAdultas,
+        filterType: this.selectedFilterAdultas,
+      };
+      this.adultasDataSource.filter = JSON.stringify(filterObj);
       if (this.adultasDataSource.paginator) {
         this.adultasDataSource.paginator.firstPage();
       }
     } else {
-      this.infantilesDataSource.filter = value;
+      const filterObj = {
+        text: this.searchFilterInfantiles,
+        filterType: this.selectedFilterInfantiles,
+      };
+      this.infantilesDataSource.filter = JSON.stringify(filterObj);
       if (this.infantilesDataSource.paginator) {
         this.infantilesDataSource.paginator.firstPage();
       }
     }
   }
+
+  applyFilter(filterValue: string, tipo: TableKey) {
+    const value = (filterValue || '').trim().toLowerCase();
+
+    if (tipo === 'adultas') {
+      this.searchFilterAdultas = value;
+    } else {
+      this.searchFilterInfantiles = value;
+    }
+
+    this.updateFilters(tipo);
+  }
+
+  onFilterChange(value: string, tipo: TableKey) {
+    if (tipo === 'adultas') {
+      this.selectedFilterAdultas = value;
+    } else {
+      this.selectedFilterInfantiles = value;
+    }
+
+    this.updateFilters(tipo);
+  }
+
+
 }

@@ -121,16 +121,22 @@
 
 <!-- buscador -->
 <ng-template #searchBar let-tipo="tipo">
-    <div class="table-toolbar">
+    <div class="table-toolbar d-flex gap-3 align-items-center flex-wrap">
+
+        <!-- Buscador de texto -->
         <mat-form-field appearance="outline" class="search-field">
             <mat-label>Buscar</mat-label>
             <input #searchInput matInput type="text" (input)="applyFilter($any($event.target).value, tipo)"
-                placeholder="Buscar en la tabla">
+                placeholder="Buscar en la tabla" />
             @if (
-            (tipo === 'adultas' && ((adultasDataSource && adultasDataSource.filter && adultasDataSource.filter.length)
-            || 0) > 0)
+            (tipo === 'adultas' &&
+            ((adultasDataSource &&
+            adultasDataSource.filter &&
+            adultasDataSource.filter.length) || 0) > 0)
             ||
-            (tipo === 'infantiles' && ((infantilesDataSource && infantilesDataSource.filter &&
+            (tipo === 'infantiles' &&
+            ((infantilesDataSource &&
+            infantilesDataSource.filter &&
             infantilesDataSource.filter.length) || 0) > 0)
             ) {
             <button matSuffix mat-icon-button aria-label="Limpiar" type="button"
@@ -138,6 +144,35 @@
                 <mat-icon>close</mat-icon>
             </button>
             }
+        </mat-form-field>
+
+        <!-- Desplegable Filtros -->
+        <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filtros</mat-label>
+            <mat-select [value]="
+          tipo === 'adultas'
+            ? selectedFilterAdultas
+            : selectedFilterInfantiles
+        " (selectionChange)="onFilterChange($event.value, tipo)">
+                <!-- sin filtro -->
+                <mat-option value="">Todos</mat-option>
+
+                <!-- Pendiente = algo por completar -->
+                <mat-option value="pendiente">Tiene documentación pendiente</mat-option>
+
+                <!-- Secciones concretas (clave = nombre de la columna en InfoShowTable) -->
+                <mat-option value="informacionPersonal">Información personal completo</mat-option>
+                <mat-option value="vidaEnFogueres">Vida en fogueres completo</mat-option>
+                <mat-option value="academico">Académico completo</mat-option>
+                <mat-option value="documentacion">Documentación completa</mat-option>
+
+                @if (tipo === 'infantiles') {
+                <mat-option value="responsables">Responsables completo</mat-option>
+                }
+
+                <!-- Todo completo -->
+                <mat-option value="todo">Todo completo</mat-option>
+            </mat-select>
         </mat-form-field>
     </div>
 </ng-template>
