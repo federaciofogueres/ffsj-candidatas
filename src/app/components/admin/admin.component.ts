@@ -445,5 +445,15 @@ export class AdminComponent implements OnInit {
     this.updateFilters(tipo);
   }
 
+  isRowComplete(row: any, tipo: 'adultas' | 'infantiles'): boolean {
+    const columnas =
+      tipo === 'adultas' ? this.columnasAdultas : this.columnasInfantiles;
+
+    // quitar ID y foguera, empezando en index 2
+    const keysToCheck = columnas.slice(2);
+
+    return keysToCheck.every((key) => row[key] === 'Completo');
+  }
+
 
 }

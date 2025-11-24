@@ -54,7 +54,9 @@
 
 
                         <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
-                        <tr mat-row *matRowDef="let row; columns: columnasAdultas;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: columnasAdultas;"
+                            [ngClass]="{ 'row-completa': isRowComplete(row, 'adultas') }"></tr>
+
                     </table>
 
                     <mat-paginator #paginatorAdultas [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
@@ -106,7 +108,9 @@
 
 
                         <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
-                        <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"
+                            [ngClass]="{ 'row-completa': isRowComplete(row, 'infantiles') }"></tr>
+
                     </table>
 
                     <mat-paginator #paginatorInfantiles [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
