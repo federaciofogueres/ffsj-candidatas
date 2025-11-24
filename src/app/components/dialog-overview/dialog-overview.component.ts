@@ -57,14 +57,47 @@ export class DialogOverviewComponent implements OnInit {
   }
 
   downloadFile(url: string, label: string): void {
-    if (!url || !url.includes('https://firebasestorage.googleapis.com')) {
+    const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+    // función para sacar un nombre decente como antes
+    const buildName = (fullUrl: string): string => {
+      const lastPart = decodeURIComponent(fullUrl.split('/').pop()!.split('?')[0]);
+      const dotIndex = lastPart.lastIndexOf('.');
+      const baseName = dotIndex >= 0 ? lastPart.substring(0, dotIndex) : lastPart;
+
+      const baseWithoutId = baseName.replace(/^\d+-/, ''); // quita "79-"
+      const slug = baseWithoutId
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[_]+/g, ' ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      return slug || 'documento';
+    };
+
+    // ---------- PRODUCCIÓN: usar URL directa de Firebase ----------
+    if (!isLocalhost) {
+      const finalName = buildName(url) + '.pdf';
+
+      const a = document.createElement('a');
+      a.href = url;           // 👈 URL directa de Firebase
+      a.target = '_blank';
+      // algunos navegadores ignoran "download" en cross-origin, pero al menos el PDF será correcto
+      a.download = finalName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
+
+    // ---------- DESARROLLO: seguir usando /api + fetch + blob ----------
+    if (!url.includes('https://firebasestorage.googleapis.com')) {
       console.error('URL de descarga no válida:', url);
       return;
     }
 
-    // 1. Construir la URL del proxy (como en tu versión que funcionaba)
     const [, pathPart] = url.split('https://firebasestorage.googleapis.com');
-
     if (!pathPart) {
       console.error('No se pudo extraer la ruta de Firebase de la URL:', url);
       return;
@@ -140,6 +173,7 @@ export class DialogOverviewComponent implements OnInit {
         console.error('Error descargando archivo a través del proxy:', err);
       });
   }
+
 
 
 
