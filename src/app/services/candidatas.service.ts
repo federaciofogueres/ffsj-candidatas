@@ -72,7 +72,7 @@ export class CandidataService {
         try {
             const data = await this.firebaseStorageService.getCollection(collection);
             data.forEach((dataBD: any) => {
-                let candidata: CandidataData = {
+                const candidata: CandidataData = {
                     id: { value: dataBD['id'], required: true },
                     informacionPersonal: {
                         dni: { value: dataBD['dni'], required: true },
@@ -110,7 +110,9 @@ export class CandidataService {
                         nombreTutor2: { value: dataBD['nombreTutor2'], required: false },
                         telefonoTutor1: { value: dataBD['telefonoTutor1'], required: false },
                         telefonoTutor2: { value: dataBD['telefonoTutor2'], required: false }
-                    }
+                    },
+                    // 👇 nuevo campo opcional, leído de Firestore si existe
+                    revisado: dataBD['revisado'] === true
                 };
                 arrayData.push(candidata);
             });
@@ -148,8 +150,13 @@ export class CandidataService {
             this.infantiles = cachedData.infantiles ? cachedData.infantiles : await this.loadFromBD('candidatas/2025/infantiles');
         }
 
-        ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
-        ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
+        // 👉 aquí ya NO intentamos meter 'revisado' en columnas;
+        // esa columna es solo visual y la añade AdminComponent.
+
+        ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } =
+            this.agrupaColumnas('adultas', this.adultas));
+        ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } =
+            this.agrupaColumnas('infantiles', this.infantiles));
 
         this.updateAsociacionValues(this.adultas, this.adultasData);
         this.updateAsociacionValues(this.infantiles, this.infantilesData);
@@ -205,14 +212,21 @@ export class CandidataService {
         });
     }
 
-    updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
+    updateAsociacionValues(data: CandidataData[], infoTabla: InfoShowTable[]): void {
         data.forEach((item, index) => {
-            const asociacion = this.asociaciones.find(asociacion => { return item.vidaEnFogueres.asociacion.value === String(asociacion.id) });
+            const asociacion = this.asociaciones.find(asociacion => {
+                return item.vidaEnFogueres.asociacion.value === String(asociacion.id)
+            });
             if (asociacion) {
                 item.vidaEnFogueres.asociacion_label = { value: asociacion.nombre, required: false };
                 item.vidaEnFogueres.asociacion_order = { value: asociacion['asociacion_order'], required: false };
                 item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
                 item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
+            }
+
+            // sincronizar revisado en la tabla si quieres que se vea directamente
+            if (infoTabla[index]) {
+                infoTabla[index].revisado = !!item.revisado;
             }
         });
     }
@@ -224,17 +238,18 @@ export class CandidataService {
             nuevasColumnas.push('responsables');
             nuevasColumnasText.push('Responsables');
         }
-        let infoTabla: any[] = [];
+        let infoTabla: InfoShowTable[] = [];
         array.sort((a, b) => a.vidaEnFogueres.asociacion.value.localeCompare(b.vidaEnFogueres.asociacion.value))
         array.forEach(c => {
-            let info: InfoShowTable = {
+            const info: InfoShowTable = {
                 id: c.id.value,
                 foguera: this.asociaciones.find(asociacion => { return c.vidaEnFogueres.asociacion.value === String(asociacion.id) })?.nombre || 'Sin datos',
                 informacionPersonal: this.checkCampos(c.informacionPersonal) ? 'Completo' : 'Faltan datos',
                 vidaEnFogueres: this.checkCampos(c.vidaEnFogueres) ? 'Completo' : 'Faltan datos',
                 academico: this.checkCampos(c.academico) ? 'Completo' : 'Faltan datos',
                 documentacion: this.checkCampos(c.documentacion) ? 'Completo' : 'Faltan datos',
-                responsables: this.checkCampos(c.responsables) ? 'Completo' : 'Faltan datos'
+                responsables: this.checkCampos(c.responsables) ? 'Completo' : 'Faltan datos',
+                revisado: !!c.revisado
             }
             infoTabla.push(info);
         })
@@ -248,6 +263,14 @@ export class CandidataService {
             }
             return true;
         });
+    }
+
+    async setRevisado(
+        tipo: 'adultas' | 'infantiles',
+        idAsociado: string,
+        revisado: boolean
+    ): Promise<void> {
+        return this.firebaseStorageService.setRevisado(tipo, idAsociado, revisado);
     }
 
 }

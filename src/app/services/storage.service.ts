@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
+import { collection, doc, Firestore, getDocs, setDoc, updateDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { getDoc } from 'firebase/firestore';
 import { CandidataData } from '../model/candidata-data.model';
@@ -14,7 +14,7 @@ export class FirebaseStorageService {
     private _collection = collection(this._firestore, 'candidatas');
     private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
 
-    constructor() { }
+    constructor(private firestore: Firestore) { }
 
     uploadFile(filePath: string, file: File): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -135,4 +135,14 @@ export class FirebaseStorageService {
             telefonoTutor2: candidata.responsables.telefonoTutor2.value
         }
     };
+
+    async setRevisado(
+        tipoCandidata: 'adultas' | 'infantiles',
+        idAsociado: string,
+        revisado: boolean
+    ): Promise<void> {
+        const path = `candidatas/2025/${tipoCandidata}/${idAsociado}`;
+        const ref = doc(this._firestore, path);
+        await updateDoc(ref, { revisado });
+    }
 }

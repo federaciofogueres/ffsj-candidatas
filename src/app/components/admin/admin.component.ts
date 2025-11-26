@@ -13,7 +13,6 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
-
 import { FormsModule } from '@angular/forms';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { saveAs } from 'file-saver';
@@ -31,6 +30,7 @@ export interface InfoShowTable {
   academico: string;
   documentacion: string;
   responsables?: string;
+  revisado?: boolean;
 }
 
 type TableKey = 'adultas' | 'infantiles';
@@ -81,6 +81,32 @@ export class AdminComponent implements OnInit {
   adultasDataSource = new MatTableDataSource<InfoShowTable>([]);
   infantilesDataSource = new MatTableDataSource<InfoShowTable>([]);
 
+  // columnas de negocio (id, foguera, informacionPersonal, ...)
+  columnasAdultas: string[] = [];
+  columnasInfantiles: string[] = [];
+  columnasAdultasText: string[] = [];
+  columnasInfantilesText: string[] = [];
+
+  // columnas que realmente se muestran en la tabla (incluye 'revisado')
+  displayedColumnsAdultas: string[] = [];
+  displayedColumnsInfantiles: string[] = [];
+
+  selectedTab: TableKey = 'adultas';
+
+  // para el refactor del html
+  tableConfigs: TableConfig[] = [
+    { key: 'adultas', label: 'Adultas' },
+    { key: 'infantiles', label: 'Infantiles' },
+  ];
+
+  // 🔍 filtros de texto
+  searchFilterAdultas = '';
+  searchFilterInfantiles = '';
+
+  // 🎯 filtro de tipo (Todos, Pendiente, informacionPersonal, vidaEnFogueres, ..., todo)
+  selectedFilterAdultas: string = '';
+  selectedFilterInfantiles: string = '';
+
   // paginadores
   @ViewChild('paginatorAdultas')
   set paginatorAdultasSetter(paginator: MatPaginator) {
@@ -111,27 +137,6 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  columnasAdultas: string[] = [];
-  columnasInfantiles: string[] = [];
-  columnasAdultasText: string[] = [];
-  columnasInfantilesText: string[] = [];
-
-  selectedTab: TableKey = 'adultas';
-
-  // para el refactor del html
-  tableConfigs: TableConfig[] = [
-    { key: 'adultas', label: 'Adultas' },
-    { key: 'infantiles', label: 'Infantiles' },
-  ];
-
-  // 🔍 filtros de texto
-  searchFilterAdultas = '';
-  searchFilterInfantiles = '';
-
-  // 🎯 filtro de tipo (Todos, Pendiente, informacionPersonal, vidaEnFogueres, ...)
-  selectedFilterAdultas: string = '';
-  selectedFilterInfantiles: string = '';
-
   constructor(
     public dialog: MatDialog,
     private ffsjAlertService: FfsjAlertService,
@@ -157,6 +162,10 @@ export class AdminComponent implements OnInit {
       this.columnasInfantiles = candidatas.columnasInfantiles;
       this.columnasAdultasText = candidatas.columnasAdultasText;
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
+
+      // columnas realmente mostradas (añadimos 'revisado' solo en la tabla)
+      this.displayedColumnsAdultas = [...this.columnasAdultas, 'revisado'];
+      this.displayedColumnsInfantiles = [...this.columnasInfantiles, 'revisado'];
 
       // ordenar por foguera
       this.adultasData.sort((a, b) =>
@@ -289,7 +298,7 @@ export class AdminComponent implements OnInit {
     // 1. Elegir el array correcto de candidatas
     const dataArray = tipo === 'adultas' ? this.adultas : this.infantiles;
 
-    // Ojo: InfoShowTable.id es string, CandidataData.id.value también (según tu modelo)
+    // InfoShowTable.id es string, CandidataData.id.value también
     const candidata = dataArray.find(c => c.id?.value?.toString() === row.id?.toString());
 
     if (!candidata) {
@@ -325,9 +334,17 @@ export class AdminComponent implements OnInit {
     const workbook: XLSX.WorkBook = { Sheets: {}, SheetNames: [] };
 
     if (option) {
+      // si alguien pasa 'revisado' por código, lo ignoramos
+      if (option === 'revisado') {
+        console.warn('No se genera Excel para el campo revisado');
+        return;
+      }
       this.addSheetToWorkbook(workbook, data, option);
     } else {
-      const keys = Object.keys(data[0]).filter((key) => key !== 'id') as (keyof CandidataData)[];
+      const keys = Object
+        .keys(data[0])
+        .filter((key) => key !== 'id' && key !== 'revisado') as (keyof CandidataData)[];
+
       keys.forEach((key) => {
         this.addSheetToWorkbook(workbook, data, key);
       });
@@ -336,6 +353,7 @@ export class AdminComponent implements OnInit {
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, `candidatas_${option || 'todo'}`);
   }
+
 
   addSheetToWorkbook(workbook: XLSX.WorkBook, data: CandidataData[], key: keyof CandidataData): void {
     const exportData = this.getExportData(data, key);
@@ -360,14 +378,25 @@ export class AdminComponent implements OnInit {
     if (key !== 'vidaEnFogueres') {
       headers.push('Asociación');
     }
-    const obj = (this.selectedTab === 'adultas' ? this.adultas : this.infantiles)[0][key];
+
+    const firstRow = (this.selectedTab === 'adultas' ? this.adultas : this.infantiles)[0];
+
+    const obj: any = firstRow[key];
+
+    // Si no es un objeto (por ejemplo, 'revisado' si alguna vez se cuela), devolvemos solo ID/Asociación
+    if (!obj || typeof obj !== 'object') {
+      return headers;
+    }
+
     for (const k in obj) {
-      if (obj.hasOwnProperty(k)) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) {
         headers.push(LabelsFormulario[k] || k);
       }
     }
+
     return headers;
   }
+
 
   flattenObject(obj: any, parent = '', res: any = {}): any {
     res['ID'] = '';
@@ -445,15 +474,45 @@ export class AdminComponent implements OnInit {
     this.updateFilters(tipo);
   }
 
-  isRowComplete(row: any, tipo: 'adultas' | 'infantiles'): boolean {
+  isRowComplete(row: InfoShowTable, tipo: 'adultas' | 'infantiles'): boolean {
     const columnas =
       tipo === 'adultas' ? this.columnasAdultas : this.columnasInfantiles;
 
     // quitar ID y foguera, empezando en index 2
     const keysToCheck = columnas.slice(2);
 
-    return keysToCheck.every((key) => row[key] === 'Completo');
+    return keysToCheck.every((key) => (row as any)[key] === 'Completo');
   }
 
+  async marcarRevisado(row: InfoShowTable, tipo: TableKey) {
+    const nuevoValor = !row.revisado; // toggle
 
+    try {
+      await this.candidataService.setRevisado(tipo, row.id, nuevoValor);
+      row.revisado = nuevoValor;
+
+      // forzar refresco de datasource
+      if (tipo === 'adultas') {
+        this.adultasDataSource.data = [...this.adultasDataSource.data];
+      } else {
+        this.infantilesDataSource.data = [...this.infantilesDataSource.data];
+      }
+    } catch (e) {
+      console.error('Error actualizando revisado:', e);
+    }
+  }
+
+  getRowClass(row: InfoShowTable, tipo: 'adultas' | 'infantiles'): any {
+    const complete = this.isRowComplete(row, tipo);
+
+    if (row.revisado) {
+      return 'row-verificada';           // revisada manualmente
+    }
+
+    if (complete) {
+      return 'row-completa';             // solo completa automáticamente
+    }
+
+    return '';
+  }
 }

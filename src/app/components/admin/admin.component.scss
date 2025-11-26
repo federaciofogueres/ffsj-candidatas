@@ -126,12 +126,22 @@
     border-radius: 4px;
 }
 
-.row-completa {
-    background-color: #d6f5d6 !important;
-    /* verde muy clarito */
-}
-
 .row-completa:hover {
     background-color: #c2efc2 !important;
     /* un pelín más oscuro al hover */
+}
+
+/* Completa (todos los bloques “Completo”) */
+.row-completa {
+    background-color: #d6f5d6 !important; // verde clarito
+}
+
+/* Revisada (completa + gestión ha dado el OK) */
+.row-verificada {
+    background-color: #c6e7ff !important; // azulito claro (o el color que quieras)
+    font-weight: 500;
+}
+
+.row-verificada:hover {
+    background-color: #b5dbff !important;
 }

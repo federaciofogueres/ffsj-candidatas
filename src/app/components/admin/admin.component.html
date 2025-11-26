@@ -51,12 +51,19 @@
                             </td>
                         </ng-container>
                         }
-
-
-                        <tr mat-header-row *matHeaderRowDef="columnasAdultas"></tr>
-                        <tr mat-row *matRowDef="let row; columns: columnasAdultas;"
-                            [ngClass]="{ 'row-completa': isRowComplete(row, 'adultas') }"></tr>
-
+                        <!-- Columna REVISADO (adultas) -->
+                        <ng-container matColumnDef="revisado">
+                            <th mat-header-cell *matHeaderCellDef> Revisado </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-checkbox [checked]="element.revisado"
+                                    (change)="marcarRevisado(element, 'adultas')">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsAdultas"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsAdultas;"
+                            [ngClass]="getRowClass(row, 'adultas')">
+                        </tr>
                     </table>
 
                     <mat-paginator #paginatorAdultas [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"
@@ -105,12 +112,20 @@
                             </td>
                         </ng-container>
                         }
+                        <!-- Columna REVISADO (infantiles) -->
+                        <ng-container matColumnDef="revisado">
+                            <th mat-header-cell *matHeaderCellDef> Revisado </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-checkbox [checked]="element.revisado"
+                                    (change)="marcarRevisado(element, 'infantiles')">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
 
-
-                        <tr mat-header-row *matHeaderRowDef="columnasInfantiles"></tr>
-                        <tr mat-row *matRowDef="let row; columns: columnasInfantiles;"
-                            [ngClass]="{ 'row-completa': isRowComplete(row, 'infantiles') }"></tr>
-
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsInfantiles"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsInfantiles;"
+                            [ngClass]="getRowClass(row, 'infantiles')">
+                        </tr>
                     </table>
 
                     <mat-paginator #paginatorInfantiles [pageSizeOptions]="[5,10,25,50]" [pageSize]="10"

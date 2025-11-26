@@ -47,6 +47,7 @@ export interface CandidataData {
   academico: Academico;
   documentacion: Documentacion;
   responsables: Responsables;
+  revisado?: boolean;
 }
 
 export interface CampoCandidataData {
