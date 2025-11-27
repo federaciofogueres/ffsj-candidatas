@@ -3,12 +3,12 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { CandidataData } from '../../../model/candidata-data.model';
 
+const DEFAULT_IMAGE_URL = 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png';
+
 @Component({
   selector: 'app-candidata-card',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './candidata-card.component.html',
   styleUrl: './candidata-card.component.scss'
 })
@@ -16,15 +16,8 @@ export class CandidataCardComponent {
 
   @Input() candidataData!: CandidataData;
 
-  // URL de la imagen alternativa
   alternateImageUrl: string = '';
-
-  // Estado de volteo
-  isFlipped: boolean = false;
-
-  // URL de la imagen actual
   currentImage: string = '';
-
   foguera: string = '';
 
   constructor(
@@ -38,21 +31,40 @@ export class CandidataCardComponent {
   }
 
   ngOnInit() {
-    this.currentImage = (this.candidataData.documentacion.fotoBelleza.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza.value;
-    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle.value;
-    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label.value;
+    this.updateCandidataData();
+  }
+
+  private resolveMainImage(): string {
+    const belle = this.candidataData?.documentacion?.fotoBelleza?.value;
+    if (belle && belle.trim() !== '') {
+      return belle;
+    }
+    return DEFAULT_IMAGE_URL;
+  }
+
+  private resolveAlternateImage(): string {
+    const calle = this.candidataData?.documentacion?.fotoCalle?.value;
+    if (calle && calle.trim() !== '') {
+      return calle;
+    }
+    // si no hay foto de calle pero sí de bellesa
+    const belle = this.candidataData?.documentacion?.fotoBelleza?.value;
+    if (belle && belle.trim() !== '') {
+      return belle;
+    }
+    return DEFAULT_IMAGE_URL;
   }
 
   updateCandidataData() {
-    this.currentImage = (this.candidataData.documentacion.fotoBelleza.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza.value;
-    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle.value;
+    this.currentImage = this.resolveMainImage();
+    this.alternateImageUrl = this.resolveAlternateImage();
     this.foguera = this.candidataData.vidaEnFogueres.asociacion_label.value;
   }
 
   toggleImage() {
-    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza.value
-      ? this.candidataData.documentacion.fotoCalle.value
-      : this.candidataData.documentacion.fotoBelleza.value;
+    const main = this.resolveMainImage();
+    const alt = this.resolveAlternateImage();
+    this.currentImage = (this.currentImage === main) ? alt : main;
   }
 
   viewDetails() {

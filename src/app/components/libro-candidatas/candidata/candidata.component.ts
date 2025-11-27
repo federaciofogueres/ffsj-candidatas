@@ -1,14 +1,13 @@
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
-
-
 import { MatTabsModule } from '@angular/material/tabs';
 import { CookieService } from 'ngx-cookie-service';
 import { CandidataData } from '../../../model/candidata-data.model';
 import { FirebaseStorageService } from '../../../services/storage.service';
+
+const DEFAULT_IMAGE_URL = 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png';
 
 @Component({
   selector: 'app-candidata',
@@ -27,21 +26,11 @@ export class CandidataComponent {
 
   candidataData!: CandidataData;
 
-  // URL de la imagen alternativa
   alternateImageUrl: string = '';
-
-  // Estado de volteo
-  isFlipped: boolean = false;
-
-  // URL de la imagen actual
   currentImage: string = '';
 
-  // Anotaciones
   anotaciones: string = '';
-
-  // Indica si es un teléfono
   isTelefono: boolean = false;
-
   idUsuario: string = '';
 
   constructor(
@@ -61,23 +50,55 @@ export class CandidataComponent {
         this.isTelefono = state.matches;
       });
 
-    this.currentImage = this.candidataData.documentacion?.fotoBelleza?.value || '';
-    this.alternateImageUrl = this.candidataData.documentacion?.fotoCalle?.value || '';
+    this.currentImage = this.resolveMainImage();
+    this.alternateImageUrl = this.resolveAlternateImage();
+  }
+
+  private resolveMainImage(): string {
+    const belle = this.candidataData?.documentacion?.fotoBelleza?.value;
+    if (belle && belle.trim() !== '') {
+      return belle;
+    }
+    const calle = this.candidataData?.documentacion?.fotoCalle?.value;
+    if (calle && calle.trim() !== '') {
+      return calle;
+    }
+    return DEFAULT_IMAGE_URL;
+  }
+
+  private resolveAlternateImage(): string {
+    const calle = this.candidataData?.documentacion?.fotoCalle?.value;
+    if (calle && calle.trim() !== '') {
+      return calle;
+    }
+    const belle = this.candidataData?.documentacion?.fotoBelleza?.value;
+    if (belle && belle.trim() !== '') {
+      return belle;
+    }
+    return DEFAULT_IMAGE_URL;
   }
 
   toggleImage() {
-    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza.value
-      ? this.candidataData.documentacion.fotoCalle.value
-      : this.candidataData.documentacion.fotoBelleza.value;
+    const main = this.resolveMainImage();
+    const alt = this.resolveAlternateImage();
+    this.currentImage = (this.currentImage === main) ? alt : main;
   }
 
   saveAnotaciones() {
-    this.firebaseStorageService.addAnotation({ candidata: this.candidataData.id.value, anotacion: this.anotaciones }, this.idUsuario, this.candidataData.id.value);
+    this.firebaseStorageService.addAnotation(
+      { candidata: this.candidataData.id.value, anotacion: this.anotaciones },
+      this.idUsuario,
+      this.candidataData.id.value
+    );
   }
 
   loadAnotation() {
     if (localStorage.getItem('candidatasData')) {
-      this.anotaciones = JSON.parse(localStorage.getItem('candidatasData')!).anotaciones.find((anotacion: any) => anotacion.candidata === this.candidataData.id.value)?.anotacion || '';
+      const data = JSON.parse(localStorage.getItem('candidatasData')!);
+      this.anotaciones =
+        data.anotaciones.find((anotacion: any) =>
+          anotacion.candidata === this.candidataData.id.value
+        )?.anotacion || '';
     }
   }
 

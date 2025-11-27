@@ -11,12 +11,10 @@
             (click)="toggleImage()">
         } @else {
         <div class="col-md-6">
-            <img [src]="candidataData.documentacion.fotoBelleza.value" class="img-fluid rounded-start animated-image"
-                alt="Foto bellesa">
+            <img [src]="currentImage" class="img-fluid rounded-start animated-image" alt="Foto bellesa">
         </div>
         <div class="col-md-6">
-            <img [src]="candidataData.documentacion.fotoCalle.value" class="img-fluid rounded-start animated-image"
-                alt="Foto alternativa">
+            <img [src]="alternateImageUrl" class="img-fluid rounded-start animated-image" alt="Foto alternativa">
         </div>
         }
     </div>
