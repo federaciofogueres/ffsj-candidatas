@@ -20,6 +20,8 @@ import * as XLSX from 'xlsx';
 import { CandidataData, LabelsFormulario } from '../../model/candidata-data.model';
 import { CandidataService } from '../../services/candidatas.service';
 import { Asociacion } from '../../services/external-api/external-api';
+import { HistoricoService } from '../../services/historico.service';
+import { UsuarioService } from '../../services/usuario.service';
 import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
 export interface InfoShowTable {
@@ -140,7 +142,9 @@ export class AdminComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private ffsjAlertService: FfsjAlertService,
-    private candidataService: CandidataService
+    private candidataService: CandidataService,
+    private historicoService: HistoricoService,
+    private usuarioService: UsuarioService
   ) { }
 
   ngOnInit() {
@@ -293,12 +297,9 @@ export class AdminComponent implements OnInit {
     }
   }
 
-
   openDialog(tipo: TableKey, row: InfoShowTable, col: string): void {
-    // 1. Elegir el array correcto de candidatas
     const dataArray = tipo === 'adultas' ? this.adultas : this.infantiles;
 
-    // InfoShowTable.id es string, CandidataData.id.value también
     const candidata = dataArray.find(c => c.id?.value?.toString() === row.id?.toString());
 
     if (!candidata) {
@@ -306,14 +307,12 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    // 2. Sacar la parte del objeto que queremos mostrar (informacionPersonal, vidaEnFogueres, academico, documentacion, responsables...)
     const datos = (candidata as any)[col];
 
     if (!datos) {
       console.warn(`No se encontraron datos para la columna "${col}" en la candidata con id ${row.id}`);
     }
 
-    // 3. Abrir el diálogo
     this.dialog.open(DialogOverviewComponent, {
       data: {
         datos,
@@ -327,7 +326,6 @@ export class AdminComponent implements OnInit {
       panelClass: 'dialog-auto-size',
     });
   }
-
 
   download(option?: keyof CandidataData): void {
     const data = this.selectedTab === 'adultas' ? this.adultas : this.infantiles;
@@ -354,7 +352,6 @@ export class AdminComponent implements OnInit {
     this.saveAsExcelFile(excelBuffer, `candidatas_${option || 'todo'}`);
   }
 
-
   addSheetToWorkbook(workbook: XLSX.WorkBook, data: CandidataData[], key: keyof CandidataData): void {
     const exportData = this.getExportData(data, key);
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
@@ -380,10 +377,8 @@ export class AdminComponent implements OnInit {
     }
 
     const firstRow = (this.selectedTab === 'adultas' ? this.adultas : this.infantiles)[0];
-
     const obj: any = firstRow[key];
 
-    // Si no es un objeto (por ejemplo, 'revisado' si alguna vez se cuela), devolvemos solo ID/Asociación
     if (!obj || typeof obj !== 'object') {
       return headers;
     }
@@ -396,7 +391,6 @@ export class AdminComponent implements OnInit {
 
     return headers;
   }
-
 
   flattenObject(obj: any, parent = '', res: any = {}): any {
     res['ID'] = '';
@@ -487,16 +481,44 @@ export class AdminComponent implements OnInit {
   async marcarRevisado(row: InfoShowTable, tipo: TableKey) {
     const nuevoValor = !row.revisado; // toggle
 
+    // Recuperar la candidata completa a partir de la row
+    const candidata = this.getCandidataByRow(tipo, row);
+    const candidataNombreCompleto =
+      candidata?.informacionPersonal?.nombre?.value || '';
+
     try {
+      // 1️⃣ Actualizar el campo "revisado" en Firestore
       await this.candidataService.setRevisado(tipo, row.id, nuevoValor);
       row.revisado = nuevoValor;
 
-      // forzar refresco de datasource
+      // 2️⃣ Forzar refresco de DataSource (para estilos, etc.)
       if (tipo === 'adultas') {
         this.adultasDataSource.data = [...this.adultasDataSource.data];
       } else {
         this.infantilesDataSource.data = [...this.infantilesDataSource.data];
       }
+
+      // 3️⃣ Registrar en histórico
+      const year = 2025; // o el que uses dinámicamente
+      const usuarioIdNum = this.usuarioService.getIdUsuario();
+      if (usuarioIdNum === null) {
+        console.warn('No se pudo obtener usuarioId para registrar histórico');
+        return;
+      }
+      const usuarioId = usuarioIdNum.toString();
+      const usuarioNombre = await this.usuarioService.getUsuarioNombreCompleto();
+
+      await this.historicoService.registrarEvento({
+        year,
+        tipoCandidata: tipo,
+        usuarioId,
+        usuarioNombre,
+        candidataId: row.id,
+        candidataNombre: candidataNombreCompleto,
+        tipo: 'actualizacion',
+        descripcion: `Marcado revisado = ${nuevoValor ? 'true' : 'false'} desde administración`,
+      });
+
     } catch (e) {
       console.error('Error actualizando revisado:', e);
     }
@@ -515,4 +537,10 @@ export class AdminComponent implements OnInit {
 
     return '';
   }
+
+  private getCandidataByRow(tipo: TableKey, row: InfoShowTable): CandidataData | undefined {
+    const source = tipo === 'adultas' ? this.adultas : this.infantiles;
+    return source.find(c => c.id?.value?.toString() === row.id?.toString());
+  }
+
 }

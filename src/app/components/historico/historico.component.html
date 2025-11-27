@@ -1,0 +1,119 @@
+@if (!loading) {
+<div class="historico-wrapper">
+    <mat-tab-group>
+
+        <!-- TAB ADULTAS -->
+        <mat-tab label="Adultas">
+            <div class="tab-body">
+                @if (eventosAdultas.length > 0) {
+                <div class="log-table">
+                    <!-- Cabecera -->
+                    <div class="log-row log-header">
+                        <div class="col col-id">Id</div>
+                        <div class="col col-status">Status</div>
+                        <div class="col col-user">Usuario</div>
+                        <div class="col col-candidata">Candidata</div>
+                        <div class="col col-msg">Mensaje acción</div>
+                        <div class="col col-date">Fecha</div>
+                    </div>
+
+                    <!-- Filas -->
+                    @for (ev of eventosAdultas; track ev.id) {
+                    <div class="log-row">
+                        <!-- ID (5 caracteres + tooltip con el id completo) -->
+                        <div class="col col-id" [matTooltip]="ev.id || ''" matTooltipPosition="above">
+                            {{ ev.id ? (ev.id | slice:0:5) : '-' }}
+                        </div>
+
+                        <div class="col col-status">
+                            <span class="status-pill" [ngClass]="'status-' + ev.tipo">
+                                {{ ev.tipo }}
+                            </span>
+                        </div>
+
+                        <div class="col col-user" [matTooltip]="ev.usuarioNombre || ''" matTooltipPosition="above">
+                            {{ ev.usuarioId }}
+                        </div>
+
+                        <div class="col col-candidata" [matTooltip]="ev.candidataNombre || ''"
+                            matTooltipPosition="above">
+                            {{ ev.candidataId }}
+                        </div>
+
+                        <div class="col col-msg">
+                            {{ ev.descripcion || ('Acción: ' + ev.tipo) }}
+                        </div>
+
+                        <div class="col col-date">
+                            {{ ev.timestamp | date:'short' }}
+                        </div>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <p>No hay eventos para candidatas adultas.</p>
+                }
+            </div>
+        </mat-tab>
+
+        <!-- TAB INFANTILES -->
+        <mat-tab label="Infantiles">
+            <div class="tab-body">
+                @if (eventosInfantiles.length > 0) {
+                <div class="log-table">
+                    <!-- Cabecera -->
+                    <div class="log-row log-header">
+                        <div class="col col-id">Id</div>
+                        <div class="col col-status">Status</div>
+                        <div class="col col-user">Usuario</div>
+                        <div class="col col-candidata">Candidata</div>
+                        <div class="col col-msg">Mensaje acción</div>
+                        <div class="col col-date">Fecha</div>
+                    </div>
+
+                    <!-- Filas -->
+                    @for (ev of eventosInfantiles; track ev.id) {
+                    <div class="log-row">
+                        <!-- ID (5 caracteres + tooltip con el id completo) -->
+                        <div class="col col-id" [matTooltip]="ev.id || ''" matTooltipPosition="above">
+                            {{ ev.id ? (ev.id | slice:0:5) : '-' }}
+                        </div>
+
+                        <div class="col col-status">
+                            <span class="status-pill" [ngClass]="'status-' + ev.tipo">
+                                {{ ev.tipo }}
+                            </span>
+                        </div>
+
+                        <div class="col col-user" [matTooltip]="ev.usuarioNombre || ''" matTooltipPosition="above">
+                            {{ ev.usuarioId }}
+                        </div>
+
+                        <div class="col col-candidata" [matTooltip]="ev.candidataNombre || ''"
+                            matTooltipPosition="above">
+                            {{ ev.candidataId }}
+                        </div>
+
+                        <div class="col col-msg">
+                            {{ ev.descripcion || ('Acción: ' + ev.tipo) }}
+                        </div>
+
+                        <div class="col col-date">
+                            {{ ev.timestamp | date:'short' }}
+                        </div>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <p>No hay eventos para candidatas infantiles.</p>
+                }
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+</div>
+} @else {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+}

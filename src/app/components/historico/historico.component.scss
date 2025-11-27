@@ -1,0 +1,74 @@
+.historico-wrapper {
+    .tab-body {
+        padding: 1rem;
+    }
+
+    .log-table {
+        font-family: monospace;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .log-row {
+        display: grid;
+        /*      Id     Status  Usuario Candidata Mensaje   Fecha   */
+        grid-template-columns: 120px 130px 160px 160px 1fr 160px;
+        padding: 0.35rem 0.75rem;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        font-size: 0.85rem;
+
+        &:nth-child(odd):not(.log-header) {
+            background-color: #fafafa;
+        }
+    }
+
+    .log-header {
+        background: #f0f0f0;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+
+    .col {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .col-msg {
+        white-space: normal; // permite varias líneas en el mensaje
+    }
+
+    .col-date {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .status-pill {
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .status-creacion {
+        background: #e3f7e5;
+        color: #1b5e20;
+        border: 1px solid #a5d6a7;
+    }
+
+    .status-actualizacion {
+        background: #e3f2fd;
+        color: #0d47a1;
+        border: 1px solid #90caf9;
+    }
+
+    .status-borrado {
+        background: #ffebee;
+        color: #b71c1c;
+        border: 1px solid #ef9a9a;
+    }
+}

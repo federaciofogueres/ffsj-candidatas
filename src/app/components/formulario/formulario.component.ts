@@ -23,6 +23,7 @@ import { CandidataData } from '../../model/candidata-data.model';
 import { CensoService } from '../../services/censo.service';
 import { Asociado } from '../../services/external-api/asociado';
 import { Asociacion, ResponseAsociaciones } from '../../services/external-api/external-api';
+import { HistoricoService } from '../../services/historico.service';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { VisorType } from '../home/home.component';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
@@ -149,7 +150,8 @@ export class FormularioComponent implements OnInit {
     private fb: FormBuilder,
     private firebaseStorageService: FirebaseStorageService,
     private dialog: MatDialog,
-    private dialogAlertService: FfsjDialogAlertService
+    private dialogAlertService: FfsjDialogAlertService,
+    private historicoService: HistoricoService
   ) { }
 
   async ngOnInit() {
@@ -511,6 +513,23 @@ export class FormularioComponent implements OnInit {
     try {
       await this.firebaseStorageService.addCandidata(candidata);
       console.log('Candidata publicada en Firestore');
+
+      // 🔥 Registrar en histórico
+      const tipoCandidata = this.personalInfo.get('tipoCandidata')?.value as 'adultas' | 'infantiles';
+      const year = 2025; // o bien saca esto de una constante/config
+
+      const esActualizacion = this.loadedFromFirebase;
+
+      await this.historicoService.registrarEvento({
+        year,
+        tipoCandidata,
+        usuarioId: this.asociado.id.toString(),    // usuario que ha hecho el cambio
+        candidataId: this.asociado.id.toString(),  // id de la candidata (mismo id asociado)
+        tipo: esActualizacion ? 'actualizacion' : 'creacion',
+        descripcion: esActualizacion
+          ? 'Actualización de datos de candidatura desde formulario público'
+          : 'Creación de candidatura desde formulario público'
+      });
 
       this.dialog.open(ResultDialogComponent, {
         data: { message: 'El formulario se ha enviado correctamente.' }
