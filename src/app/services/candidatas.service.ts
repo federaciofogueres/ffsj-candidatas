@@ -72,6 +72,9 @@ export class CandidataService {
         try {
             const data = await this.firebaseStorageService.getCollection(collection);
             data.forEach((dataBD: any) => {
+                const revisadoObj = dataBD['revisado'];
+                const revisadoStatus = revisadoObj?.status === true;
+
                 const candidata: CandidataData = {
                     id: { value: dataBD['id'], required: true },
                     informacionPersonal: {
@@ -112,7 +115,7 @@ export class CandidataService {
                         telefonoTutor2: { value: dataBD['telefonoTutor2'], required: false }
                     },
                     // 👇 nuevo campo opcional, leído de Firestore si existe
-                    revisado: dataBD['revisado'] === true
+                    revisado: revisadoStatus
                 };
                 arrayData.push(candidata);
             });
@@ -267,10 +270,19 @@ export class CandidataService {
 
     async setRevisado(
         tipo: 'adultas' | 'infantiles',
-        idAsociado: string,
-        revisado: boolean
+        idCandidata: string,
+        status: boolean
     ): Promise<void> {
-        return this.firebaseStorageService.setRevisado(tipo, idAsociado, revisado);
+        // idUsuario del usuario logueado (ya usas esto en otros métodos)
+        const idAsociado = this.getIdUsuario();
+
+        const revisionData = {
+            idAsociado,                        // id del usuario que hace la marca
+            timestamp: new Date().toISOString(), // fecha/hora del cambio
+            status                              // true/false
+        };
+
+        return this.firebaseStorageService.setRevisado(tipo, idCandidata, revisionData);
     }
 
 }

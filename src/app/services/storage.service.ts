@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, doc, Firestore, getDocs, setDoc, updateDoc } from '@angular/fire/firestore';
+import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { getDoc } from 'firebase/firestore';
 import { CandidataData } from '../model/candidata-data.model';
@@ -137,12 +137,19 @@ export class FirebaseStorageService {
     };
 
     async setRevisado(
-        tipoCandidata: 'adultas' | 'infantiles',
-        idAsociado: string,
-        revisado: boolean
+        tipo: 'adultas' | 'infantiles',
+        idCandidata: string,
+        revisionData: { idAsociado: number; timestamp: string; status: boolean }
     ): Promise<void> {
-        const path = `candidatas/2025/${tipoCandidata}/${idAsociado}`;
-        const ref = doc(this._firestore, path);
-        await updateDoc(ref, { revisado });
+        const docRef = doc(this._firestore, `candidatas/2025/${tipo}/${idCandidata}`);
+
+        // Guardamos el objeto completo en el campo "revisado"
+        await setDoc(
+            docRef,
+            { revisado: revisionData },
+            { merge: true }
+        );
     }
+
+
 }
