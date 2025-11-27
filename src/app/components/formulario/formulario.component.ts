@@ -518,18 +518,22 @@ export class FormularioComponent implements OnInit {
       const tipoCandidata = this.personalInfo.get('tipoCandidata')?.value as 'adultas' | 'infantiles';
       const year = 2025; // o bien saca esto de una constante/config
 
-      const esActualizacion = this.loadedFromFirebase;
+      const candidataNombre =
+        (this.personalInfo.get('nombre')?.value as string | undefined) || '';
 
       await this.historicoService.registrarEvento({
         year,
         tipoCandidata,
-        usuarioId: this.asociado.id.toString(),    // usuario que ha hecho el cambio
-        candidataId: this.asociado.id.toString(),  // id de la candidata (mismo id asociado)
-        tipo: esActualizacion ? 'actualizacion' : 'creacion',
-        descripcion: esActualizacion
-          ? 'Actualización de datos de candidatura desde formulario público'
-          : 'Creación de candidatura desde formulario público'
+        usuarioId: this.asociado.id.toString(),
+        usuarioNombre: `${this.asociado.nombre.toString()} ${this.asociado.apellidos.toString()}`,
+        candidataId: this.asociado.id.toString(),
+        candidataNombre, // ✅ nunca undefined
+        tipo: this.loadedFromFirebase ? 'actualizacion' : 'creacion',
+        descripcion: this.loadedFromFirebase
+          ? 'Actualización de datos desde formulario'
+          : 'Creación de candidata desde formulario',
       });
+
 
       this.dialog.open(ResultDialogComponent, {
         data: { message: 'El formulario se ha enviado correctamente.' }
