@@ -623,32 +623,49 @@ export class FormularioComponent implements OnInit {
   }
 
   tipoCandidataValidator(personalInfo: AbstractControl): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const tipoCandidata = personalInfo.get('tipoCandidata')?.value;
-      const situacionLaboral = control.get('situacionLaboral');
-      const aficiones = control.get('aficiones');
+    return (academicInfo: AbstractControl): ValidationErrors | null => {
+      const tipo = personalInfo.get('tipoCandidata')?.value;
+      const situacionLaboral = academicInfo.get('situacionLaboral');
+      const aficiones = academicInfo.get('aficiones');
 
-      if (tipoCandidata === 'adultas') {
-        if (!situacionLaboral?.value) {
-          situacionLaboral?.setErrors({ required: true });
-          aficiones?.setErrors(null);
+      if (!situacionLaboral || !aficiones) return null;
+
+      // --- ADULTAS ---
+      if (tipo === 'adultas') {
+        // aficiones no es obligatorio → limpiar error
+        aficiones.setErrors(null);
+
+        // situacionLaboral sí es obligatorio → validar aquí
+        if (!situacionLaboral.value) {
+          situacionLaboral.setErrors({ required: true });
+          return { academicInvalid: true };
         } else {
-          situacionLaboral?.setErrors(null);
+          situacionLaboral.setErrors(null);
         }
+
+        return null;
       }
 
-      if (tipoCandidata === 'infantiles') {
-        if (!aficiones?.value) {
-          aficiones?.setErrors({ required: true });
-          situacionLaboral?.setErrors(null);
+      // --- INFANTILES ---
+      if (tipo === 'infantiles') {
+        // situacionLaboral NO es obligatorio → limpiar error
+        situacionLaboral.setErrors(null);
+
+        // aficiones sí es obligatorio
+        if (!aficiones.value) {
+          aficiones.setErrors({ required: true });
+          return { academicInvalid: true };
         } else {
-          aficiones?.setErrors(null);
+          aficiones.setErrors(null);
         }
+
+        return null;
       }
 
       return null;
     };
   }
+
 
   toggleObservaciones(event: any) {
     const observacionesControl = this.academicInfo.get('observaciones');
