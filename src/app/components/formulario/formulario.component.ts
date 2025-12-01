@@ -534,9 +534,12 @@ export class FormularioComponent implements OnInit {
           : 'Creación de candidata desde formulario',
       });
 
-
       this.dialog.open(ResultDialogComponent, {
-        data: { message: 'El formulario se ha enviado correctamente.' }
+        data: {
+          success: true,
+          title: 'Formulario enviado correctamente',
+          message: 'Tu información se ha guardado correctamente. La Federació revisará la documentación y, si es necesario, se pondrá en contacto contigo.'
+        }
       });
     } catch (error) {
       console.error('Error publicando candidata en Firestore:', error);
@@ -726,6 +729,85 @@ export class FormularioComponent implements OnInit {
     });
   }
 
+  private markFormGroupTouched(control: AbstractControl) {
+    if (control instanceof FormGroup) {
+      Object.values(control.controls).forEach(c => this.markFormGroupTouched(c));
+    } else {
+      control.markAsTouched();
+    }
+  }
 
+  private buildErrorsArray(): string[] {
+    const messages: string[] = [];
+
+    const tipo = this.personalInfo.get('tipoCandidata')?.value;
+
+    if (this.personalInfo.invalid) {
+      messages.push('Datos personales incompletos o con errores.');
+    }
+
+    if (tipo === 'infantiles' && this.responsableInfo.invalid) {
+      messages.push('Información del responsable incompleta o con errores.');
+    }
+
+    if (this.fogueresInfo.invalid) {
+      messages.push('Datos de la fiesta incompletos o con errores.');
+    }
+
+    if (this.academicInfo.invalid) {
+      messages.push('Formación e información adicional incompletas o con errores.');
+    }
+
+    if (this.documentacionForm.invalid) {
+      messages.push('Documentación: revisa que todos los documentos se han subido correctamente y pesan menos de 5MB.');
+    }
+
+    if (!messages.length) {
+      messages.push('Hay errores en el formulario. Revisa los datos introducidos.');
+    }
+
+    return messages;
+  }
+
+  onSubmit() {
+    // Marcar todos los controles como tocados para que se vean los errores
+    this.markFormGroupTouched(this.personalInfo);
+    this.markFormGroupTouched(this.fogueresInfo);
+    this.markFormGroupTouched(this.academicInfo);
+    this.markFormGroupTouched(this.documentacionForm);
+
+    const tipo = this.personalInfo.get('tipoCandidata')?.value;
+
+    if (tipo === 'infantiles') {
+      this.markFormGroupTouched(this.responsableInfo);
+    }
+
+    // Comprobamos si hay errores en alguno de los bloques
+    const hasErrors =
+      this.personalInfo.invalid ||
+      this.fogueresInfo.invalid ||
+      this.academicInfo.invalid ||
+      this.documentacionForm.invalid ||
+      (this.personalInfo.get('tipoCandidata')?.value === 'infantiles' &&
+        this.responsableInfo.invalid);
+
+    if (hasErrors) {
+      const errores = this.buildErrorsArray();
+
+      this.dialog.open(ResultDialogComponent, {
+        data: {
+          success: false,
+          title: 'No se pudo enviar el formulario',
+          message: 'Hay errores en el formulario. Revisa los siguientes apartados:',
+          errors: errores
+        }
+      });
+
+      return;
+    }
+
+    // Si todo está correcto, procesamos normalmente
+    this.procesar();
+  }
 
 }

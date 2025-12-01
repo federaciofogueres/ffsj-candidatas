@@ -1,6 +1,50 @@
 <div class="container">
-    <h2 mat-dialog-title>Resultado del envío</h2>
-    <div mat-dialog-content>
-        <p>{{ data.message }}</p>
-    </div>
+
+    <h2 mat-dialog-title>
+        @if(data.success === false) {
+        <mat-icon color="warn" class="dialog-icon">
+            error_outline
+        </mat-icon>
+        }
+        @if(data.success === true) {
+        <mat-icon color="primary" class="dialog-icon">
+            check_circle
+        </mat-icon>
+        }
+
+        <mat-icon *ngIf="data.success === true" color="primary" class="dialog-icon">
+            check_circle
+        </mat-icon>
+
+        {{ data.title || (data.success ? 'Operación correcta' : 'Resultado del envío') }}
+    </h2>
+
+    <mat-dialog-content>
+        @if(data.message) {
+        <p cdkAriaLive="result-intro">
+            {{ data.message }}
+        </p>
+        }
+
+        <!-- Lista de errores con icono -->
+        @if(data.errors?.length) {
+        <ul class="error-list">
+            @for(err of data.errors; track $index) {
+            <li>
+                <mat-icon color="warn" class="error-icon">error</mat-icon>
+                <span>{{ err }}</span>
+            </li>
+            }
+        </ul>
+
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button type="submit" mat-dialog-close class="btn btn-primary btn-foc-rojo w-100">
+            Cerrar
+        </button>
+    </mat-dialog-actions>
+
+
 </div>
