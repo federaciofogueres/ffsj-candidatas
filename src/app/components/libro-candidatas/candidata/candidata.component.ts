@@ -32,6 +32,7 @@ export class CandidataComponent {
   anotaciones: string = '';
   isTelefono: boolean = false;
   idUsuario: string = '';
+  curriculumEntries: Array<{ cargo: string; comienzo: string; final: string }> = [];
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -52,6 +53,9 @@ export class CandidataComponent {
 
     this.currentImage = this.resolveMainImage();
     this.alternateImageUrl = this.resolveAlternateImage();
+    this.curriculumEntries = this.parseCurriculumEntries(
+      this.candidataData?.vidaEnFogueres?.curriculum?.value
+    );
   }
 
   private resolveMainImage(): string {
@@ -100,6 +104,47 @@ export class CandidataComponent {
           anotacion.candidata === this.candidataData.id.value
         )?.anotacion || '';
     }
+  }
+
+  formatCurriculumYears(entry: { comienzo: string; final: string }): string {
+    if (!entry.comienzo && !entry.final) {
+      return '';
+    }
+    if (entry.comienzo === entry.final || !entry.final) {
+      return `Año ${entry.comienzo}`;
+    }
+    if (!entry.comienzo) {
+      return `Hasta ${entry.final}`;
+    }
+    return `Años ${entry.comienzo} - ${entry.final}`;
+  }
+
+  private parseCurriculumEntries(raw: string | unknown): Array<{ cargo: string; comienzo: string; final: string }> {
+    if (!raw) {
+      return [];
+    }
+    if (Array.isArray(raw)) {
+      return raw.map((item: any) => ({
+        cargo: item?.cargo ?? '',
+        comienzo: item?.comienzo ?? '',
+        final: item?.final ?? ''
+      }));
+    }
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any) => ({
+            cargo: item?.cargo ?? '',
+            comienzo: item?.comienzo ?? '',
+            final: item?.final ?? ''
+          }));
+        }
+      } catch {
+        return [];
+      }
+    }
+    return [];
   }
 
 }

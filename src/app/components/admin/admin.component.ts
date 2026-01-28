@@ -22,6 +22,7 @@ import { CandidataService } from '../../services/candidatas.service';
 import { Asociacion } from '../../services/external-api/external-api';
 import { HistoricoService } from '../../services/historico.service';
 import { UsuarioService } from '../../services/usuario.service';
+import { AdminEditDialogComponent } from './admin-edit-dialog/admin-edit-dialog.component';
 import { DialogOverviewComponent } from '../dialog-overview/dialog-overview.component';
 
 export interface InfoShowTable {
@@ -62,7 +63,8 @@ const EXCEL_TYPE =
     MatButtonModule,
     MatSortModule,
     MatSelectModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    AdminEditDialogComponent
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -168,8 +170,8 @@ export class AdminComponent implements OnInit {
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
 
       // columnas realmente mostradas (añadimos 'revisado' solo en la tabla)
-      this.displayedColumnsAdultas = [...this.columnasAdultas, 'revisado'];
-      this.displayedColumnsInfantiles = [...this.columnasInfantiles, 'revisado'];
+      this.displayedColumnsAdultas = [...this.columnasAdultas, 'revisado', 'acciones'];
+      this.displayedColumnsInfantiles = [...this.columnasInfantiles, 'revisado', 'acciones'];
 
       // ordenar por foguera
       this.adultasData.sort((a, b) =>
@@ -422,6 +424,26 @@ export class AdminComponent implements OnInit {
   editElement(element: any) {
     console.log(element);
     this.ffsjAlertService.warning('Esta funcionalidad no está disponible de momento.');
+  }
+
+  openEditDialog(tipo: TableKey, row: InfoShowTable): void {
+    const candidata = this.getCandidataByRow(tipo, row);
+
+    if (!candidata) {
+      console.error('No se encontró la candidata para editar', row);
+      return;
+    }
+
+    this.dialog.open(AdminEditDialogComponent, {
+      data: {
+        candidata
+      },
+      width: '95vw',
+      maxWidth: '1200px',
+      maxHeight: '95vh',
+      autoFocus: false,
+      panelClass: 'admin-edit-dialog'
+    });
   }
 
   private updateFilters(tipo: TableKey) {

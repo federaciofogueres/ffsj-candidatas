@@ -28,14 +28,27 @@
                             <span><b>Fecha nacimiento:
                                 </b>{{candidataData.informacionPersonal.fechaNacimiento.value}}</span>
                             <span><b>Edad: </b>{{candidataData.informacionPersonal.edad.value}} años</span>
-                            <span><b>Ciudad: </b>{{candidataData.informacionPersonal.ciudad.value}}</span>
                         </div>
                         <hr>
                         <div class="d-flex flex-column">
                             <span class="h2">Información de la fiesta</span>
                             <span><b>Años en la fiesta: </b>{{candidataData.vidaEnFogueres.anyosFiesta.value}}
                                 años</span>
-                            <span><b>Curriculum festero: </b>{{candidataData.vidaEnFogueres.curriculum.value}}</span>
+                            <div class="curriculum-block">
+                                <span class="curriculum-title"><b>Curriculum festero</b></span>
+                                @if (curriculumEntries.length) {
+                                <div class="curriculum-list">
+                                    @for (entry of curriculumEntries; track $index) {
+                                    <div class="curriculum-item">
+                                        <div class="curriculum-role">{{ entry.cargo | titlecase }}</div>
+                                        <div class="curriculum-years">{{ formatCurriculumYears(entry) }}</div>
+                                    </div>
+                                    }
+                                </div>
+                                } @else {
+                                <span class="text-muted">Sin datos</span>
+                                }
+                            </div>
                         </div>
                         <hr>
                         <div class="d-flex flex-column">

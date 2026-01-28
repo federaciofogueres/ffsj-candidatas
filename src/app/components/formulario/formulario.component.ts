@@ -62,6 +62,12 @@ export class FormularioComponent implements OnInit {
   @Input()
   asociado!: Asociado;
 
+  @Input()
+  candidataData?: CandidataData;
+
+  @Input()
+  adminMode: boolean = false;
+
   @Output()
   cambioVisor: EventEmitter<VisorType> = new EventEmitter<VisorType>();
 
@@ -156,10 +162,21 @@ export class FormularioComponent implements OnInit {
 
   async ngOnInit() {
     this.loading = true;
+    if (!this.visor) {
+      this.visor = 'formulario';
+    }
     try {
       await this.loadAsociaciones();
-      await this.getAsociacion();
-      await this.loadInitialData();  // 👈 NUEVO
+      if (this.candidataData) {
+        this.ensureAsociadoFromCandidata(this.candidataData);
+        this.loadCandidataDataOnForm(this.candidataData);
+        this.loadedFromFirebase = true;
+      } else if (this.asociado) {
+        await this.getAsociacion();
+        await this.loadInitialData();  // 👈 NUEVO
+      } else {
+        console.error('No se proporcionó asociado ni datos de candidata.');
+      }
 
       this.academicInfo.get('observaciones')?.disable();
     } catch (error) {
@@ -245,6 +262,61 @@ export class FormularioComponent implements OnInit {
     };
   }
 
+  private loadCandidataDataOnForm(data: CandidataData) {
+    this.defaultAsociacionId = Number(data.vidaEnFogueres.asociacion.value) || -1;
+
+    this.personalInfo.patchValue({
+      dni: data.informacionPersonal.dni.value || '',
+      nombre: data.informacionPersonal.nombre.value || '',
+      fechaNacimiento: data.informacionPersonal.fechaNacimiento.value || '',
+      ciudad: data.informacionPersonal.ciudad.value || '',
+      telefono: data.informacionPersonal.telefono.value || '',
+      email: data.informacionPersonal.email.value || '',
+      tipoCandidata: data.informacionPersonal.tipoCandidata.value || ''
+    });
+
+    this.fogueresInfo.patchValue({
+      asociacion: this.defaultAsociacionId,
+      anyosFiesta: data.vidaEnFogueres.anyosFiesta.value || '',
+      curriculum: {
+        cargo: '',
+        comienzo: '',
+        final: ''
+      }
+    });
+
+    try {
+      this.cargos = data.vidaEnFogueres.curriculum.value
+        ? JSON.parse(data.vidaEnFogueres.curriculum.value)
+        : [];
+    } catch {
+      this.cargos = [];
+    }
+
+    this.academicInfo.patchValue({
+      formacion: data.academico.formacion.value || '',
+      situacionLaboral: data.academico.situacionLaboral.value || '',
+      observaciones: data.academico.observaciones.value || '',
+      aficiones: data.academico.aficiones.value || ''
+    });
+
+    this.responsableInfo.patchValue({
+      nombreTutor1: data.responsables.nombreTutor1.value || '',
+      nombreTutor2: data.responsables.nombreTutor2.value || '',
+      telefonoTutor1: data.responsables.telefonoTutor1.value || '',
+      telefonoTutor2: data.responsables.telefonoTutor2.value || ''
+    });
+
+    this.existingDocuments = {
+      autorizacionFoguera: data.documentacion.autorizacionFoguera.value || null,
+      compromisoDisponibilidad: data.documentacion.compromisoDisponibilidad.value || null,
+      derechosAutor: data.documentacion.derechosAutor.value || null,
+      dniEscaneado: data.documentacion.dniEscaneado.value || null,
+      fotoBelleza: data.documentacion.fotoBelleza.value || null,
+      fotoCalle: data.documentacion.fotoCalle.value || null
+    };
+  }
+
 
 
   loadAsociaciones(): Promise<void> {
@@ -325,6 +397,27 @@ export class FormularioComponent implements OnInit {
       observaciones: ''
     });
 
+  }
+
+  private ensureAsociadoFromCandidata(data: CandidataData) {
+    if (this.asociado) {
+      return;
+    }
+    const nombreCompleto = data.informacionPersonal.nombre.value || '';
+    const partesNombre = nombreCompleto.split(' ').filter(Boolean);
+    const nombre = partesNombre.shift() || nombreCompleto || '';
+    const apellidos = partesNombre.join(' ');
+    this.asociado = {
+      id: Number(data.id.value) || -1,
+      nif: data.informacionPersonal.dni.value || '',
+      nombre,
+      apellidos,
+      telefono: data.informacionPersonal.telefono.value || '',
+      email: data.informacionPersonal.email.value || '',
+      direccion: data.informacionPersonal.ciudad.value || '',
+      ['fecha_nacimiento']: data.informacionPersonal.fechaNacimiento.value || '',
+      fechaNacimiento: data.informacionPersonal.fechaNacimiento.value || ''
+    } as Asociado;
   }
 
   dniValidator(control: AbstractControl): { [key: string]: any } | null {

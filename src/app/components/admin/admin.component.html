@@ -60,6 +60,16 @@
                                 </mat-checkbox>
                             </td>
                         </ng-container>
+                        <!-- Columna ACCIONES (adultas) -->
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button class="edit-icon"
+                                    (click)="openEditDialog('adultas', element)" aria-label="Editar candidata">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumnsAdultas"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumnsAdultas;"
                             [ngClass]="getRowClass(row, 'adultas')">
@@ -119,6 +129,16 @@
                                 <mat-checkbox [checked]="element.revisado"
                                     (change)="marcarRevisado(element, 'infantiles')">
                                 </mat-checkbox>
+                            </td>
+                        </ng-container>
+                        <!-- Columna ACCIONES (infantiles) -->
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button class="edit-icon"
+                                    (click)="openEditDialog('infantiles', element)" aria-label="Editar candidata">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
                             </td>
                         </ng-container>
 

@@ -15,3 +15,34 @@
     height: calc(100% - 120px);
     overflow: auto;
 }
+
+.curriculum-block {
+    margin-top: 0.5rem;
+}
+
+.curriculum-title {
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.curriculum-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.curriculum-item {
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    background: #fff8f0;
+    border: 1px solid rgba(230, 126, 34, 0.2);
+}
+
+.curriculum-role {
+    font-weight: 600;
+    color: #d35400;
+}
+
+.curriculum-years {
+    font-size: 0.9rem;
+    color: #6b6b6b;
+}

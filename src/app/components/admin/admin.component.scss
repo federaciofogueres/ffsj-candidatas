@@ -107,6 +107,16 @@
     color: #d35400;
 }
 
+.edit-icon {
+    color: #2c3e50;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.edit-icon:hover {
+    color: #1f2d3a;
+    transform: scale(1.05);
+}
+
 .text-verde {
     color: #28a745;
 }
