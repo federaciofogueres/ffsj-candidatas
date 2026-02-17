@@ -51,6 +51,15 @@
                             </td>
                         </ng-container>
                         }
+                        <!-- Columna OPTA (adultas) -->
+                        <ng-container matColumnDef="opta">
+                            <th mat-header-cell *matHeaderCellDef> Opta </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-checkbox [checked]="element.opta !== false"
+                                    (change)="marcarOpta(element, 'adultas', $event.checked)">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
                         <!-- Columna REVISADO (adultas) -->
                         <ng-container matColumnDef="revisado">
                             <th mat-header-cell *matHeaderCellDef> Revisado </th>
@@ -122,6 +131,15 @@
                             </td>
                         </ng-container>
                         }
+                        <!-- Columna OPTA (infantiles) -->
+                        <ng-container matColumnDef="opta">
+                            <th mat-header-cell *matHeaderCellDef> Opta </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-checkbox [checked]="element.opta !== false"
+                                    (change)="marcarOpta(element, 'infantiles', $event.checked)">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
                         <!-- Columna REVISADO (infantiles) -->
                         <ng-container matColumnDef="revisado">
                             <th mat-header-cell *matHeaderCellDef> Revisado </th>

@@ -69,10 +69,13 @@ export class LibroCandidatasComponent {
       this.columnasAdultasText = candidatas.columnasAdultasText;
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
 
+      const adultasOptantes = this.adultas.filter((c) => c.opta !== false);
+      const infantilesOptantes = this.infantiles.filter((c) => c.opta !== false);
+
       if (this.cookieService.get('juradoAdulto') === 'true') {
-        this.candidatas = this.adultas;
+        this.candidatas = adultasOptantes;
       } else if (this.cookieService.get('juradoInfantil') === 'true') {
-        this.candidatas = this.infantiles
+        this.candidatas = infantilesOptantes;
       } else {
         this.candidatas = [];
       }

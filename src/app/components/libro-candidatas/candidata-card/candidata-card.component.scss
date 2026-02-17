@@ -29,10 +29,13 @@
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
+    z-index: 3;
 }
 
 .image-candidata {
     height: 250px;
+    position: relative;
+    overflow: hidden;
 }
 
 .data-candidata {

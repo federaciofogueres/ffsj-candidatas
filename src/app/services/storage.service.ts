@@ -132,7 +132,8 @@ export class FirebaseStorageService {
             nombreTutor1: candidata.responsables.nombreTutor1.value,
             nombreTutor2: candidata.responsables.nombreTutor2.value,
             telefonoTutor1: candidata.responsables.telefonoTutor1.value,
-            telefonoTutor2: candidata.responsables.telefonoTutor2.value
+            telefonoTutor2: candidata.responsables.telefonoTutor2.value,
+            opta: candidata.opta ?? true
         }
     };
 
@@ -147,6 +148,21 @@ export class FirebaseStorageService {
         await setDoc(
             docRef,
             { revisado: revisionData },
+            { merge: true }
+        );
+    }
+
+    async setOpta(
+        tipo: 'adultas' | 'infantiles',
+        idCandidata: string,
+        status: boolean,
+        year: number
+    ): Promise<void> {
+        const docRef = doc(this._firestore, `candidatas/${year}/${tipo}/${idCandidata}`);
+
+        await setDoc(
+            docRef,
+            { opta: status },
             { merge: true }
         );
     }

@@ -58,6 +58,7 @@ export class CandidataService {
             data.forEach((dataBD: any) => {
                 const revisadoObj = dataBD["revisado"];
                 const revisadoStatus = revisadoObj?.status === true;
+                const optaStatus = dataBD["opta"] !== false;
 
                 const candidata: CandidataData = {
                     id: { value: dataBD["id"], required: true },
@@ -99,6 +100,7 @@ export class CandidataService {
                         telefonoTutor2: { value: dataBD["telefonoTutor2"], required: false },
                     },
                     revisado: revisadoStatus,
+                    opta: optaStatus,
                 };
                 arrayData.push(candidata);
             });
@@ -246,6 +248,7 @@ export class CandidataService {
             // sincronizar revisado en la tabla
             if (infoTabla[index]) {
                 infoTabla[index].revisado = !!item.revisado;
+                infoTabla[index].opta = item.opta !== false;
             }
         });
     }
@@ -305,6 +308,7 @@ export class CandidataService {
                         ? "Completo"
                         : "Faltan datos",
                     revisado: !!c.revisado,
+                    opta: c.opta !== false,
                 };
                 infoTabla.push(info);
             });
@@ -343,5 +347,14 @@ export class CandidataService {
             idCandidata,
             revisionData
         );
+    }
+
+    async setOpta(
+        tipo: "adultas" | "infantiles",
+        idCandidata: string,
+        status: boolean,
+        year: number
+    ): Promise<void> {
+        return this.firebaseStorageService.setOpta(tipo, idCandidata, status, year);
     }
 }

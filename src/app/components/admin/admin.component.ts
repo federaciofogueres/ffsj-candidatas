@@ -33,6 +33,7 @@ export interface InfoShowTable {
   academico: string;
   documentacion: string;
   responsables?: string;
+  opta?: boolean;
   revisado?: boolean;
 }
 
@@ -170,8 +171,8 @@ export class AdminComponent implements OnInit {
       this.columnasInfantilesText = candidatas.columnasInfantilesText;
 
       // columnas realmente mostradas (añadimos 'revisado' solo en la tabla)
-      this.displayedColumnsAdultas = [...this.columnasAdultas, 'revisado', 'acciones'];
-      this.displayedColumnsInfantiles = [...this.columnasInfantiles, 'revisado', 'acciones'];
+      this.displayedColumnsAdultas = [...this.columnasAdultas, 'opta', 'revisado', 'acciones'];
+      this.displayedColumnsInfantiles = [...this.columnasInfantiles, 'opta', 'revisado', 'acciones'];
 
       // ordenar por foguera
       this.adultasData.sort((a, b) =>
@@ -335,15 +336,15 @@ export class AdminComponent implements OnInit {
 
     if (option) {
       // si alguien pasa 'revisado' por código, lo ignoramos
-      if (option === 'revisado') {
-        console.warn('No se genera Excel para el campo revisado');
+      if (option === 'revisado' || option === 'opta') {
+        console.warn('No se genera Excel para campos de control');
         return;
       }
       this.addSheetToWorkbook(workbook, data, option);
     } else {
       const keys = Object
         .keys(data[0])
-        .filter((key) => key !== 'id' && key !== 'revisado') as (keyof CandidataData)[];
+        .filter((key) => key !== 'id' && key !== 'revisado' && key !== 'opta') as (keyof CandidataData)[];
 
       keys.forEach((key) => {
         this.addSheetToWorkbook(workbook, data, key);
@@ -524,7 +525,7 @@ export class AdminComponent implements OnInit {
       const year = 2025; // o el que uses dinámicamente
       const usuarioIdNum = this.usuarioService.getIdUsuario();
       if (usuarioIdNum === null) {
-        console.warn('No se pudo obtener usuarioId para registrar histórico');
+        console.warn('No se pudo obtener usuarioId para registrar historico');
         return;
       }
       const usuarioId = usuarioIdNum.toString();
@@ -543,6 +544,50 @@ export class AdminComponent implements OnInit {
 
     } catch (e) {
       console.error('Error actualizando revisado:', e);
+    }
+  }
+
+  async marcarOpta(row: InfoShowTable, tipo: TableKey, nuevoValor: boolean) {
+    const candidata = this.getCandidataByRow(tipo, row);
+    const candidataNombreCompleto =
+      candidata?.informacionPersonal?.nombre?.value || '';
+    const year = 2025; // o el que uses dinamicamente
+
+    try {
+      await this.candidataService.setOpta(tipo, row.id, nuevoValor, year);
+      row.opta = nuevoValor;
+
+      if (candidata) {
+        candidata.opta = nuevoValor;
+      }
+
+      if (tipo === 'adultas') {
+        this.adultasDataSource.data = [...this.adultasDataSource.data];
+      } else {
+        this.infantilesDataSource.data = [...this.infantilesDataSource.data];
+      }
+
+      const usuarioIdNum = this.usuarioService.getIdUsuario();
+      if (usuarioIdNum === null) {
+        console.warn('No se pudo obtener usuarioId para registrar historico');
+        return;
+      }
+      const usuarioId = usuarioIdNum.toString();
+      const usuarioNombre = await this.usuarioService.getUsuarioNombreCompleto();
+
+      await this.historicoService.registrarEvento({
+        year,
+        tipoCandidata: tipo,
+        usuarioId,
+        usuarioNombre,
+        candidataId: row.id,
+        candidataNombre: candidataNombreCompleto,
+        tipo: 'actualizacion',
+        descripcion: `Marcado opta = ${nuevoValor ? 'true' : 'false'} desde administracion`,
+      });
+
+    } catch (e) {
+      console.error('Error actualizando opta:', e);
     }
   }
 
@@ -566,3 +611,4 @@ export class AdminComponent implements OnInit {
   }
 
 }
+
